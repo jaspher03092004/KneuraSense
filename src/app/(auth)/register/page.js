@@ -8,6 +8,7 @@ import { registerUser } from '@/actions/register';
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
+    role: 'Patient',
     fullName: '',
     age: '',
     gender: 'Male',
@@ -20,6 +21,7 @@ export default function RegisterPage() {
     painSeverity: 5,
     occupation: 'Retired',
     activityLevel: 'Moderate',
+    specialization: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -61,6 +63,13 @@ export default function RegisterPage() {
 
     if (!agreeToTerms) {
       newErrors.terms = 'You must agree to the terms and privacy policy';
+    }
+
+    // Clinician-specific validation
+    if (formData.role === 'Clinician') {
+      if (!formData.specialization || !formData.specialization.trim()) {
+        newErrors.specialization = 'Specialization is required for clinicians';
+      }
     }
 
     setErrors(newErrors);
@@ -126,6 +135,35 @@ export default function RegisterPage() {
 
         {/* Registration Form */}
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Role Selection */}
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Account Type</label>
+            <div className="flex gap-6">
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="role"
+                  value="Patient"
+                  checked={formData.role === 'Patient'}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-gray-700">Patient</span>
+              </label>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="role"
+                  value="Clinician"
+                  checked={formData.role === 'Clinician'}
+                  onChange={handleChange}
+                  className="w-4 h-4 text-blue-600"
+                />
+                <span className="text-gray-700">Clinician</span>
+              </label>
+            </div>
+          </div>
+
           {/* Personal Information Section */}
           <div className="border-b pb-8">
             <div className="flex items-center mb-6">
@@ -457,10 +495,37 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
 
-          {/* Knee Health History Section */}
-          <div className="border-b pb-8">
+            {/* Clinician-specific Section */}
+            {formData.role === 'Clinician' && (
+              <div className="border-b pb-8">
+                <div className="flex items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-800">Clinician Details</h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Specialization <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      name="specialization"
+                      value={formData.specialization}
+                      onChange={handleChange}
+                      placeholder="e.g. Orthopedic Specialist"
+                      className={`w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 ${
+                        errors.specialization ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                    />
+                    {errors.specialization && <p className="text-red-500 text-xs mt-1">{errors.specialization}</p>}
+                  </div>
+                </div>
+              </div>
+            )}
+
+          {/* Knee Health History Section (Patients only) */}
+          {formData.role === 'Patient' && (
+            <div className="border-b pb-8">
             <div className="flex items-center mb-6">
               <svg
                 className="w-6 h-6 text-blue-600 mr-3"
@@ -643,7 +708,8 @@ export default function RegisterPage() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          )}
 
           {/* Terms and Conditions */}
           <div>

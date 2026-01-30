@@ -10,7 +10,7 @@ export default async function PatientDashboard({ params }) {
 
   try {
     // Fetch patient data server-side
-    patient = await prisma.user.findUnique({
+    patient = await prisma.patient.findUnique({
       where: { id },
       select: {
         id: true,

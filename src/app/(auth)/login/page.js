@@ -23,8 +23,12 @@ export default function LoginPage() {
       const result = await login(email, password);
 
       if (result.success) {
-        // Redirect to patient dashboard with user ID
-        router.push(`/patient/${result.userId}/dashboard`);
+        // Redirect based on role
+        if (result.role === 'clinician') {
+          router.push(`/clinician/${result.userId}/dashboard`);
+        } else {
+          router.push(`/patient/${result.userId}/dashboard`);
+        }
       } else {
         setError(result.error || 'Login failed. Please try again.');
       }

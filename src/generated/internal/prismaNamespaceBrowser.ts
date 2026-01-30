@@ -51,7 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User'
+  Patient: 'Patient',
+  Clinician: 'Clinician'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -70,14 +71,14 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const UserScalarFieldEnum = {
+export const PatientScalarFieldEnum = {
   id: 'id',
   fullName: 'fullName',
   age: 'age',
   gender: 'gender',
   phoneNumber: 'phoneNumber',
   email: 'email',
-  password: 'password',
+  passwordHash: 'passwordHash',
   oaDiagnosis: 'oaDiagnosis',
   affectedKnee: 'affectedKnee',
   painSeverity: 'painSeverity',
@@ -87,7 +88,20 @@ export const UserScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
+
+
+export const ClinicianScalarFieldEnum = {
+  clinician_id: 'clinician_id',
+  full_name: 'full_name',
+  email: 'email',
+  password_hash: 'password_hash',
+  specialization: 'specialization',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -104,4 +118,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
