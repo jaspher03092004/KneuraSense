@@ -5,50 +5,37 @@ import bcrypt from 'bcryptjs';
 
 export async function login(email, password) {
   try {
-    // Validate inputs
     if (!email || !password) {
-      return {
-        success: false,
-        error: 'Email and password are required.',
-      };
+      return { success: false, error: 'Email and password are required.' };
     }
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const lookupEmail = email.trim().toLowerCase();
 
-    if (!user) {
-      return {
-        success: false,
-        error: 'Invalid email or password.',
-      };
+    // Try clinician first
+    const clinician = await prisma.clinician.findUnique({ where: { email: lookupEmail } });
+    if (clinician) {
+      const ok = await bcrypt.compare(password, clinician.password_hash);
+      if (!ok) return { success: false, error: 'Invalid email or password.' };
+
+      return { success: true, userId: clinician.clinician_id, role: 'clinician', message: 'Login successful' };
     }
 
-    // Compare passwords
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    // Try patient
+    const patient = await prisma.patient.findUnique({ where: { email: lookupEmail } });
+    if (patient) {
+      const ok = await bcrypt.compare(password, patient.passwordHash);
+      if (!ok) return { success: false, error: 'Invalid email or password.' };
 
-    if (!isPasswordValid) {
-      return {
-        success: false,
-        error: 'Invalid email or password.',
-      };
+      return { success: true, userId: patient.id, role: 'patient', message: 'Login successful' };
     }
 
-    // Password is valid - you can now create a session or JWT token
-    // This is a placeholder for your authentication logic
-    return {
-      success: true,
-      userId: user.id,
-      message: 'Login successful',
-      // You should implement proper session management here
-      // e.g., using next-auth, JWT, or server sessions
-    };
+    return { success: false, error: 'Invalid email or password.' };
   } catch (error) {
     console.error('Login error:', error);
-    return {
-      success: false,
-      error: 'An error occurred during login. Please try again.',
-    };
+    if (process.env.NODE_ENV === 'production') {
+      return { success: false, error: 'An error occurred during login. Please try again.' };
+    }
+
+    return { success: false, error: `Login failed: ${error?.message || String(error)}` };
   }
 }
