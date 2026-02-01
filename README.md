@@ -217,7 +217,8 @@ pm run dev -- -p 3001\
 ### Prisma client issues
 - Regenerate the client: \
 px prisma generate\
-- Clear cache: \m -r node_modules/.prisma\ then \
+- Clear cache: \
+m -r node_modules/.prisma\ then \
 pm install\
 
 ---
@@ -251,7 +252,5 @@ pm install\** after pulling new changes
 px prisma db push\ to sync schema changes
 - **Keep dependencies updated**: Run \
 pm update\ periodically (with caution)
-
----
 
 Happy coding!  If you have questions or run into issues, reach out to the team.
