@@ -29,11 +29,13 @@ export type AggregatePatient = {
 export type PatientAvgAggregateOutputType = {
   age: number | null
   painSeverity: number | null
+  vibrationIntensity: number | null
 }
 
 export type PatientSumAggregateOutputType = {
   age: number | null
   painSeverity: number | null
+  vibrationIntensity: number | null
 }
 
 export type PatientMinAggregateOutputType = {
@@ -51,6 +53,10 @@ export type PatientMinAggregateOutputType = {
   activityLevel: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  lastPasswordChange: Date | null
+  vibrationEnabled: boolean | null
+  vibrationIntensity: number | null
+  ledEnabled: boolean | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -68,6 +74,10 @@ export type PatientMaxAggregateOutputType = {
   activityLevel: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  lastPasswordChange: Date | null
+  vibrationEnabled: boolean | null
+  vibrationIntensity: number | null
+  ledEnabled: boolean | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -85,6 +95,10 @@ export type PatientCountAggregateOutputType = {
   activityLevel: number
   createdAt: number
   updatedAt: number
+  lastPasswordChange: number
+  vibrationEnabled: number
+  vibrationIntensity: number
+  ledEnabled: number
   _all: number
 }
 
@@ -92,11 +106,13 @@ export type PatientCountAggregateOutputType = {
 export type PatientAvgAggregateInputType = {
   age?: true
   painSeverity?: true
+  vibrationIntensity?: true
 }
 
 export type PatientSumAggregateInputType = {
   age?: true
   painSeverity?: true
+  vibrationIntensity?: true
 }
 
 export type PatientMinAggregateInputType = {
@@ -114,6 +130,10 @@ export type PatientMinAggregateInputType = {
   activityLevel?: true
   createdAt?: true
   updatedAt?: true
+  lastPasswordChange?: true
+  vibrationEnabled?: true
+  vibrationIntensity?: true
+  ledEnabled?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -131,6 +151,10 @@ export type PatientMaxAggregateInputType = {
   activityLevel?: true
   createdAt?: true
   updatedAt?: true
+  lastPasswordChange?: true
+  vibrationEnabled?: true
+  vibrationIntensity?: true
+  ledEnabled?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -148,6 +172,10 @@ export type PatientCountAggregateInputType = {
   activityLevel?: true
   createdAt?: true
   updatedAt?: true
+  lastPasswordChange?: true
+  vibrationEnabled?: true
+  vibrationIntensity?: true
+  ledEnabled?: true
   _all?: true
 }
 
@@ -252,6 +280,10 @@ export type PatientGroupByOutputType = {
   activityLevel: string | null
   createdAt: Date
   updatedAt: Date
+  lastPasswordChange: Date | null
+  vibrationEnabled: boolean
+  vibrationIntensity: number
+  ledEnabled: boolean
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -292,6 +324,10 @@ export type PatientWhereInput = {
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
+  lastPasswordChange?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
+  vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
 }
 
 export type PatientOrderByWithRelationInput = {
@@ -309,6 +345,10 @@ export type PatientOrderByWithRelationInput = {
   activityLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastPasswordChange?: Prisma.SortOrderInput | Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientWhereUniqueInput = Prisma.AtLeast<{
@@ -329,6 +369,10 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
+  lastPasswordChange?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
+  vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
 }, "id" | "phoneNumber" | "email">
 
 export type PatientOrderByWithAggregationInput = {
@@ -346,6 +390,10 @@ export type PatientOrderByWithAggregationInput = {
   activityLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastPasswordChange?: Prisma.SortOrderInput | Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -371,6 +419,10 @@ export type PatientScalarWhereWithAggregatesInput = {
   activityLevel?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
+  lastPasswordChange?: Prisma.DateTimeNullableWithAggregatesFilter<"Patient"> | Date | string | null
+  vibrationEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntWithAggregatesFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
 }
 
 export type PatientCreateInput = {
@@ -388,6 +440,10 @@ export type PatientCreateInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  lastPasswordChange?: Date | string | null
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
 }
 
 export type PatientUncheckedCreateInput = {
@@ -405,6 +461,10 @@ export type PatientUncheckedCreateInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  lastPasswordChange?: Date | string | null
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
 }
 
 export type PatientUpdateInput = {
@@ -422,6 +482,10 @@ export type PatientUpdateInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastPasswordChange?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientUncheckedUpdateInput = {
@@ -439,6 +503,10 @@ export type PatientUncheckedUpdateInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastPasswordChange?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientCreateManyInput = {
@@ -456,6 +524,10 @@ export type PatientCreateManyInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  lastPasswordChange?: Date | string | null
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -473,6 +545,10 @@ export type PatientUpdateManyMutationInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastPasswordChange?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientUncheckedUpdateManyInput = {
@@ -490,6 +566,10 @@ export type PatientUncheckedUpdateManyInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastPasswordChange?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientCountOrderByAggregateInput = {
@@ -507,11 +587,16 @@ export type PatientCountOrderByAggregateInput = {
   activityLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastPasswordChange?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
   age?: Prisma.SortOrder
   painSeverity?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
 }
 
 export type PatientMaxOrderByAggregateInput = {
@@ -529,6 +614,10 @@ export type PatientMaxOrderByAggregateInput = {
   activityLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastPasswordChange?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -546,11 +635,16 @@ export type PatientMinOrderByAggregateInput = {
   activityLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  lastPasswordChange?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
   painSeverity?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
 }
 
 export type StringFieldUpdateOperationsInput = {
@@ -577,6 +671,18 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 
 
 export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -594,6 +700,10 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastPasswordChange?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -611,6 +721,10 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastPasswordChange?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -628,6 +742,10 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastPasswordChange?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectScalar = {
@@ -645,9 +763,13 @@ export type PatientSelectScalar = {
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  lastPasswordChange?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "lastPasswordChange" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled", ExtArgs["result"]["patient"]>
 
 export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Patient"
@@ -667,6 +789,10 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     activityLevel: string | null
     createdAt: Date
     updatedAt: Date
+    lastPasswordChange: Date | null
+    vibrationEnabled: boolean
+    vibrationIntensity: number
+    ledEnabled: boolean
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1104,6 +1230,10 @@ export interface PatientFieldRefs {
   readonly activityLevel: Prisma.FieldRef<"Patient", 'String'>
   readonly createdAt: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Patient", 'DateTime'>
+  readonly lastPasswordChange: Prisma.FieldRef<"Patient", 'DateTime'>
+  readonly vibrationEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly vibrationIntensity: Prisma.FieldRef<"Patient", 'Int'>
+  readonly ledEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
 }
     
 
