@@ -205,7 +205,7 @@ Opens a web UI to view and edit your database.
 npx prisma db push --force-reset
 ```
 
-⚠️ **Warning:** This deletes all data in the database.
+**Warning:** This deletes all data in the database.
 
 ---
 
@@ -263,4 +263,4 @@ npm install
 * Use `npx prisma db push` for schema changes
 * Update dependencies carefully
 
-Happy coding! 🚀
+Happy coding!
