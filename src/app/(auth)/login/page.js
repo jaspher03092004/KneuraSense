@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // Added useEffect
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/actions/login';
@@ -14,15 +14,33 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // 1. Load saved email from localStorage on component mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      const result = await login(email, password);
+      // 2. Pass rememberMe state to the server action
+      // (Ensure your login action is updated to accept this 3rd argument if you want persistent sessions)
+      const result = await login(email, password, rememberMe);
 
       if (result.success) {
+        // 3. Handle LocalStorage logic on success
+        if (rememberMe) {
+          localStorage.setItem('rememberedEmail', email);
+        } else {
+          localStorage.removeItem('rememberedEmail');
+        }
+
         // Redirect based on role
         if (result.role === 'clinician') {
           router.push(`/clinician/${result.userId}/dashboard`);
@@ -247,7 +265,7 @@ export default function LoginPage() {
           <div className="mt-8 pt-6 border-t border-gray-200 text-center">
             <p className="text-gray-600 text-sm mb-2">New to Kneurasense?</p>
             <p className="text-gray-600 text-sm">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" className="text-blue-600 hover:text-blue-700 font-semibold">
                 Register here
               </Link>
