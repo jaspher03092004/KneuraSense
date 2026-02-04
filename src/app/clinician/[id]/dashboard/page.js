@@ -9,6 +9,19 @@ function getRiskStatus(painSeverity) {
   return 'Stable';
 }
 
+const Breadcrumb = ({ items }) => (
+  <nav className="flex items-center space-x-2 mb-6">
+    {items.map((item, index) => (
+      <div key={index} className="flex items-center">
+        {index > 0 && <span className="text-gray-400 mx-2">/</span>}
+        <span className={index === items.length - 1 ? 'text-gray-700 font-semibold' : 'text-blue-600'}>
+          {item}
+        </span>
+      </div>
+    ))}
+  </nav>
+);
+
 export default async function ClinicianDashboard({ params }) {
   const { id } = await params;
 

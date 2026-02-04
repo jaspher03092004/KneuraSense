@@ -10,7 +10,10 @@ import {
   User,
   Settings,
   HelpCircle,
-  LogOut 
+  LogOut,
+  BarChart3,
+  Shield,
+  FileText
 } from 'lucide-react';
 
 const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
@@ -36,7 +39,10 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     if (path) router.push(path);
   };
 
-  const mainMenuItems = [
+  const isClinic = user?.role === 'CLINICIAN' || user?.role === 'Clinician';
+
+  // Patient menu items
+  const patientMainMenuItems = [
     { 
       icon: Activity, 
       label: 'Live Dashboard', 
@@ -45,20 +51,19 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     { 
       icon: TrendingUp, 
       label: 'History & Trends', 
-      href: `/patient/${user?.id}/history` // Ensure you create this folder later if needed
+      href: `/patient/${user?.id}/history`
     },          
     { 
       icon: ListTodo, 
       label: 'Activity Recommendations', 
-      href: `/patient/${user?.id}/activity` // Ensure you create this folder later if needed
+      href: `/patient/${user?.id}/activity`
     },    
   ];
 
-  const managementItems = [
+  const patientManagementItems = [
     { 
       icon: User, 
       label: 'My Profile', 
-      // 👇 IMPORTANT: This must match your folder name "myProfile"
       href: `/patient/${user?.id}/myProfile` 
     },
     { 
@@ -72,6 +77,49 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
       href: '/help' 
     },
   ];
+
+  // Clinician menu items
+  const clinicianMainMenuItems = [
+    { 
+      icon: Activity, 
+      label: 'Patient Dashboard', 
+      href: `/clinician/${user?.id}/dashboard` 
+    },
+    { 
+      icon: BarChart3, 
+      label: 'Data Analytics', 
+      href: `/clinician/${user?.id}/analytics` 
+    },          
+    { 
+      icon: ListTodo, 
+      label: 'Interventions', 
+      href: `/clinician/${user?.id}/interventions` 
+    },    
+  ];
+
+  const clinicianManagementItems = [
+    { 
+      icon: Shield, 
+      label: 'System Management', 
+      href: `/clinician/${user?.id}/system-management` 
+    },
+    { 
+      icon: FileText, 
+      label: 'Reports', 
+      href: `/clinician/${user?.id}/reports` 
+    },
+    { 
+      icon: Settings, 
+      label: 'Settings', 
+      href: `/clinician/${user?.id}/settings` 
+    },
+  ];
+
+  const mainMenuItems = isClinic ? clinicianMainMenuItems : patientMainMenuItems;
+  const managementItems = isClinic ? clinicianManagementItems : patientManagementItems;
+  
+  const overviewLabel = isClinic ? 'OVERVIEW' : 'MONITORING';
+  const administrationLabel = isClinic ? 'ADMINISTRATION' : 'MANAGEMENT';
 
   const isActive = (path) => pathname === path;
 
@@ -106,7 +154,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
           <div className={`text-xs font-semibold text-[#2C3E50] mb-3 uppercase tracking-wider overflow-hidden transition-all duration-300 whitespace-nowrap ${
             isExpanded ? 'opacity-60 h-auto pl-2' : 'opacity-0 h-0 pl-0'
           }`}>
-            Monitoring
+            {overviewLabel}
           </div>
           <nav className="space-y-1">
             {mainMenuItems.map((item, index) => (
@@ -140,7 +188,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
           <div className={`text-xs font-semibold text-[#2C3E50] mb-3 uppercase tracking-wider overflow-hidden transition-all duration-300 whitespace-nowrap ${
             isExpanded ? 'opacity-60 h-auto pl-2' : 'opacity-0 h-0 pl-0'
           }`}>
-            Management
+            {administrationLabel}
           </div>
           <nav className="space-y-1">
             {managementItems.map((item, index) => {
