@@ -3,30 +3,20 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation'; 
 import { 
-  // Patient Icons
   Activity,
   TrendingUp,   
   ListTodo,
-  
-  // Clinician Icons
-  LayoutDashboard, 
-  BarChart3,    
-  MessageSquarePlus,
-  Settings, 
-  FileText,
-  UserCog,
-  
-  // Common Icons
+  BarChart3,
   ChevronDown,
-  LogOut,
+  User,
+  Settings,
   HelpCircle,
   LogOut,
-  BarChart3,
   Shield,
   FileText
 } from 'lucide-react';
 
-const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
+const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
@@ -87,14 +77,6 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
       label: 'Help & Support', 
       href: '/help' 
     },
-    {
-      sectionTitle: "ADMINISTRATION",
-      items: [
-        { icon: Settings, label: 'System Management', href: `/clinician/${user?.id}/system` },
-        { icon: FileText, label: 'Reports', href: `/clinician/${user?.id}/reports` },
-        { icon: UserCog, label: 'Settings', href: `/clinician/${user?.id}/settings` },
-      ]
-    }
   ];
 
   // Clinician menu items
@@ -161,8 +143,8 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2D5F8B] to-[#3A9D8C] flex items-center justify-center flex-shrink-0 shadow-sm">
             <span className="text-white font-bold text-xl">K</span>
           </div>
-          <div className={`flex flex-col ml-3 overflow-hidden transition-all duration-300 ${
-              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
+          <span className={`text-[#2D5F8B] font-semibold text-base whitespace-nowrap overflow-hidden transition-all duration-300 ${
+              isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
             }`}>
             KneuraSense
           </span>
@@ -175,6 +157,31 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
           }`}>
             {overviewLabel}
           </div>
+          <nav className="space-y-1">
+            {mainMenuItems.map((item, index) => (
+              <button
+                key={index}
+                onClick={() => handleNavigation(item.href)}
+                className={`w-full flex items-center py-3 px-3 rounded-lg transition-all duration-200 group relative ${
+                  isExpanded ? 'justify-start' : 'justify-center'
+                } ${
+                  hoveredItem === index || isActive(item.href) ? 'bg-[#E8F4F8] text-[#2D5F8B]' : 'text-[#2C3E50]'
+                }`}
+                onMouseEnter={() => setHoveredItem(index)}
+                onMouseLeave={() => setHoveredItem(null)}
+              >
+                <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[#2D5F8B] transition-all duration-200 ${
+                   hoveredItem === index || isActive(item.href) ? 'opacity-100' : 'opacity-0'
+                }`} />
+                <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors duration-200`} strokeWidth={2} />
+                <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${
+                  isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+                }`}>
+                  {item.label}
+                </span>
+              </button>
+            ))}
+          </nav>
         </div>
 
         {/* MANAGEMENT SECTION */}
@@ -215,9 +222,8 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
               })}
             </nav>
           </div>
-        ))}
 
-        {/* USER PROFILE SECTION (Footer) */}
+        {/* USER PROFILE SECTION */}
         <div className="mt-auto pt-6 border-t border-gray-200 relative">
           
           {/* Dropdown Menu */}
@@ -253,10 +259,10 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
                  isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
               }`}>
               <span className="text-sm font-semibold text-[#2C3E50] whitespace-nowrap">
-                {user?.fullName || 'Dr. User'}
+                {user?.fullName || 'User'}
               </span>
               <span className="text-xs text-[#95A5A6] whitespace-nowrap">
-                {role === 'clinician' ? 'Orthopedic Specialist' : (user?.email || 'No Email')}
+                {user?.email || 'No Email'}
               </span>
             </div>
             
