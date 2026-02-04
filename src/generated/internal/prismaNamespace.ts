@@ -606,7 +606,11 @@ export const PatientScalarFieldEnum = {
   occupation: 'occupation',
   activityLevel: 'activityLevel',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  lastPasswordChange: 'lastPasswordChange',
+  vibrationEnabled: 'vibrationEnabled',
+  vibrationIntensity: 'vibrationIntensity',
+  ledEnabled: 'ledEnabled'
 } as const
 
 export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
