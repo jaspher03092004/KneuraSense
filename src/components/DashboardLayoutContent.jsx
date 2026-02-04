@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Sidebar from '@/components/Usidebar';
+import Sidebar from '@/components/sidebar';
 
 export default function DashboardLayoutContent({ children, user }) {
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
