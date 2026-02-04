@@ -20,7 +20,10 @@ import {
   ChevronDown,
   LogOut,
   HelpCircle,
-  User
+  LogOut,
+  BarChart3,
+  Shield,
+  FileText
 } from 'lucide-react';
 
 const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
@@ -47,37 +50,42 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
     if (path) router.push(path);
   };
 
-  // --- 1. Define Menus based on Role ---
+  const isClinic = user?.role === 'CLINICIAN' || user?.role === 'Clinician';
 
-  // Patient Configuration
-  const patientMenuStructure = [
-    {
-      sectionTitle: "Monitoring",
-      items: [
-        { icon: Activity, label: 'Live Dashboard', href: `/patient/${user?.id}/dashboard` },
-        { icon: TrendingUp, label: 'History & Trends', href: `/patient/${user?.id}/history` },          
-        { icon: ListTodo, label: 'Activity Recommendations', href: `/patient/${user?.id}/activity` },    
-      ]
+  // Patient menu items
+  const patientMainMenuItems = [
+    { 
+      icon: Activity, 
+      label: 'Live Dashboard', 
+      href: `/patient/${user?.id}/dashboard` 
     },
-    {
-      sectionTitle: "Management",
-      items: [
-        { icon: User, label: 'My Profile', href: `/patient/${user?.id}/myProfile` },
-        { icon: Settings, label: 'Settings', href: `/patient/${user?.id}/settings` },
-        { icon: HelpCircle, label: 'Help & Support', href: '/help' },
-      ]
-    }
+    { 
+      icon: TrendingUp, 
+      label: 'History & Trends', 
+      href: `/patient/${user?.id}/history`
+    },          
+    { 
+      icon: ListTodo, 
+      label: 'Activity Recommendations', 
+      href: `/patient/${user?.id}/activity`
+    },    
   ];
 
-  // Clinician Configuration
-  const clinicianMenuStructure = [
-    {
-      sectionTitle: "OVERVIEW",
-      items: [
-        { icon: LayoutDashboard, label: 'Patient Dashboard', href: `/clinician/${user?.id}/dashboard` },
-        { icon: BarChart3, label: 'Data Analytics', href: `/clinician/${user?.id}/analytics` },          
-        { icon: MessageSquarePlus, label: 'Interventions', href: `/clinician/${user?.id}/interventions` },    
-      ]
+  const patientManagementItems = [
+    { 
+      icon: User, 
+      label: 'My Profile', 
+      href: `/patient/${user?.id}/myProfile` 
+    },
+    { 
+      icon: Settings, 
+      label: 'Settings', 
+      href: `/patient/${user?.id}/settings` 
+    },
+    { 
+      icon: HelpCircle, 
+      label: 'Help & Support', 
+      href: '/help' 
     },
     {
       sectionTitle: "ADMINISTRATION",
@@ -89,8 +97,49 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
     }
   ];
 
-  // Select the correct structure
-  const menuStructure = role === 'clinician' ? clinicianMenuStructure : patientMenuStructure;
+  // Clinician menu items
+  const clinicianMainMenuItems = [
+    { 
+      icon: Activity, 
+      label: 'Patient Dashboard', 
+      href: `/clinician/${user?.id}/dashboard` 
+    },
+    { 
+      icon: BarChart3, 
+      label: 'Data Analytics', 
+      href: `/clinician/${user?.id}/analytics` 
+    },          
+    { 
+      icon: ListTodo, 
+      label: 'Interventions', 
+      href: `/clinician/${user?.id}/interventions` 
+    },    
+  ];
+
+  const clinicianManagementItems = [
+    { 
+      icon: Shield, 
+      label: 'System Management', 
+      href: `/clinician/${user?.id}/system-management` 
+    },
+    { 
+      icon: FileText, 
+      label: 'Reports', 
+      href: `/clinician/${user?.id}/reports` 
+    },
+    { 
+      icon: Settings, 
+      label: 'Settings', 
+      href: `/clinician/${user?.id}/settings` 
+    },
+  ];
+
+  const mainMenuItems = isClinic ? clinicianMainMenuItems : patientMainMenuItems;
+  const managementItems = isClinic ? clinicianManagementItems : patientManagementItems;
+  
+  const overviewLabel = isClinic ? 'OVERVIEW' : 'MONITORING';
+  const administrationLabel = isClinic ? 'ADMINISTRATION' : 'MANAGEMENT';
+
   const isActive = (path) => pathname === path;
 
   return (
@@ -115,47 +164,44 @@ const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
           <div className={`flex flex-col ml-3 overflow-hidden transition-all duration-300 ${
               isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
             }`}>
-            <span className="text-[#2D5F8B] font-bold text-base whitespace-nowrap">
-              KneuraSense
-            </span>
-            {/* Show 'Clinician Portal' subtitle if role is clinician */}
-            {role === 'clinician' && (
-              <span className="text-slate-400 text-[10px] font-medium uppercase tracking-wider">
-                Clinician Portal
-              </span>
-            )}
+            KneuraSense
+          </span>
+        </div>
+
+        {/* MAIN MENU */}
+        <div className="mb-6">
+          <div className={`text-xs font-semibold text-[#2C3E50] mb-3 uppercase tracking-wider overflow-hidden transition-all duration-300 whitespace-nowrap ${
+            isExpanded ? 'opacity-60 h-auto pl-2' : 'opacity-0 h-0 pl-0'
+          }`}>
+            {overviewLabel}
           </div>
         </div>
 
-        {/* DYNAMIC MENU RENDERING */}
-        {menuStructure.map((section, sectionIndex) => (
-          <div key={sectionIndex} className="mb-6">
-            <div className={`text-xs font-bold text-[#94A3B8] mb-3 uppercase tracking-wider overflow-hidden transition-all duration-300 whitespace-nowrap ${
-              isExpanded ? 'opacity-100 h-auto pl-2' : 'opacity-0 h-0 pl-0'
-            }`}>
-              {section.sectionTitle}
-            </div>
-            <nav className="space-y-1">
-              {section.items.map((item, itemIndex) => {
-                // Create a unique key for hover state tracking
-                const uniqueKey = `${sectionIndex}-${itemIndex}`;
-                
-                return (
-                  <button
-                    key={uniqueKey}
-                    onClick={() => handleNavigation(item.href)}
-                    className={`w-full flex items-center py-3 px-3 rounded-lg transition-all duration-200 group relative ${
-                      isExpanded ? 'justify-start' : 'justify-center'
-                    } ${
-                      hoveredItem === uniqueKey || isActive(item.href) ? 'bg-[#E8F4F8] text-[#2D5F8B]' : 'text-[#64748B]'
-                    }`}
-                    onMouseEnter={() => setHoveredItem(uniqueKey)}
-                    onMouseLeave={() => setHoveredItem(null)}
-                  >
-                    {/* Active/Hover Indicator Line */}
-                    <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[#2D5F8B] transition-all duration-200 ${
-                       hoveredItem === uniqueKey || isActive(item.href) ? 'opacity-100' : 'opacity-0'
-                    }`} />
+        {/* MANAGEMENT SECTION */}
+        <div className="mb-6">
+          <div className={`text-xs font-semibold text-[#2C3E50] mb-3 uppercase tracking-wider overflow-hidden transition-all duration-300 whitespace-nowrap ${
+            isExpanded ? 'opacity-60 h-auto pl-2' : 'opacity-0 h-0 pl-0'
+          }`}>
+            {administrationLabel}
+          </div>
+          <nav className="space-y-1">
+            {managementItems.map((item, index) => {
+              const itemIndex = index + mainMenuItems.length;
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleNavigation(item.href)}
+                  className={`w-full flex items-center py-3 px-3 rounded-lg transition-all duration-200 group relative ${
+                    isExpanded ? 'justify-start' : 'justify-center'
+                  } ${
+                    hoveredItem === itemIndex || isActive(item.href) ? 'bg-[#E8F4F8] text-[#2D5F8B]' : 'text-[#2C3E50]'
+                  }`}
+                  onMouseEnter={() => setHoveredItem(itemIndex)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                >
+                   <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[#2D5F8B] transition-all duration-200 ${
+                   hoveredItem === itemIndex || isActive(item.href) ? 'opacity-100' : 'opacity-0'
+                }`} />
 
                     <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors duration-200`} strokeWidth={2} />
                     
