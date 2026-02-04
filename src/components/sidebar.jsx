@@ -79,7 +79,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     { 
       icon: HelpCircle, 
       label: 'Help & Support', 
-      href: '/help' 
+      href: `/patient/${user?.id}/help`
     },
   ];
 
