@@ -3,12 +3,22 @@
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation'; 
 import { 
+  // Patient Icons
   Activity,
   TrendingUp,   
-  ListTodo,     
+  ListTodo,
+  
+  // Clinician Icons
+  LayoutDashboard, 
+  BarChart3,    
+  MessageSquarePlus,
+  Settings, 
+  FileText,
+  UserCog,
+  
+  // Common Icons
   ChevronDown,
-  User,
-  Settings,
+  LogOut,
   HelpCircle,
   LogOut,
   BarChart3,
@@ -16,13 +26,14 @@ import {
   FileText
 } from 'lucide-react';
 
-const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
+const Sidebar = ({ isExpanded, setIsExpanded, user, role = 'patient' }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
   const router = useRouter();
   const pathname = usePathname();
 
+  // Helper for Initials
   const getInitials = (name) => {
     if (!name) return 'U';
     const parts = name.trim().split(' ');
@@ -76,6 +87,14 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
       label: 'Help & Support', 
       href: '/help' 
     },
+    {
+      sectionTitle: "ADMINISTRATION",
+      items: [
+        { icon: Settings, label: 'System Management', href: `/clinician/${user?.id}/system` },
+        { icon: FileText, label: 'Reports', href: `/clinician/${user?.id}/reports` },
+        { icon: UserCog, label: 'Settings', href: `/clinician/${user?.id}/settings` },
+      ]
+    }
   ];
 
   // Clinician menu items
@@ -142,8 +161,8 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#2D5F8B] to-[#3A9D8C] flex items-center justify-center flex-shrink-0 shadow-sm">
             <span className="text-white font-bold text-xl">K</span>
           </div>
-          <span className={`text-[#2D5F8B] font-semibold text-base whitespace-nowrap overflow-hidden transition-all duration-300 ${
-              isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+          <div className={`flex flex-col ml-3 overflow-hidden transition-all duration-300 ${
+              isExpanded ? 'w-auto opacity-100' : 'w-0 opacity-0'
             }`}>
             KneuraSense
           </span>
@@ -156,31 +175,6 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
           }`}>
             {overviewLabel}
           </div>
-          <nav className="space-y-1">
-            {mainMenuItems.map((item, index) => (
-              <button
-                key={index}
-                onClick={() => handleNavigation(item.href)}
-                className={`w-full flex items-center py-3 px-3 rounded-lg transition-all duration-200 group relative ${
-                  isExpanded ? 'justify-start' : 'justify-center'
-                } ${
-                  hoveredItem === index || isActive(item.href) ? 'bg-[#E8F4F8] text-[#2D5F8B]' : 'text-[#2C3E50]'
-                }`}
-                onMouseEnter={() => setHoveredItem(index)}
-                onMouseLeave={() => setHoveredItem(null)}
-              >
-                <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 rounded-r-full bg-[#2D5F8B] transition-all duration-200 ${
-                   hoveredItem === index || isActive(item.href) ? 'opacity-100' : 'opacity-0'
-                }`} />
-                <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors duration-200`} strokeWidth={2} />
-                <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${
-                  isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
-                }`}>
-                  {item.label}
-                </span>
-              </button>
-            ))}
-          </nav>
         </div>
 
         {/* MANAGEMENT SECTION */}
@@ -209,21 +203,24 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
                    hoveredItem === itemIndex || isActive(item.href) ? 'opacity-100' : 'opacity-0'
                 }`} />
 
-                  <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors duration-200`} strokeWidth={2} />
-                  <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${
-                    isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
-                  }`}>
-                    {item.label}
-                  </span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
+                    <item.icon className={`w-5 h-5 flex-shrink-0 transition-colors duration-200`} strokeWidth={2} />
+                    
+                    <span className={`text-sm font-medium whitespace-nowrap overflow-hidden transition-all duration-300 ${
+                      isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
+                    }`}>
+                      {item.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </nav>
+          </div>
+        ))}
 
-        {/* USER PROFILE SECTION */}
+        {/* USER PROFILE SECTION (Footer) */}
         <div className="mt-auto pt-6 border-t border-gray-200 relative">
           
+          {/* Dropdown Menu */}
           <div className={`absolute bottom-full left-0 w-full mb-2 bg-white rounded-lg shadow-xl border border-gray-100 overflow-hidden transition-all duration-200 origin-bottom z-50 ${
             isDropdownOpen && isExpanded ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2 pointer-events-none'
           }`}>
@@ -241,9 +238,9 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
             className={`w-full flex items-center py-2 px-1 rounded-lg transition-all duration-200 relative ${
                isExpanded ? 'justify-start' : 'justify-center'
             } ${
-              hoveredItem === 999 || isDropdownOpen ? 'bg-[#E8F4F8]' : ''
+              hoveredItem === 'profile' || isDropdownOpen ? 'bg-[#E8F4F8]' : ''
             }`}
-            onMouseEnter={() => setHoveredItem(999)}
+            onMouseEnter={() => setHoveredItem('profile')}
             onMouseLeave={() => setHoveredItem(null)}
           >
             <div className="w-10 h-10 rounded-full bg-[#E8F4F8] flex items-center justify-center flex-shrink-0 border border-gray-100">
@@ -256,10 +253,10 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
                  isExpanded ? 'w-auto opacity-100 ml-3' : 'w-0 opacity-0 ml-0'
               }`}>
               <span className="text-sm font-semibold text-[#2C3E50] whitespace-nowrap">
-                {user?.fullName || 'User'}
+                {user?.fullName || 'Dr. User'}
               </span>
               <span className="text-xs text-[#95A5A6] whitespace-nowrap">
-                {user?.email || 'No Email'}
+                {role === 'clinician' ? 'Orthopedic Specialist' : (user?.email || 'No Email')}
               </span>
             </div>
             
