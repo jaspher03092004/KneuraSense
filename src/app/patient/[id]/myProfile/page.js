@@ -73,7 +73,7 @@ export default async function PatientProfile({ params }) {
         <div className="h-48 relative w-full bg-slate-200">
            {/* The Image */}
            <Image 
-             src="/hospital-banner.jpg" // 1. Put your image in the 'public' folder
+             src="/banner.svg" // 1. Put your image in the 'public' folder
              alt="Medical Center Banner"
              fill
              className="object-cover opacity-90" // object-cover makes it fit perfectly
