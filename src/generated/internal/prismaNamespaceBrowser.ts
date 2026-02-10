@@ -51,8 +51,8 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Patient: 'Patient',
-  Clinician: 'Clinician'
+  Clinician: 'Clinician',
+  Patient: 'Patient'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -71,6 +71,19 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const ClinicianScalarFieldEnum = {
+  clinician_id: 'clinician_id',
+  full_name: 'full_name',
+  email: 'email',
+  password_hash: 'password_hash',
+  specialization: 'specialization',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]
+
+
 export const PatientScalarFieldEnum = {
   id: 'id',
   fullName: 'fullName',
@@ -85,27 +98,10 @@ export const PatientScalarFieldEnum = {
   occupation: 'occupation',
   activityLevel: 'activityLevel',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  lastPasswordChange: 'lastPasswordChange',
-  vibrationEnabled: 'vibrationEnabled',
-  vibrationIntensity: 'vibrationIntensity',
-  ledEnabled: 'ledEnabled'
-} as const
-
-export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
-
-
-export const ClinicianScalarFieldEnum = {
-  clinician_id: 'clinician_id',
-  full_name: 'full_name',
-  email: 'email',
-  password_hash: 'password_hash',
-  specialization: 'specialization',
-  createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]
+export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
 
 
 export const SortOrder = {
