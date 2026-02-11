@@ -14,6 +14,7 @@ model Clinician {
   clinician_id   String   @id @default(uuid())
   full_name      String
   email          String   @unique @db.Citext
+  phone_number   String   @unique
   password_hash  String
   specialization String
   createdAt      DateTime @default(now())
