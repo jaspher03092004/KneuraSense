@@ -11,12 +11,14 @@ export async function registerUser(formData) {
     const email = data.email?.trim().toLowerCase();
     const fullName = data.fullName?.trim();
     const password = data.password?.trim();
+    const phoneNumber = data.phoneNumber?.trim();
 
-    if (!fullName || !email || !password) {
+    // 1. Universal Validation: Phone Number is now REQUIRED for everyone
+    if (!fullName || !email || !password || !phoneNumber) {
       return { success: false, error: 'Missing required fields.' };
     }
 
-    // Check email across both tables to avoid duplicates
+    // --- PRIORITY CHECK 1: EMAIL ---
     const existingClinician = await prisma.clinician.findUnique({ where: { email } });
     const existingPatient = await prisma.patient.findUnique({ where: { email } });
 
@@ -24,8 +26,24 @@ export async function registerUser(formData) {
       return { success: false, error: 'Email already registered. Please log in or use a different email.' };
     }
 
+    // --- PRIORITY CHECK 2: PHONE NUMBER ---
+    // Check Patient Table
+    const existingPatientPhone = await prisma.patient.findUnique({ 
+      where: { phoneNumber } 
+    });
+    
+    // Check Clinician Table (Note: field is 'phone_number')
+    const existingClinicianPhone = await prisma.clinician.findUnique({ 
+      where: { phone_number: phoneNumber } 
+    });
+
+    if (existingPatientPhone || existingClinicianPhone) {
+      return { success: false, error: 'Phone number already registered.' };
+    }
+
     const hashed = await bcrypt.hash(password, 10);
 
+    // Create Clinician
     if (role === 'Clinician') {
       const specialization = data.specialization?.trim() || 'General';
 
@@ -33,6 +51,7 @@ export async function registerUser(formData) {
         data: {
           full_name: fullName,
           email,
+          phone_number: phoneNumber, // <--- Now saving phone number
           password_hash: hashed,
           specialization,
         },
@@ -41,13 +60,13 @@ export async function registerUser(formData) {
       return { success: true, message: 'Clinician account created successfully.' };
     }
 
-    // Default: create Patient
+    // Create Patient
     await prisma.patient.create({
       data: {
         fullName,
         age: data.age ? parseInt(data.age) : null,
         gender: data.gender || null,
-        phoneNumber: data.phoneNumber?.trim() || '',
+        phoneNumber: phoneNumber,
         email,
         passwordHash: hashed,
         oaDiagnosis: data.oaDiagnosis === 'Yes',
@@ -59,24 +78,26 @@ export async function registerUser(formData) {
     });
 
     return { success: true, message: 'Patient account created successfully.' };
+
   } catch (error) {
     console.error('Registration error:', error);
 
-    if (error?.code === 'P2002') {
-      const field = error.meta?.target?.[0];
-      if (field === 'email') {
-        return { success: false, error: 'Email already registered. Please log in or use a different email.' };
+    const errorMessage = error?.message || String(error);
+
+    // Fallback for race conditions
+    if (errorMessage.includes('Unique constraint failed') || error?.code === 'P2002') {
+      if (errorMessage.includes('email') || errorMessage.includes('Email')) {
+        return { success: false, error: 'Email already registered.' };
       }
-      if (field === 'phoneNumber') {
+      if (errorMessage.includes('phoneNumber') || errorMessage.includes('phone_number') || errorMessage.includes('Phone')) {
         return { success: false, error: 'Phone number already registered.' };
       }
     }
 
-    // Provide more detail in development to help debugging
     if (process.env.NODE_ENV === 'production') {
       return { success: false, error: 'An error occurred during registration. Please try again.' };
     }
 
-    return { success: false, error: `Registration failed: ${error?.message || String(error)}` };
+    return { success: false, error: `Registration failed: ${errorMessage}` };
   }
 }

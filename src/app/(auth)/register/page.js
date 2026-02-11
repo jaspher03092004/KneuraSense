@@ -42,6 +42,11 @@ export default function RegisterPage() {
       newErrors.age = 'Valid age is required (1-120)';
     }
 
+    // --- NEW VALIDATION: Phone Number is now required ---
+    if (!formData.phoneNumber || !formData.phoneNumber.trim()) {
+      newErrors.phoneNumber = 'Phone number is required';
+    }
+
     if (!formData.email.trim()) {
       newErrors.email = 'Email is required';
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
@@ -396,9 +401,10 @@ export default function RegisterPage() {
 
                 {/* Contact Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                  {/* Phone Number Field */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
+                      Phone Number <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <input
@@ -407,7 +413,9 @@ export default function RegisterPage() {
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         placeholder="0917-XXX-XXXX"
-                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors"
+                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
+                          errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
+                        }`}
                       />
                       <div className="absolute left-3 top-3.5 text-gray-400">
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -415,8 +423,11 @@ export default function RegisterPage() {
                         </svg>
                       </div>
                     </div>
+                    {/* Error message for phone number */}
+                    {errors.phoneNumber && <p className="text-red-500 text-xs mt-2">{errors.phoneNumber}</p>}
                   </div>
 
+                  {/* Email Field */}
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Email Address <span className="text-red-500">*</span>

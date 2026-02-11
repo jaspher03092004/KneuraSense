@@ -11,6 +11,7 @@ This project is built with:
 - **IoT Integration**: MQTT support for sensor data
 - **Styling**: Tailwind CSS with PostCSS
 
+
 ---
 
 ## Getting Started
