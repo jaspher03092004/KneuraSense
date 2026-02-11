@@ -311,7 +311,7 @@ export default function SettingsForm({ patient }) {
                   type="password" 
                   name="currentPassword"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2D5F8B] focus:border-transparent"
+                  className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2D5F8B] focus:border-transparent"
                   placeholder="Enter current password"
                 />
               </div>
@@ -323,7 +323,7 @@ export default function SettingsForm({ patient }) {
                   name="newPassword"
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2D5F8B] focus:border-transparent"
+                  className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2D5F8B] focus:border-transparent"
                   placeholder="Minimum 6 characters"
                 />
               </div>
@@ -335,7 +335,7 @@ export default function SettingsForm({ patient }) {
                   name="confirmPassword"
                   required
                   minLength={6}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2D5F8B] focus:border-transparent"
+                  className="w-full px-3 py-2 border text-black border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2D5F8B] focus:border-transparent"
                   placeholder="Re-enter new password"
                 />
               </div>

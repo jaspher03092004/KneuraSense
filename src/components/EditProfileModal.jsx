@@ -68,7 +68,7 @@ export default function EditProfileModal({ patient }) {
                       name="fullName"
                       defaultValue={patient.fullName}
                       required
-                      className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none transition-all"
+                      className="w-full p-2.5 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none transition-all"
                     />
                   </div>
 
@@ -79,7 +79,7 @@ export default function EditProfileModal({ patient }) {
                         name="age"
                         type="number"
                         defaultValue={patient.age}
-                        className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none"
+                        className="w-full p-2.5 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none"
                       />
                     </div>
                     
@@ -89,7 +89,7 @@ export default function EditProfileModal({ patient }) {
                       <select 
                         name="occupation"
                         defaultValue={patient.occupation || 'Sedentary'}
-                        className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none bg-white"
+                        className="w-full p-2.5 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none bg-white"
                       >
                         <option value="Retired">Retired</option>
                         <option value="Sedentary">Sedentary</option>
@@ -105,7 +105,7 @@ export default function EditProfileModal({ patient }) {
                     <input 
                       name="phoneNumber"
                       defaultValue={patient.phoneNumber}
-                      className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none"
+                      className="w-full p-2.5 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-[#2D5F8B] outline-none"
                     />
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export default function EditProfileModal({ patient }) {
                       <select 
                         name="affectedKnee" 
                         defaultValue={patient.affectedKnee}
-                        className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#3A9D8C] outline-none bg-white"
+                        className="w-full p-2.5 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-[#3A9D8C] outline-none bg-white"
                       >
                         <option value="Left">Left</option>
                         <option value="Right">Right</option>
@@ -136,7 +136,7 @@ export default function EditProfileModal({ patient }) {
                       <select 
                         name="activityLevel" 
                         defaultValue={patient.activityLevel}
-                        className="w-full p-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#3A9D8C] outline-none bg-white"
+                        className="w-full p-2.5 border text-black border-slate-200 rounded-lg focus:ring-2 focus:ring-[#3A9D8C] outline-none bg-white"
                       >
                         <option value="Sedentary">Sedentary</option>
                         <option value="Light">Light</option>

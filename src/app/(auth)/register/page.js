@@ -330,7 +330,7 @@ export default function RegisterPage() {
                       value={formData.fullName}
                       onChange={handleChange}
                       placeholder="Enter your full name"
-                      className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
+                      className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-black transition-colors ${
                         errors.fullName ? 'border-red-300' : 'border-gray-300'
                       }`}
                     />
@@ -358,7 +358,7 @@ export default function RegisterPage() {
                         placeholder="Years"
                         min="1"
                         max="120"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
+                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-black transition-colors ${
                           errors.age ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -407,7 +407,7 @@ export default function RegisterPage() {
                         value={formData.phoneNumber}
                         onChange={handleChange}
                         placeholder="0917-XXX-XXXX"
-                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors"
+                        className="w-full px-4 py-3 pl-11 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-black transition-colors"
                       />
                       <div className="absolute left-3 top-3.5 text-gray-400">
                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
@@ -428,7 +428,7 @@ export default function RegisterPage() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="email@example.com"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
+                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-black transition-colors ${
                           errors.email ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -456,7 +456,7 @@ export default function RegisterPage() {
                         value={formData.password}
                         onChange={handleChange}
                         placeholder="Create password"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
+                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-black transition-colors ${
                           errors.password ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -497,7 +497,7 @@ export default function RegisterPage() {
                         value={formData.confirmPassword}
                         onChange={handleChange}
                         placeholder="Confirm password"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
+                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-black transition-colors ${
                           errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
                         }`}
                       />
@@ -622,7 +622,7 @@ export default function RegisterPage() {
                         name="affectedKnee"
                         value={formData.affectedKnee}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                        className="w-full px-4 py-3 border text-black border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                       >
                         <option value="Left">Left Knee</option>
                         <option value="Right">Right Knee</option>
@@ -683,7 +683,7 @@ export default function RegisterPage() {
                         name="occupation"
                         value={formData.occupation}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                        className="w-full px-4 py-3 border text-black border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                       >
                         <option value="Retired">Retired</option>
                         <option value="Sedentary">Sedentary</option>
@@ -708,14 +708,14 @@ export default function RegisterPage() {
                         name="activityLevel"
                         value={formData.activityLevel}
                         onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                        className="w-full px-4 py-3 border text-black border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
                       >
                         <option value="Sedentary">Sedentary</option>
                         <option value="Light">Light</option>
                         <option value="Moderate">Moderate</option>
                         <option value="Active">Active</option>
                         <option value="Very Active">Very Active</option>
-                      </select>
+                      </select> 
                       <div className="absolute right-3 top-3.5 pointer-events-none">
                         <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />

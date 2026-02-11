@@ -293,7 +293,7 @@ export default function SettingsPage() {
                         type="text"
                         value={clinicianInfo.name}
                         onChange={(e) => handleClinicianInfoChange('name', e.target.value)}
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
+                        className="w-full p-3 border-2 text-black border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
                       />
                     </div>
                     <div>
@@ -302,7 +302,7 @@ export default function SettingsPage() {
                         type="email"
                         value={clinicianInfo.email}
                         onChange={(e) => handleClinicianInfoChange('email', e.target.value)}
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
+                        className="w-full p-3 border-2 text-black border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
                       />
                     </div>
                     <div>
@@ -311,7 +311,7 @@ export default function SettingsPage() {
                         type="tel"
                         value={clinicianInfo.phone}
                         onChange={(e) => handleClinicianInfoChange('phone', e.target.value)}
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
+                        className="w-full p-3 border-2 text-black border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
                       />
                     </div>
                     <div>
@@ -320,7 +320,7 @@ export default function SettingsPage() {
                         type="text"
                         value={clinicianInfo.hospital}
                         onChange={(e) => handleClinicianInfoChange('hospital', e.target.value)}
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
+                        className="w-full p-3 border-2 text-black border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
                       />
                     </div>
                     <div>
@@ -328,7 +328,7 @@ export default function SettingsPage() {
                       <select
                         value={clinicianInfo.specialty}
                         onChange={(e) => handleClinicianInfoChange('specialty', e.target.value)}
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
+                        className="w-full p-3 border-2 text-black border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
                       >
                         <option>Orthopedic Surgery</option>
                         <option>Sports Medicine</option>
@@ -343,7 +343,7 @@ export default function SettingsPage() {
                         type="text"
                         value={clinicianInfo.licenseNumber}
                         onChange={(e) => handleClinicianInfoChange('licenseNumber', e.target.value)}
-                        className="w-full p-3 border-2 border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
+                        className="w-full p-3 border-2 text-black border-slate-200 rounded-xl focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-colors"
                       />
                     </div>
                   </div>
@@ -639,7 +639,7 @@ export default function SettingsPage() {
                         <div className="space-y-4">
                           <div>
                             <label className="block text-slate-700 font-semibold mb-2">Data Refresh Rate</label>
-                            <select className="w-full p-3 border-2 border-slate-200 rounded-xl">
+                            <select className="w-full p-3 border-2 text-black border-slate-200 rounded-xl">
                               <option>Real-time (1s)</option>
                               <option>Fast (5s)</option>
                               <option>Standard (30s)</option>
@@ -648,7 +648,7 @@ export default function SettingsPage() {
                           </div>
                           <div>
                             <label className="block text-slate-700 font-semibold mb-2">Chart Quality</label>
-                            <select className="w-full p-3 border-2 border-slate-200 rounded-xl">
+                            <select className="w-full p-3 border-2 text-black border-slate-200 rounded-xl">
                               <option>High Quality</option>
                               <option>Balanced</option>
                               <option>Performance</option>
