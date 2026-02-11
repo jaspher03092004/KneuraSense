@@ -28,6 +28,7 @@ export type ClinicianMinAggregateOutputType = {
   clinician_id: string | null
   full_name: string | null
   email: string | null
+  phone_number: string | null
   password_hash: string | null
   specialization: string | null
   createdAt: Date | null
@@ -38,6 +39,7 @@ export type ClinicianMaxAggregateOutputType = {
   clinician_id: string | null
   full_name: string | null
   email: string | null
+  phone_number: string | null
   password_hash: string | null
   specialization: string | null
   createdAt: Date | null
@@ -48,6 +50,7 @@ export type ClinicianCountAggregateOutputType = {
   clinician_id: number
   full_name: number
   email: number
+  phone_number: number
   password_hash: number
   specialization: number
   createdAt: number
@@ -60,6 +63,7 @@ export type ClinicianMinAggregateInputType = {
   clinician_id?: true
   full_name?: true
   email?: true
+  phone_number?: true
   password_hash?: true
   specialization?: true
   createdAt?: true
@@ -70,6 +74,7 @@ export type ClinicianMaxAggregateInputType = {
   clinician_id?: true
   full_name?: true
   email?: true
+  phone_number?: true
   password_hash?: true
   specialization?: true
   createdAt?: true
@@ -80,6 +85,7 @@ export type ClinicianCountAggregateInputType = {
   clinician_id?: true
   full_name?: true
   email?: true
+  phone_number?: true
   password_hash?: true
   specialization?: true
   createdAt?: true
@@ -163,6 +169,7 @@ export type ClinicianGroupByOutputType = {
   clinician_id: string
   full_name: string
   email: string
+  phone_number: string
   password_hash: string
   specialization: string
   createdAt: Date
@@ -194,6 +201,7 @@ export type ClinicianWhereInput = {
   clinician_id?: Prisma.StringFilter<"Clinician"> | string
   full_name?: Prisma.StringFilter<"Clinician"> | string
   email?: Prisma.StringFilter<"Clinician"> | string
+  phone_number?: Prisma.StringFilter<"Clinician"> | string
   password_hash?: Prisma.StringFilter<"Clinician"> | string
   specialization?: Prisma.StringFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
@@ -204,6 +212,7 @@ export type ClinicianOrderByWithRelationInput = {
   clinician_id?: Prisma.SortOrder
   full_name?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  phone_number?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -213,6 +222,7 @@ export type ClinicianOrderByWithRelationInput = {
 export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
   clinician_id?: string
   email?: string
+  phone_number?: string
   AND?: Prisma.ClinicianWhereInput | Prisma.ClinicianWhereInput[]
   OR?: Prisma.ClinicianWhereInput[]
   NOT?: Prisma.ClinicianWhereInput | Prisma.ClinicianWhereInput[]
@@ -221,12 +231,13 @@ export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
   specialization?: Prisma.StringFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
-}, "clinician_id" | "email">
+}, "clinician_id" | "email" | "phone_number">
 
 export type ClinicianOrderByWithAggregationInput = {
   clinician_id?: Prisma.SortOrder
   full_name?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  phone_number?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -243,6 +254,7 @@ export type ClinicianScalarWhereWithAggregatesInput = {
   clinician_id?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
   full_name?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
   email?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
+  phone_number?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
   password_hash?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
   specialization?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Clinician"> | Date | string
@@ -253,6 +265,7 @@ export type ClinicianCreateInput = {
   clinician_id?: string
   full_name: string
   email: string
+  phone_number: string
   password_hash: string
   specialization: string
   createdAt?: Date | string
@@ -263,6 +276,7 @@ export type ClinicianUncheckedCreateInput = {
   clinician_id?: string
   full_name: string
   email: string
+  phone_number: string
   password_hash: string
   specialization: string
   createdAt?: Date | string
@@ -273,6 +287,7 @@ export type ClinicianUpdateInput = {
   clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -283,6 +298,7 @@ export type ClinicianUncheckedUpdateInput = {
   clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -293,6 +309,7 @@ export type ClinicianCreateManyInput = {
   clinician_id?: string
   full_name: string
   email: string
+  phone_number: string
   password_hash: string
   specialization: string
   createdAt?: Date | string
@@ -303,6 +320,7 @@ export type ClinicianUpdateManyMutationInput = {
   clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -313,6 +331,7 @@ export type ClinicianUncheckedUpdateManyInput = {
   clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
   full_name?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
   password_hash?: Prisma.StringFieldUpdateOperationsInput | string
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -323,6 +342,7 @@ export type ClinicianCountOrderByAggregateInput = {
   clinician_id?: Prisma.SortOrder
   full_name?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  phone_number?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -333,6 +353,7 @@ export type ClinicianMaxOrderByAggregateInput = {
   clinician_id?: Prisma.SortOrder
   full_name?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  phone_number?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -343,6 +364,7 @@ export type ClinicianMinOrderByAggregateInput = {
   clinician_id?: Prisma.SortOrder
   full_name?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  phone_number?: Prisma.SortOrder
   password_hash?: Prisma.SortOrder
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -363,6 +385,7 @@ export type ClinicianSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   clinician_id?: boolean
   full_name?: boolean
   email?: boolean
+  phone_number?: boolean
   password_hash?: boolean
   specialization?: boolean
   createdAt?: boolean
@@ -373,6 +396,7 @@ export type ClinicianSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   clinician_id?: boolean
   full_name?: boolean
   email?: boolean
+  phone_number?: boolean
   password_hash?: boolean
   specialization?: boolean
   createdAt?: boolean
@@ -383,6 +407,7 @@ export type ClinicianSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   clinician_id?: boolean
   full_name?: boolean
   email?: boolean
+  phone_number?: boolean
   password_hash?: boolean
   specialization?: boolean
   createdAt?: boolean
@@ -393,13 +418,14 @@ export type ClinicianSelectScalar = {
   clinician_id?: boolean
   full_name?: boolean
   email?: boolean
+  phone_number?: boolean
   password_hash?: boolean
   specialization?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ClinicianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"clinician_id" | "full_name" | "email" | "password_hash" | "specialization" | "createdAt" | "updatedAt", ExtArgs["result"]["clinician"]>
+export type ClinicianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"clinician_id" | "full_name" | "email" | "phone_number" | "password_hash" | "specialization" | "createdAt" | "updatedAt", ExtArgs["result"]["clinician"]>
 
 export type $ClinicianPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Clinician"
@@ -408,6 +434,7 @@ export type $ClinicianPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     clinician_id: string
     full_name: string
     email: string
+    phone_number: string
     password_hash: string
     specialization: string
     createdAt: Date
@@ -838,6 +865,7 @@ export interface ClinicianFieldRefs {
   readonly clinician_id: Prisma.FieldRef<"Clinician", 'String'>
   readonly full_name: Prisma.FieldRef<"Clinician", 'String'>
   readonly email: Prisma.FieldRef<"Clinician", 'String'>
+  readonly phone_number: Prisma.FieldRef<"Clinician", 'String'>
   readonly password_hash: Prisma.FieldRef<"Clinician", 'String'>
   readonly specialization: Prisma.FieldRef<"Clinician", 'String'>
   readonly createdAt: Prisma.FieldRef<"Clinician", 'DateTime'>

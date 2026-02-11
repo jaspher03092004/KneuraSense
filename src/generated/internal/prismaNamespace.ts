@@ -596,6 +596,7 @@ export const ClinicianScalarFieldEnum = {
   clinician_id: 'clinician_id',
   full_name: 'full_name',
   email: 'email',
+  phone_number: 'phone_number',
   password_hash: 'password_hash',
   specialization: 'specialization',
   createdAt: 'createdAt',

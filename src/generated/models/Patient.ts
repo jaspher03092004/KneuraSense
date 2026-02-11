@@ -374,7 +374,7 @@ export type PatientScalarWhereWithAggregatesInput = {
 }
 
 export type PatientCreateInput = {
-  id: string
+  id?: string
   fullName: string
   age?: number | null
   gender?: string | null
@@ -387,11 +387,11 @@ export type PatientCreateInput = {
   occupation?: string | null
   activityLevel?: string | null
   createdAt?: Date | string
-  updatedAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type PatientUncheckedCreateInput = {
-  id: string
+  id?: string
   fullName: string
   age?: number | null
   gender?: string | null
@@ -404,7 +404,7 @@ export type PatientUncheckedCreateInput = {
   occupation?: string | null
   activityLevel?: string | null
   createdAt?: Date | string
-  updatedAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type PatientUpdateInput = {
@@ -442,7 +442,7 @@ export type PatientUncheckedUpdateInput = {
 }
 
 export type PatientCreateManyInput = {
-  id: string
+  id?: string
   fullName: string
   age?: number | null
   gender?: string | null
@@ -455,7 +455,7 @@ export type PatientCreateManyInput = {
   occupation?: string | null
   activityLevel?: string | null
   createdAt?: Date | string
-  updatedAt: Date | string
+  updatedAt?: Date | string
 }
 
 export type PatientUpdateManyMutationInput = {
