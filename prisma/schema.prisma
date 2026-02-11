@@ -1,10 +1,13 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated"
+  provider        = "prisma-client"
+  output          = "../src/generated"
+  previewFeatures = ["postgresqlExtensions"] // Required for citext
 }
 
 datasource db {
-  provider = "postgresql"
+  provider   = "postgresql"
+  extensions = [citext]  // Required for @db.Citext
+  // url is removed because it is in prisma.config.ts
 }
 
 model Clinician {
@@ -18,7 +21,7 @@ model Clinician {
 }
 
 model Patient {
-  id            String   @id
+  id            String   @id @default(uuid()) // FIXED: Auto-generates ID
   fullName      String
   age           Int?
   gender        String?
@@ -31,5 +34,5 @@ model Patient {
   occupation    String?
   activityLevel String?
   createdAt     DateTime @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime @updatedAt
 }

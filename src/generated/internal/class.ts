@@ -16,11 +16,13 @@ import type * as Prisma from "./prismaNamespace.ts"
 
 
 const config: runtime.GetPrismaClientConfig = {
-  "previewFeatures": [],
+  "previewFeatures": [
+    "postgresqlExtensions"
+  ],
   "clientVersion": "7.3.0",
   "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Clinician {\n  clinician_id   String   @id @default(uuid())\n  full_name      String\n  email          String   @unique @db.Citext\n  password_hash  String\n  specialization String\n  createdAt      DateTime @default(now())\n  updatedAt      DateTime @updatedAt\n}\n\nmodel Patient {\n  id            String   @id\n  fullName      String\n  age           Int?\n  gender        String?\n  phoneNumber   String   @unique\n  email         String   @unique @db.Citext\n  passwordHash  String\n  oaDiagnosis   Boolean  @default(false)\n  affectedKnee  String?\n  painSeverity  Int?\n  occupation    String?\n  activityLevel String?\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime\n}\n",
+  "inlineSchema": "generator client {\n  provider        = \"prisma-client\"\n  output          = \"../src/generated\"\n  previewFeatures = [\"postgresqlExtensions\"] // Required for citext\n}\n\ndatasource db {\n  provider   = \"postgresql\"\n  extensions = [citext] // Required for @db.Citext\n  // url is removed because it is in prisma.config.ts\n}\n\nmodel Clinician {\n  clinician_id   String   @id @default(uuid())\n  full_name      String\n  email          String   @unique @db.Citext\n  password_hash  String\n  specialization String\n  createdAt      DateTime @default(now())\n  updatedAt      DateTime @updatedAt\n}\n\nmodel Patient {\n  id            String   @id @default(uuid()) // FIXED: Auto-generates ID\n  fullName      String\n  age           Int?\n  gender        String?\n  phoneNumber   String   @unique\n  email         String   @unique @db.Citext\n  passwordHash  String\n  oaDiagnosis   Boolean  @default(false)\n  affectedKnee  String?\n  painSeverity  Int?\n  occupation    String?\n  activityLevel String?\n  createdAt     DateTime @default(now())\n  updatedAt     DateTime @updatedAt\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
