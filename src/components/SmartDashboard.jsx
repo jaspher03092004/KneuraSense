@@ -206,7 +206,7 @@ export default function SmartDashboard({ patientName, patientId }) {
              <Database size={20} className="text-gray-700"/>
              <div>
                 <h2 className="text-lg font-bold text-gray-800">Real-time Data</h2>
-                <p className="text-xs text-gray-500">Live readings via HiveMQ</p>
+                {/*<p className="text-xs text-gray-500">Live readings via HiveMQ</p>*/}
              </div>
            </div>
 

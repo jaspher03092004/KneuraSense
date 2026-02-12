@@ -1,221 +1,215 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import HistoryCharts from '@/components/HistoryCharts';
 import RefreshButton from '@/components/RefreshButton';
+import Link from 'next/link';
 import { 
-  Calendar, 
-  Download, 
-  Bell, 
-  Activity, 
-  Mountain, 
-  Cloud, 
-  ChevronLeft, 
-  ChevronRight,
-  Footprints,
-  Layers,
-  Clock,
-  Zap,
-  Thermometer
+  Calendar, Download, Bell, Activity, 
+  Mountain, Cloud, Footprints, Layers, Clock, SearchX
 } from 'lucide-react';
 
-export default async function HistoryPage({ params }) {
+export default async function HistoryPage({ params, searchParams }) {
   const { id } = await params;
-  
+  const { range } = await searchParams; // Captures ?range=7d or ?range=30d
+
+  // 1. Define the Time Window
+  let startDate = new Date();
+  let rangeLabel = "Last 24 Hours";
+
+  if (range === '7d') {
+    startDate.setDate(startDate.getDate() - 7);
+    rangeLabel = "Last 7 Days";
+  } else if (range === '30d') {
+    startDate.setDate(startDate.getDate() - 30);
+    rangeLabel = "Last 30 Days";
+  } else {
+    startDate.setHours(startDate.getHours() - 24); // Default: 24h 
+  }
+
+  // 2. Fetch Filtered Logs 
   const patient = await prisma.patient.findUnique({
     where: { id },
-    select: { id: true, fullName: true }
+    select: { 
+      id: true, 
+      fullName: true,
+      sensorLogs: {
+        where: {
+          timestamp: { gte: startDate } // Only get logs AFTER the startDate
+        },
+        orderBy: { timestamp: 'desc' },
+      }
+    }
   });
 
   if (!patient) redirect('/login');
 
-  const recentData = [
-    { time: '14:30', score: 55, angle: '35°', force: '92 N', temp: '33.2°C', terrain: 'Stairs', weather: 'Warm', status: 'Medium' },
-    { time: '14:15', score: 28, angle: '12°', force: '45 N', temp: '32.6°C', terrain: 'Flat', weather: 'Warm', status: 'Low' },
-    { time: '14:00', score: 76, angle: '42°', force: '110 N', temp: '33.5°C', terrain: 'Incline', weather: 'Hot', status: 'High' },
-  ];
+  const logs = patient.sensorLogs || [];
+  const hasData = logs.length > 0; // Check if any logs exist for this range
+
+  // 3. Prepare Data for UI (Only if hasData is true)
+  const avgRisk = hasData 
+    ? Math.round(logs.reduce((acc, log) => acc + log.riskScore, 0) / logs.length) 
+    : 0;
+  
+  const highRiskCount = logs.filter(log => log.riskScore > 70).length;
+  const avgTemp = hasData
+    ? (logs.reduce((acc, log) => acc + log.skinTemp, 0) / logs.length).toFixed(1)
+    : 0;
+
+  // Chart Data (Full Set)
+  const chartData = logs.map(log => ({
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    score: log.riskScore,
+  })).reverse();
+
+  // Table Data (Limited to Last 5 Logs) 
+  const recentLogsTable = logs.slice(0, 5).map(log => ({
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    score: log.riskScore,
+    angle: `${log.angle.toFixed(1)}°`,
+    force: `${log.force} N`,
+    temp: `${log.skinTemp.toFixed(1)}°C`,
+    status: log.riskScore > 70 ? 'High' : log.riskScore > 40 ? 'Medium' : 'Low'
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
       <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-4 md:p-8">
         
-        {/* Responsive Header */}
+        {/* Persistent Header */}
         <header className="mb-6 flex flex-col gap-3 sm:gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-0.5 sm:space-y-1">
             <h1 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">History & Trends</h1>
-            <p className="text-xs sm:text-sm font-medium text-slate-500">Correlation analysis for {patient.fullName}</p>
+            <p className="text-xs sm:text-sm font-medium text-slate-500">{patient.fullName} • {rangeLabel}</p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-none">
-              <RefreshButton className="w-full justify-center h-10 sm:h-11" />
-            </div>
-            <button className="flex h-10 sm:h-11 flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 sm:px-5 text-xs sm:text-sm font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-slate-800">
-              <Download size={16} className="sm:block hidden" />
-              <Download size={14} className="sm:hidden" />
+             <RefreshButton className="w-full justify-center h-10 sm:h-11" />
+             <button className="flex h-10 sm:h-11 flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 sm:px-5 text-xs sm:text-sm font-bold text-white shadow-lg transition-transform active:scale-95">
+              <Download size={16} />
               <span>Export</span>
             </button>
           </div>
         </header>
 
-        {/* Scrollable Filters - Prevents wrapping layout breaks on small screens */}
-        <nav className="mb-6 flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 no-scrollbar md:overflow-visible md:pb-0 -mx-3 sm:-mx-4 px-3 sm:px-4 md:mx-0 md:px-0">
-          <div className="flex h-9 sm:h-10 items-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-white px-2 sm:px-3 shadow-sm border border-slate-100 shrink-0">
-            <Calendar size={14} className="sm:block hidden text-slate-400" />
-            <Calendar size={12} className="sm:hidden text-slate-400" />
-            <span className="text-[10px] sm:text-xs font-bold text-slate-700">Filter:</span>
-          </div>
-          {['Today', 'This Week', 'This Month', 'Custom'].map((label, i) => (
-            <button 
-              key={label}
-              className={`h-9 sm:h-10 rounded-lg sm:rounded-xl px-3 sm:px-5 text-[10px] sm:text-xs font-bold transition-all shrink-0 ${
-                i === 0 
-                ? 'bg-[#2D5F8B] text-white shadow-md' 
-                : 'bg-white text-slate-500 border border-slate-100 hover:bg-slate-50 shadow-sm'
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        {/* Persistent Filters */}
+        <nav className="mb-8 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <FilterLink label="24 Hours" active={!range} href={`/patient/${id}/history`} />
+          <FilterLink label="7 Days" active={range === '7d'} href={`/patient/${id}/history?range=7d`} />
+          <FilterLink label="30 Days" active={range === '30d'} href={`/patient/${id}/history?range=30d`} />
         </nav>
 
-        {/* Adaptive Metrics Grid - 2 cols on mobile, 4 on desktop */}
-        <section className="mb-6 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:gap-6">
-          <StatCard icon={<Activity size={18} />} value="42" label="Risk Score" trend="↓ 12%" color="emerald" />
-          <StatCard icon={<Bell size={18} />} value="3" label="Alerts" trend="↓ 2" color="emerald" />
-          <StatCard icon={<Footprints size={18} />} value="4.2" label="Hrs/Day" trend="0%" color="slate" />
-          <StatCard icon={<Layers size={18} />} value="18" label="Stair Mins" trend="↑ 5m" color="rose" />
-        </section>
-
-        {/* Chart Section - Taller on mobile for better touch/detail */}
-        <section className="mb-6 rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 sm:p-5 md:p-8 shadow-sm">
-          <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-slate-50 text-slate-600">
-                <Activity size={18} />
-              </div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-800">Risk Patterns</h3>
+        {/* --- CONDITIONAL RENDERING --- */}
+        {!hasData ? (
+          /* NO DATA VIEW: Displays when filter returns 0 results */
+          <div className="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border border-dashed border-slate-200 shadow-sm animate-in fade-in zoom-in duration-300">
+            <div className="p-5 bg-slate-50 rounded-full text-slate-300 mb-4">
+              <SearchX size={48} strokeWidth={1.5} />
             </div>
-            <div className="flex flex-wrap gap-2 sm:gap-4">
-              <LegendItem color="bg-rose-500" label="Risk" />
-              <LegendItem color="bg-orange-400" label="Threshold" />
-              <LegendItem color="bg-slate-200" label="Safe" />
-            </div>
+            <h2 className="text-xl font-bold text-slate-800">No History Available</h2>
+            <p className="text-sm text-slate-500 max-w-xs text-center mt-2 font-medium">
+              We couldn&apos;t find any recordings for the {rangeLabel.toLowerCase()}. Check your connection or try a different filter.
+            </p>
           </div>
-          <div className="aspect-[4/3] w-full rounded-xl sm:rounded-2xl border-2 border-dashed border-slate-100 bg-slate-50/50 flex items-center justify-center md:aspect-[21/9]">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-300">Trend Visualization</span>
-          </div>
-        </section>
+        ) : (
+          /* DATA EXISTS VIEW: Full Analytics */
+          <div className="space-y-6 animate-in fade-in duration-500">
+            
+            {/* Stats Grid */}
+            <section className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:gap-6">
+              <StatCard icon={<Activity size={18} />} value={avgRisk} label="Avg Risk" trend={avgRisk > 50 ? "High" : "Normal"} color={avgRisk > 50 ? "rose" : "emerald"} />
+              <StatCard icon={<Bell size={18} />} value={highRiskCount} label="High Risks" trend="Events" color={highRiskCount > 0 ? "rose" : "slate"} />
+              <StatCard icon={<Footprints size={18} />} value={logs.length} label="Total Logs" trend="Total" color="slate" />
+              <StatCard icon={<Layers size={18} />} value={avgTemp} label="Avg Temp" trend="°C" color="emerald" />
+            </section>
 
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-           <CorrelationCard title="Terrain Correlation" icon={<Mountain size={18} />} color="blue" />
-           <CorrelationCard title="Weather Correlation" icon={<Cloud size={18} />} color="sky" />
-        </div>
-
-        {/* Data Points - Full Transformation for Mobile */}
-        <section className="mt-6 overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-100 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-50 p-3 sm:p-5">
-            <h3 className="text-sm sm:text-base font-bold text-slate-800">Recent Logs</h3>
-            <div className="flex gap-1.5 sm:gap-2">
-              <button className="flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl border border-slate-100 text-slate-400 active:bg-slate-50 hover:border-slate-200"><ChevronLeft size={16} /></button>
-              <button className="flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl border border-slate-100 text-slate-400 active:bg-slate-50 hover:border-slate-200"><ChevronRight size={16} /></button>
-            </div>
-          </div>
-
-          {/* Mobile Card Layout (Hidden on MD+) */}
-          <div className="md:hidden divide-y divide-slate-50">
-            {recentData.map((row, i) => (
-              <div key={i} className="p-4 sm:p-5">
-                <div className="mb-3 sm:mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 sm:gap-2 font-bold text-slate-900 text-sm sm:text-base">
-                    <Clock size={13} className="sm:block hidden text-slate-400" />
-                    <Clock size={12} className="sm:hidden text-slate-400" />
-                    {row.time}
-                  </div>
-                  <span className={`rounded-lg px-2 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-tight ${
-                    row.score > 70 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'
-                  }`}>
-                    Score: {row.score}
-                  </span>
+            {/* Main Chart */}
+            <section className="rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 sm:p-5 md:p-8 shadow-sm">
+              <div className="mb-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-600"><Activity size={18} /></div>
+                  <h3 className="text-lg font-bold text-slate-800">Trend Analysis</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                  <MobileDataItem label="Angle" value={row.angle} />
-                  <MobileDataItem label="Force" value={row.force} />
-                  <MobileDataItem label="Terrain" value={row.terrain} />
-                  <MobileDataItem label="Temp" value={row.temp} />
+                <div className="hidden sm:flex gap-4">
+                  <LegendItem color="bg-rose-500" label="Risk Zone" />
+                  <LegendItem color="bg-orange-400" label="Threshold (70)" />
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="aspect-[4/3] w-full rounded-2xl border-2 border-slate-50 bg-white md:aspect-[21/9]">
+                 <HistoryCharts data={chartData} /> 
+              </div>
+            </section>
 
-          {/* Desktop Table Layout (Hidden on < MD) */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50/50">
-                <tr>
-                  {['Time', 'Score', 'Angle', 'Force', 'Temp', 'Terrain', 'Status'].map(h => (
-                    <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {recentData.map((row, i) => (
-                  <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-700">{row.time}</td>
-                    <td className="px-6 py-4"><span className="font-mono font-bold text-slate-900">{row.score}</span></td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{row.angle}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{row.force}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{row.temp}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{row.terrain}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-black uppercase tracking-wider ${row.status === 'High' ? 'text-rose-500' : 'text-slate-400'}`}>
-                        {row.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {/* ANALYSIS CARDS (Preserved) */}
+            <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
+               <CorrelationCard title="Terrain Analysis" icon={<Mountain size={18} />} color="blue" />
+               <CorrelationCard title="Environment" icon={<Cloud size={18} />} color="sky" />
+            </div>
+
+            {/* DATA TABLE: RECENT LOGS (Last 5) */}
+            <section className="overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-100 bg-white shadow-sm">
+              <div className="flex items-center justify-between border-b border-slate-50 p-5">
+                <h3 className="text-base font-bold text-slate-800">Recent Logs (Last 5)</h3>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left min-w-[600px]">
+                  <thead className="bg-slate-50/50">
+                    <tr>
+                      {['Time', 'Score', 'Angle', 'Force', 'Temp', 'Status'].map(h => (
+                        <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50">
+                    {recentLogsTable.map((row, i) => (
+                      <tr key={i} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-6 py-4 font-bold text-slate-700">{row.time}</td>
+                        <td className="px-6 py-4 font-mono font-bold text-slate-900">{row.score}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{row.angle}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{row.force}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600">{row.temp}</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[10px] font-black uppercase tracking-wider ${
+                              row.status === 'High' ? 'text-rose-500' : 'text-emerald-500'
+                          }`}>
+                            {row.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
           </div>
-        </section>
+        )}
       </div>
     </div>
   );
 }
 
-// --- Specialized Responsive Components ---
+// --- HELPER COMPONENTS (Keep these as they are) ---
+
+function FilterLink({ label, active, href }) {
+  return (
+    <Link href={href} className={`px-6 py-2 rounded-full text-xs font-bold transition-all border whitespace-nowrap ${
+      active ? 'bg-[#2D5F8B] text-white border-[#2D5F8B] shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'
+    }`}>
+      {label}
+    </Link>
+  );
+}
 
 function StatCard({ icon, value, label, trend, color }) {
-  const colorStyles = {
-    emerald: 'bg-emerald-50 text-emerald-600',
-    rose: 'bg-rose-50 text-rose-600',
-    slate: 'bg-slate-50 text-slate-500'
-  };
+  const colorStyles = { emerald: 'bg-emerald-50 text-emerald-600', rose: 'bg-rose-50 text-rose-600', slate: 'bg-slate-50 text-slate-500' };
   return (
-    <div className="relative overflow-hidden rounded-lg sm:rounded-2xl border border-slate-100 bg-white p-3 sm:p-4 md:p-6 shadow-sm">
-      <div className="mb-2 sm:mb-3 md:mb-4 flex h-8 sm:h-9 md:h-10 w-8 sm:w-9 md:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-slate-50 text-slate-400">
-        <span className="text-base sm:text-lg md:text-xl">{icon.props.size === 18 ? icon : icon}</span>
+    <div className="rounded-2xl border border-slate-100 bg-white p-4 md:p-6 shadow-sm hover:shadow-md transition-shadow">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-400">{icon}</div>
+      <div className="flex items-baseline gap-2">
+        <span className="text-2xl font-black text-slate-900">{value}</span>
+        <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${colorStyles[color]}`}>{trend}</span>
       </div>
-      <div className="flex items-baseline gap-0.5 sm:gap-1 md:gap-2">
-        <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-900">{value}</span>
-        <span className={`rounded-md px-1.5 py-0.5 text-[8px] sm:text-[10px] font-bold ${colorStyles[color]}`}>{trend}</span>
-      </div>
-      <p className="mt-0.5 sm:mt-1 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 truncate">{label}</p>
-    </div>
-  );
-}
-
-function MobileDataItem({ label, value }) {
-  return (
-    <div className="rounded-lg sm:rounded-xl bg-slate-50/80 p-2 sm:p-3">
-      <span className="block text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-slate-400 mb-0.5">{label}</span>
-      <span className="block text-xs sm:text-sm font-bold text-slate-700">{value}</span>
-    </div>
-  );
-}
-
-function LegendItem({ color, label }) {
-  return (
-    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-      <div className={`h-2 w-2 rounded-full ${color}`} />
-      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</span>
+      <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-slate-400 truncate">{label}</p>
     </div>
   );
 }
@@ -223,16 +217,23 @@ function LegendItem({ color, label }) {
 function CorrelationCard({ title, icon, color }) {
   const theme = color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-sky-50 text-sky-600';
   return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 sm:p-6 shadow-sm">
-      <div className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-        <div className={`flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl ${theme}`}>
-          {icon}
-        </div>
-        <h4 className="text-sm sm:text-base font-bold text-slate-800">{title}</h4>
+    <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="mb-6 flex items-center gap-3">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${theme}`}>{icon}</div>
+        <h4 className="font-bold text-slate-800">{title}</h4>
       </div>
-      <div className="aspect-video w-full rounded-lg sm:rounded-2xl border-2 border-dashed border-slate-50 bg-slate-50/30 flex items-center justify-center">
-        <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-300">Analysis Preview</span>
+      <div className="aspect-video w-full rounded-2xl border-2 border-dashed border-slate-50 bg-slate-50/30 flex items-center justify-center">
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Analysis Preview</span>
       </div>
+    </div>
+  );
+}
+
+function LegendItem({ color, label }) {
+  return (
+    <div className="flex items-center gap-2 shrink-0">
+      <div className={`h-2 w-2 rounded-full ${color}`} />
+      <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</span>
     </div>
   );
 }
