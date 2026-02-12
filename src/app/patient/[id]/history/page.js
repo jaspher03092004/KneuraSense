@@ -1,11 +1,11 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import HistoryCharts from '@/components/HistoryCharts';
+import HistoryCharts, { MiniChart } from '@/components/HistoryCharts';
 import RefreshButton from '@/components/RefreshButton';
 import Link from 'next/link';
 import { 
-  Calendar, Download, Bell, Activity, 
-  Mountain, Cloud, Footprints, Layers, Clock, SearchX
+  Download, Bell, Activity, 
+  Mountain, Cloud, Footprints, Layers, SearchX
 } from 'lucide-react';
 
 export default async function HistoryPage({ params, searchParams }) {
@@ -26,7 +26,7 @@ export default async function HistoryPage({ params, searchParams }) {
     startDate.setHours(startDate.getHours() - 24); 
   }
 
-  // 2. Fetch Filtered Logs 
+  // 2. Fetch Filtered Logs
   const patient = await prisma.patient.findUnique({
     where: { id },
     select: { 
@@ -56,10 +56,20 @@ export default async function HistoryPage({ params, searchParams }) {
     ? (logs.reduce((acc, log) => acc + log.skinTemp, 0) / logs.length).toFixed(1)
     : 0;
 
+  // Main chart data
   const chartData = logs.map(log => ({
     time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     score: log.riskScore,
   })).reverse();
+
+  // Terrain (Angle) and Environment (Temp) data
+  const terrainData = logs.map(log => ({
+    val: log.angle,
+  })).reverse().slice(-20);
+
+  const envData = logs.map(log => ({
+    val: log.skinTemp,
+  })).reverse().slice(-20);
 
   const recentLogsTable = logs.slice(0, 5).map(log => ({
     time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -74,7 +84,7 @@ export default async function HistoryPage({ params, searchParams }) {
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
       <div className="mx-auto w-full max-w-7xl px-4 py-6 md:p-8">
         
-        {/* Header: Stacked on mobile, side-by-side on desktop */}
+        {/* Header */}
         <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">History & Trends</h1>
@@ -89,7 +99,7 @@ export default async function HistoryPage({ params, searchParams }) {
           </div>
         </header>
 
-        {/* Navigation: Horizontal scroll with snap on mobile */}
+        {/* Navigation */}
         <nav className="mb-8 flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar snap-x touch-pan-x">
           <FilterLink label="24 Hours" active={!range} href={`/patient/${id}/history`} />
           <FilterLink label="7 Days" active={range === '7d'} href={`/patient/${id}/history?range=7d`} />
@@ -109,7 +119,7 @@ export default async function HistoryPage({ params, searchParams }) {
         ) : (
           <div className="space-y-6 animate-in fade-in duration-500">
             
-            {/* Stats Grid: Always 2 columns on mobile */}
+            {/* Stats Grid */}
             <section className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-6">
               <StatCard icon={<Activity size={18} />} value={avgRisk} label="Avg Risk" trend={avgRisk > 50 ? "High" : "Normal"} color={avgRisk > 50 ? "rose" : "emerald"} />
               <StatCard icon={<Bell size={18} />} value={highRiskCount} label="High Risks" trend="Events" color={highRiskCount > 0 ? "rose" : "slate"} />
@@ -117,8 +127,8 @@ export default async function HistoryPage({ params, searchParams }) {
               <StatCard icon={<Layers size={18} />} value={avgTemp} label="Avg Temp" trend="°C" color="emerald" />
             </section>
 
-            {/* Main Chart: Square on mobile to make it readable, Wide on Desktop */}
-            <section className="rounded-2xl border border-slate-100 bg-white p-4 md:p-8 shadow-sm">
+            {/* Trend Analysis Card */}
+            <section className="rounded-2xl border border-slate-100 bg-white p-4 md:p-6 shadow-sm">
               <div className="mb-6 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-50 text-slate-600"><Activity size={18} /></div>
@@ -129,23 +139,36 @@ export default async function HistoryPage({ params, searchParams }) {
                   <LegendItem color="bg-orange-400" label="Threshold" />
                 </div>
               </div>
-              <div className="aspect-square w-full rounded-2xl border-2 border-slate-50 bg-white md:aspect-[21/9]">
+              <div className="aspect-[2/1] w-full rounded-2xl border-2 border-slate-50 bg-white md:aspect-[4/1]">
                  <HistoryCharts data={chartData} /> 
               </div>
             </section>
 
+            {/* Correlation Cards Section */}
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-               <CorrelationCard title="Terrain Analysis" icon={<Mountain size={18} />} color="blue" />
-               <CorrelationCard title="Environment" icon={<Cloud size={18} />} color="sky" />
+               <CorrelationCard 
+                  title="Terrain Analysis" 
+                  icon={<Mountain size={18} />} 
+                  color="blue" 
+                  data={terrainData}
+                  unit="°"
+               />
+               <CorrelationCard 
+                  title="Environment" 
+                  icon={<Cloud size={18} />} 
+                  color="sky" 
+                  data={envData}
+                  unit="°C"
+               />
             </div>
 
-            {/* Recent Logs: Mobile Cards vs Desktop Table */}
+            {/* Recent Logs Section */}
             <section className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm">
               <div className="border-b border-slate-50 p-5">
                 <h3 className="text-base font-bold text-slate-800">Recent Logs (Last 5)</h3>
               </div>
 
-              {/* MOBILE VIEW (Card Layout) */}
+              {/* MOBILE TABLE VIEW */}
               <div className="block md:hidden divide-y divide-slate-50">
                 {recentLogsTable.map((row, i) => (
                   <div key={i} className="p-5 space-y-4">
@@ -179,7 +202,7 @@ export default async function HistoryPage({ params, searchParams }) {
                 ))}
               </div>
 
-              {/* DESKTOP VIEW (Table Layout) */}
+              {/* DESKTOP TABLE VIEW */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left">
                   <thead className="bg-slate-50/50">
@@ -243,16 +266,21 @@ function StatCard({ icon, value, label, trend, color }) {
   );
 }
 
-function CorrelationCard({ title, icon, color }) {
+function CorrelationCard({ title, icon, color, data, unit }) {
   const theme = color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-sky-50 text-sky-600';
+  const strokeColor = color === 'blue' ? '#3b82f6' : '#0ea5e9';
+  
   return (
-    <div className="rounded-2xl border border-slate-100 bg-white p-5 md:p-6 md:rounded-3xl shadow-sm">
-      <div className="mb-4 flex items-center gap-3">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${theme}`}>{icon}</div>
-        <h4 className="font-bold text-slate-800">{title}</h4>
+    <div className="rounded-2xl border border-slate-100 bg-white p-5 md:p-6 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${theme}`}>{icon}</div>
+          <h4 className="font-bold text-slate-800">{title}</h4>
+        </div>
+        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Active</span>
       </div>
-      <div className="aspect-video w-full rounded-2xl border-2 border-dashed border-slate-50 bg-slate-50/30 flex items-center justify-center">
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">Analysis Preview</span>
+      <div className="h-32 w-full rounded-2xl bg-slate-50/50 p-2">
+        <MiniChart data={data} stroke={strokeColor} unit={unit} />
       </div>
     </div>
   );
