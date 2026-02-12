@@ -52,7 +52,8 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Clinician: 'Clinician',
-  Patient: 'Patient'
+  Patient: 'Patient',
+  SensorLog: 'SensorLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -103,6 +104,20 @@ export const PatientScalarFieldEnum = {
 } as const
 
 export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
+
+
+export const SensorLogScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  angle: 'angle',
+  force: 'force',
+  skinTemp: 'skinTemp',
+  battery: 'battery',
+  riskScore: 'riskScore',
+  timestamp: 'timestamp'
+} as const
+
+export type SensorLogScalarFieldEnum = (typeof SensorLogScalarFieldEnum)[keyof typeof SensorLogScalarFieldEnum]
 
 
 export const SortOrder = {

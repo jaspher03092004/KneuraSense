@@ -385,7 +385,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Clinician: 'Clinician',
-  Patient: 'Patient'
+  Patient: 'Patient',
+  SensorLog: 'SensorLog'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -401,7 +402,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "clinician" | "patient"
+    modelProps: "clinician" | "patient" | "sensorLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -553,6 +554,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SensorLog: {
+      payload: Prisma.$SensorLogPayload<ExtArgs>
+      fields: Prisma.SensorLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SensorLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SensorLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>
+        }
+        findFirst: {
+          args: Prisma.SensorLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SensorLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>
+        }
+        findMany: {
+          args: Prisma.SensorLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>[]
+        }
+        create: {
+          args: Prisma.SensorLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>
+        }
+        createMany: {
+          args: Prisma.SensorLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SensorLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>[]
+        }
+        delete: {
+          args: Prisma.SensorLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>
+        }
+        update: {
+          args: Prisma.SensorLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.SensorLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SensorLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SensorLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.SensorLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SensorLogPayload>
+        }
+        aggregate: {
+          args: Prisma.SensorLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSensorLog>
+        }
+        groupBy: {
+          args: Prisma.SensorLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SensorLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SensorLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SensorLogCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -624,6 +699,20 @@ export const PatientScalarFieldEnum = {
 } as const
 
 export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
+
+
+export const SensorLogScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  angle: 'angle',
+  force: 'force',
+  skinTemp: 'skinTemp',
+  battery: 'battery',
+  riskScore: 'riskScore',
+  timestamp: 'timestamp'
+} as const
+
+export type SensorLogScalarFieldEnum = (typeof SensorLogScalarFieldEnum)[keyof typeof SensorLogScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -815,6 +904,7 @@ export type PrismaClientOptions = ({
 export type GlobalOmitConfig = {
   clinician?: Prisma.ClinicianOmit
   patient?: Prisma.PatientOmit
+  sensorLog?: Prisma.SensorLogOmit
 }
 
 /* Types for Logging */
