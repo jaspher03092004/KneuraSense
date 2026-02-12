@@ -18,7 +18,7 @@ export default async function PatientDashboard({ params }) {
     <div className="min-h-screen bg-[#F8FAFC] p-0 md:p-6 space-y-6">
       
       {/* 2. Load the SMART Dashboard (Client Side, Real-time) */}
-      <SmartDashboard patientName={patient.fullName} />
+      <SmartDashboard patientName={patient.fullName} patientId={patient.id} />
     </div>
   );
 }

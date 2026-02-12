@@ -49,3 +49,8 @@ export type Clinician = Prisma.ClinicianModel
  * 
  */
 export type Patient = Prisma.PatientModel
+/**
+ * Model SensorLog
+ * 
+ */
+export type SensorLog = Prisma.SensorLogModel
