@@ -2,9 +2,12 @@
 
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, 
-  Tooltip, ResponsiveContainer, ReferenceLine 
+  Tooltip, ResponsiveContainer, ReferenceLine, LineChart, Line
 } from 'recharts';
 
+/**
+ * Main detailed chart for Trend Analysis
+ */
 export default function HistoryCharts({ data }) {
   if (!data || data.length === 0) {
     return (
@@ -15,7 +18,7 @@ export default function HistoryCharts({ data }) {
   }
 
   return (
-    <div className="w-full h-full min-h-[300px]">
+    <div className="w-full h-full min-h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
@@ -61,5 +64,40 @@ export default function HistoryCharts({ data }) {
         </AreaChart>
       </ResponsiveContainer>
     </div>
+  );
+}
+
+/**
+ * Simplified chart for Correlation Cards (Terrain/Environment)
+ */
+export function MiniChart({ data, stroke, unit }) {
+  if (!data || data.length === 0) return <div className="h-full flex items-center justify-center text-[10px] text-slate-300">Collecting Data...</div>;
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <LineChart data={data}>
+        <YAxis hide domain={['auto', 'auto']} />
+        <Tooltip 
+          content={({ active, payload }) => {
+            if (active && payload && payload.length) {
+              return (
+                <div className="bg-white px-2 py-1 rounded shadow-sm border border-slate-100">
+                  <p className="text-[10px] font-bold text-slate-600">{`${payload[0].value.toFixed(1)}${unit}`}</p>
+                </div>
+              );
+            }
+            return null;
+          }}
+        />
+        <Line 
+          type="monotone" 
+          dataKey="val" 
+          stroke={stroke} 
+          strokeWidth={2.5} 
+          dot={false} 
+          animationDuration={800}
+        />
+      </LineChart>
+    </ResponsiveContainer>
   );
 }
