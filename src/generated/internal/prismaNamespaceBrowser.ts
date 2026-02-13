@@ -114,6 +114,9 @@ export const SensorLogScalarFieldEnum = {
   skinTemp: 'skinTemp',
   battery: 'battery',
   riskScore: 'riskScore',
+  lat: 'lat',
+  lng: 'lng',
+  weatherTemp: 'weatherTemp',
   timestamp: 'timestamp'
 } as const
 
