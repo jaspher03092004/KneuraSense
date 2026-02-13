@@ -48,6 +48,9 @@ model SensorLog {
   skinTemp    Float
   battery     Int
   riskScore   Int
+  lat         Float?   // Required for Weather API
+  lng         Float?   // Required for Weather API
+  weatherTemp Float?
   timestamp   DateTime @default(now())
 
   @@index([patientId])

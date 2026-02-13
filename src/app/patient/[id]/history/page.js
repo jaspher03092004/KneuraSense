@@ -5,7 +5,7 @@ import RefreshButton from '@/components/RefreshButton';
 import Link from 'next/link';
 import { 
   Download, Bell, Activity, 
-  Mountain, Cloud, Footprints, Layers, SearchX
+  Mountain, Cloud, Footprints, Layers, SearchX, Thermometer
 } from 'lucide-react';
 
 export default async function HistoryPage({ params, searchParams }) {
@@ -154,12 +154,12 @@ export default async function HistoryPage({ params, searchParams }) {
                   unit="°"
                />
                <CorrelationCard 
-                  title="Environment" 
-                  icon={<Cloud size={18} />} 
+                  title="Skin Temperature"   // <--- WAS "Environment"
+                  icon={<Thermometer size={18} />} // <--- WAS Cloud icon
                   color="sky" 
-                  data={envData}
+                  data={envData} // This is actually your skinTemp data
                   unit="°C"
-               />
+                />
             </div>
 
             {/* Recent Logs Section */}
