@@ -712,6 +712,9 @@ export const SensorLogScalarFieldEnum = {
   lat: 'lat',
   lng: 'lng',
   weatherTemp: 'weatherTemp',
+  bpm: 'bpm',
+  ambientTemp: 'ambientTemp',
+  pressure: 'pressure',
   timestamp: 'timestamp'
 } as const
 

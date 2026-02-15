@@ -51,6 +51,9 @@ model SensorLog {
   lat         Float?   // Required for Weather API
   lng         Float?   // Required for Weather API
   weatherTemp Float?
+  bpm         Int?     // Heart Rate from MAX30102
+  ambientTemp Float?   // Ambient Temp from BMP280
+  pressure    Float?   // Atmospheric Pressure from BMP280
   timestamp   DateTime @default(now())
 
   @@index([patientId])

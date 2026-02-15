@@ -1,159 +1,95 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import mqtt from 'mqtt';
+import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Bluetooth, Cloud 
+  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle,
 } from 'lucide-react';
 
-// --- 1. Helper Components ---
+// --- Helper Components ---
+const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue" }) => {
+  const themes = {
+    blue: "bg-blue-50 text-blue-600",
+    rose: "bg-rose-50 text-rose-600",
+    emerald: "bg-emerald-50 text-emerald-600",
+    amber: "bg-amber-50 text-amber-600",
+    slate: "bg-slate-100 text-slate-600"
+  };
+  const isAlert = status === 'High Risk' || status === 'High Flexion' || status === 'High Load';
 
-const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status }) => (
-  <div className="bg-gray-50 rounded-xl p-4 flex flex-col justify-between h-full min-h-[140px]">
-    <div className="flex justify-between items-start mb-2">
-      <div className="p-2 bg-teal-700 rounded-lg text-white">
-        <Icon size={20} />
+  return (
+    <div className="bg-white rounded-xl p-5 flex flex-col justify-between h-full min-h-[150px] border border-slate-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+      <div className="flex justify-between items-start mb-4">
+        <div className={`p-2.5 rounded-lg ${themes[colorTheme]}`}>
+          <Icon size={22} strokeWidth={2.5} />
+        </div>
+        <div className="text-right">
+          <p className="text-sm font-semibold text-slate-700">{title}</p>
+          <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">{subTitle}</p>
+        </div>
       </div>
-      <div className="text-right">
-        <p className="text-sm text-gray-500 font-medium">{title}</p>
-        <p className="text-xs text-gray-400">{subTitle}</p>
+      <div>
+        <h3 className="text-3xl font-bold text-slate-800 tracking-tight">
+          {value}<span className="text-lg font-medium text-slate-400 ml-1">{unit}</span>
+        </h3>
+        <div className="flex items-center mt-3">
+          <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
+              isAlert ? 'bg-rose-100 text-rose-700' : 'bg-slate-100 text-slate-500'
+          }`}>
+            {status || 'Live'}
+          </span>
+        </div>
       </div>
     </div>
-    <div>
-      <h3 className="text-3xl font-bold text-gray-800">
-        {value}<span className="text-lg font-normal text-gray-500 ml-1">{unit}</span>
-      </h3>
-      <div className="flex items-center mt-2">
-        <span className={`text-xs font-bold px-2 py-1 rounded ${
-            status === 'High Risk' ? 'bg-red-100 text-red-600' : 'text-gray-400'
-        }`}>
-          {status || 'Live'}
-        </span>
-      </div>
+  );
+};
+
+const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
+  <div className="flex items-center gap-3 bg-white px-4 py-2.5 rounded-lg border border-slate-200 shadow-sm">
+    <Icon size={18} className={isOnline ? "text-emerald-500" : "text-slate-400"} />
+    <div className="flex flex-col">
+      <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">{label}</span>
+      <span className="text-sm font-semibold text-slate-700">{value}</span>
     </div>
   </div>
 );
 
-const StatusCard = ({ icon: Icon, title, value, subText, statusColor = "bg-teal-600" }) => (
-  <div className="bg-gray-50 rounded-xl p-4 flex items-center gap-4">
-    <div className={`p-3 rounded-lg text-white ${statusColor} shrink-0`}>
-      <Icon size={24} />
-    </div>
-    <div className="min-w-0">
-      <p className="text-sm font-bold text-gray-700">{title}</p>
-      <div className="flex items-center gap-2">
-         {title === "Device Status" && <span className={`w-2 h-2 rounded-full shrink-0 ${value === 'Online' ? 'bg-green-500' : 'bg-red-500'}`}></span>}
-         <p className="text-sm font-semibold text-gray-900 truncate">{value}</p>
-      </div>
-      <p className="text-xs text-gray-400 truncate">{subText}</p>
-    </div>
-  </div>
-);
-
-// --- 2. Main Component ---
-
+// --- Main Component (Saves to DB) ---
 export default function SmartDashboard({ patientName, patientId }) {
-  // Initialize with "0" strings to match your MQTT payload format
-  const [data, setData] = useState({
-    angle: 0, fsr: 0, skin_temp: 0, bat: 0, risk_score: 0, lat: "0", lng: "0"
-  });
-
+  // 1. Pull data from our single source of truth hook
+  const { data, deviceStatus, lastPacketTime } = useMQTT();
+  
   const [weather, setWeather] = useState(null);
-  const [deviceStatus, setDeviceStatus] = useState("Offline"); 
-  const [lastPacketTime, setLastPacketTime] = useState(0);
-
-  // Refs act as a bridge for the Interval to see the latest state
   const dataRef = useRef(data); 
-  const weatherRef = useRef(weather); // ✨ NEW: Ref for Weather
+  const weatherRef = useRef(weather); 
 
-  useEffect(() => {
-    dataRef.current = data;
-  }, [data]);
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { weatherRef.current = weather; }, [weather]);
 
-  // ✨ NEW: Keep weather ref updated
+  // --- WEATHER FETCHING ---
   useEffect(() => {
-    weatherRef.current = weather;
-  }, [weather]);
-
-  // --- EFFECT 1: WEATHER FETCHING ---
-  useEffect(() => {
-    // Only fetch weather if we have valid non-zero coordinates
     if (data.lat && data.lng && data.lat !== "0" && data.lng !== "0") {
       const fetchWeather = async () => {
         const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY; 
         const url = `https://api.openweathermap.org/data/2.5/weather?lat=${data.lat}&lon=${data.lng}&units=metric&appid=${API_KEY}`;
-        
         try {
           const response = await fetch(url);
           const result = await response.json();
           if (result.cod === 200) setWeather(result);
-        } catch (error) {
-          console.error("Error fetching weather:", error);
-        }
+        } catch (error) { console.error("Error fetching weather:", error); }
       };
       fetchWeather();
     }
   }, [data.lat, data.lng]); 
 
-  // --- EFFECT 2: MQTT CONNECTION ---
-  useEffect(() => {
-    const MQTT_HOST = 'd74c9cedfa0e44efa6fbbc6a42bef453.s1.eu.hivemq.cloud';
-    const MQTT_PORT = 8884;
-    const MQTT_USER = 'KneuraSense-esp32';
-    const MQTT_PASS = 'Kneurasense123';
-    const TOPIC = 'esp32/data'; 
-
-    const client = mqtt.connect(`wss://${MQTT_HOST}:${MQTT_PORT}/mqtt`, {
-      clientId: 'smart_web_' + Math.random().toString(16).substr(2, 8),
-      username: MQTT_USER,
-      password: MQTT_PASS,
-      clean: true,
-      reconnectPeriod: 2000,
-    });
-
-    client.on('connect', () => {
-      console.log("MQTT Connected");
-      if (!client.disconnecting) {
-        client.subscribe(TOPIC);
-      }
-    });
-
-    client.on('message', (topic, message) => {
-      try {
-        const payload = JSON.parse(message.toString());
-        
-        // Merge new data with previous state to prevent flickering
-        setData(prev => ({ ...prev, ...payload }));
-        
-        setDeviceStatus("Online");
-        setLastPacketTime(Date.now()); 
-      } catch (err) {
-        console.error("JSON Parse Error", err);
-      }
-    });
-
-    return () => { if (client) client.end(); };
-  }, []);
-
-  // --- EFFECT 3: WATCHDOG TIMER ---
-  useEffect(() => {
-    const watchdog = setInterval(() => {
-      if (Date.now() - lastPacketTime > 8000 && lastPacketTime !== 0) {
-        setDeviceStatus("Offline");
-      }
-    }, 2000); 
-    return () => clearInterval(watchdog);
-  }, [lastPacketTime]);
-
-  // --- EFFECT 4: AUTO-SAVE TO SUPABASE ---
+  // --- AUTO-SAVE TO SUPABASE ---
   useEffect(() => {
     const saveInterval = setInterval(async () => {
       const currentData = dataRef.current;
-      const currentWeather = weatherRef.current; // Get latest weather from ref
+      const currentWeather = weatherRef.current; 
       
-      // Only save if device is Online and we have a valid Patient ID
       if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
         try {
            await fetch('/api/save-log', {
@@ -166,109 +102,120 @@ export default function SmartDashboard({ patientName, patientId }) {
                angle: currentData.angle,
                skin_temp: currentData.skin_temp,
                fsr: currentData.fsr,
-               // Explicitly pass lat/lng so they don't get lost
                lat: currentData.lat, 
                lng: currentData.lng,
-               // ✨ NEW: Send weather temperature to API
-               weatherTemp: currentWeather ? currentWeather.main.temp : null
+               weatherTemp: currentWeather ? currentWeather.main.temp : null,
+               bpm: currentData.bpm,
+               ambient_temp: currentData.ambient_temp,
+               pressure: currentData.pressure
              }),
            });
-        } catch (err) { 
-          console.error("Auto-save failed:", err); 
-        }
+        } catch (err) { console.error("Auto-save failed:", err); }
       }
     }, 10000); 
-    
     return () => clearInterval(saveInterval);
   }, [deviceStatus, patientId]);
 
   const timeString = lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString() : "--:--";
 
   return (
-    <div className="space-y-6">
-      {/* Header Row */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+    <div className="space-y-6 max-w-7xl mx-auto">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-800">Knee Stress Dashboard</h1>
-          <p className="text-sm text-gray-500">Real-time monitoring for {patientName}</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Patient Monitoring</h1>
+          <p className="text-sm font-medium text-slate-500 mt-1">Live telemetry for {patientName}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-medium text-gray-500">
-           <div className="flex items-center gap-1">
-             <span className={`w-2 h-2 rounded-full ${deviceStatus === 'Online' ? 'bg-green-500' : 'bg-red-500'}`}></span> 
-             {deviceStatus}
-           </div>
-           <div className="flex items-center gap-1"><RefreshCw size={12}/> Last Sync: {timeString}</div>
-           <div className="flex items-center gap-1"><Battery size={16} className="text-green-600"/> {data.bat}%</div>
+        <div className="flex flex-wrap items-center gap-3">
+           <StatusBadge icon={Wifi} label="KneuraSense-001" value={deviceStatus} isOnline={deviceStatus === 'Online'} />
+           <StatusBadge icon={RefreshCw} label="Last Sync" value={timeString} isOnline={deviceStatus === 'Online'} />
         </div>
       </div>
 
-      {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Gauge & Risk Score */}
-        <div className="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex flex-col items-center text-center">
-           <div className="w-full text-left mb-8">
-              <h2 className="text-lg font-bold text-gray-800">Overuse Risk Score</h2>
-              <p className="text-xs text-gray-500">Current knee stress level</p>
+        {/* Gauge Card */}
+        <div className="lg:col-span-4 xl:col-span-4 bg-white rounded-2xl shadow-sm border border-slate-200 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+           <div className={`absolute top-0 left-0 w-full h-2 transition-colors duration-500 ${
+               data.risk_score > 70 ? 'bg-rose-500' : data.risk_score > 40 ? 'bg-amber-500' : 'bg-emerald-500'
+           }`}></div>
+           
+           <div className="w-full text-center mb-6">
+              <h2 className="text-xl font-bold text-slate-800">Overuse Risk Score</h2>
+              <p className="text-sm text-slate-500 font-medium">Knee Osteoarthritis stress indicator</p>
            </div>
-           <div className="relative w-64 h-32 mt-4 mb-4 shrink-0">
-              <div className="w-full h-full bg-gray-100 rounded-t-full overflow-hidden relative">
-                 <div className="absolute bottom-0 left-[10%] w-[80%] h-[160%] border-[20px] border-orange-100 rounded-full border-t-orange-400 border-r-gray-200 border-l-gray-200 border-b-transparent rotate-45 transform origin-center"></div>
-              </div>
-              <div 
-                className="absolute bottom-0 left-1/2 w-1 h-24 bg-gray-800 origin-bottom rounded-full -translate-x-1/2 z-10 transition-transform duration-500 ease-out"
-                style={{ transform: `translateX(-50%) rotate(${(data.risk_score / 100) * 180 - 90}deg)` }}
-              ></div>
-              <div className="absolute bottom-0 left-1/2 w-4 h-4 bg-gray-800 rounded-full -translate-x-1/2 translate-y-1/2 z-20"></div>
+           
+           <div className="relative w-full max-w-[240px] h-32 mt-4 mb-2 mx-auto flex justify-center items-end">
+              <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110">
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100" strokeWidth="18" strokeLinecap="round" />
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
+                  className={`transition-all duration-1000 ease-out ${
+                    data.risk_score > 70 ? 'text-rose-500' : data.risk_score > 40 ? 'text-amber-500' : 'text-emerald-500'
+                  }`}
+                  stroke="currentColor" strokeWidth="18" strokeLinecap="round" strokeDasharray="251.2"
+                  strokeDashoffset={251.2 - (data.risk_score / 100) * 251.2}
+                />
+              </svg>
            </div>
-           <div className="mt-4">
-              <h1 className="text-6xl font-bold text-orange-400">{data.risk_score}</h1>
-              <span className={`inline-block mt-2 px-4 py-1 text-sm font-bold rounded-full border ${
-                  data.risk_score > 70 ? 'bg-red-50 text-red-500 border-red-100' : 
-                  data.risk_score > 40 ? 'bg-orange-50 text-orange-500 border-orange-100' : 
-                  'bg-green-50 text-green-500 border-green-100'
+           
+           <div className="mt-6 text-center">
+              <h1 className="text-6xl font-black text-slate-800 tracking-tighter">{data.risk_score}</h1>
+              <span className={`inline-flex items-center gap-1.5 mt-3 px-4 py-1.5 text-sm font-bold rounded-full border ${
+                  data.risk_score > 70 ? 'bg-rose-50 text-rose-600 border-rose-200' : 
+                  data.risk_score > 40 ? 'bg-amber-50 text-amber-600 border-amber-200' : 'bg-emerald-50 text-emerald-600 border-emerald-200'
               }`}>
-                {data.risk_score > 70 ? 'CRITICAL' : data.risk_score > 40 ? 'MODERATE' : 'SAFE'}
+                {data.risk_score > 70 && <AlertCircle size={14} />}
+                {data.risk_score > 70 ? 'CRITICAL STRESS' : data.risk_score > 40 ? 'MODERATE LOAD' : 'SAFE ZONE'}
               </span>
            </div>
         </div>
 
         {/* Sensor Grid */}
-        <div className="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-           <div className="mb-6 flex items-center gap-2">
-             <Database size={20} className="text-gray-700"/>
-             <h2 className="text-lg font-bold text-gray-800">Real-time Data</h2>
+        <div className="lg:col-span-8 xl:col-span-8 flex flex-col gap-6">
+           <div>
+             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Joint Kinematics</h3>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" />
+                <SensorCard icon={Database} title="Applied Force" subTitle="Load" value={data.fsr} unit="N" status={data.fsr > 1000 ? "High Load" : "Normal"} colorTheme="amber" />
+             </div>
            </div>
-           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 h-auto lg:h-[calc(100%-4rem)]">
-              <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} />
-              <SensorCard icon={Database} title="Force" subTitle="Load" value={data.fsr} unit="N" status={data.fsr > 1000 ? "High Load" : "Normal"} />
-              <SensorCard icon={Thermometer} title="Temp" subTitle="Skin" value={data.skin_temp} unit="°C" />
-              <SensorCard 
-                 icon={Cloud} title="Weather" unit="°C"
-                 subTitle={weather ? weather.name : (data.lat !== "0" ? "Loading..." : "Indoor Mode")} 
-                 value={weather ? Math.round(weather.main.temp) : "--"} 
-                 status={weather ? weather.weather[0].main : "No GPS"}
-              />
+
+           <div>
+             <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Vitals & Environment</h3>
+             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
+                <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="Pulse" value={data.bpm} unit="bpm" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" />
+                <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp} unit="°C" colorTheme="emerald" />
+                <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp} unit="°C" colorTheme="slate" />
+                <SensorCard icon={Wind} title="Pressure" subTitle="Atmos" value={data.pressure} unit="hPa" colorTheme="slate" />
+             </div>
            </div>
         </div>
       </div>
 
-      {/* Connection Status Row */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-        <h2 className="text-base font-bold text-gray-800 mb-4">Connection Status</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-           <StatusCard icon={Bluetooth} title="Device Status" value={deviceStatus} subText="ESP32-S3 (KneuraSense-001)" statusColor={deviceStatus === 'Online' ? "bg-green-600" : "bg-red-600"} />
-           <div className="bg-gray-50 rounded-xl p-4">
-              <div className="flex items-center gap-3 mb-3">
-                 <div className="p-2 bg-teal-600 rounded-lg text-white"><Battery size={20}/></div>
-                 <span className="text-sm font-bold text-gray-700">Battery Level</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-4 mb-2 overflow-hidden">
-                <div className={`h-4 rounded-full transition-all duration-500 ${data.bat < 20 ? 'bg-red-500' : 'bg-gradient-to-r from-teal-400 to-green-500'}`} style={{ width: `${data.bat}%` }}></div>
-              </div>
-              <p className="text-xs text-gray-400">{data.bat}% Remaining</p>
-           </div>
-           <StatusCard icon={Wifi} title="Data Packet" value={timeString} subText="Last received timestamp" />
-        </div>
+      {/* Footer Row */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex flex-col md:flex-row items-center justify-between gap-4">
+         <div className="flex items-center gap-3 w-full md:w-1/2">
+            <div className={`p-2 rounded-lg ${data.bat < 20 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+               <Battery size={20}/>
+            </div>
+            <div className="flex-1">
+               <div className="flex justify-between items-center mb-1">
+                 <span className="text-sm font-bold text-slate-700">Device Battery</span>
+                 <span className="text-sm font-bold text-slate-700">{data.bat}%</span>
+               </div>
+               <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                 <div className={`h-full rounded-full transition-all duration-500 ${data.bat < 20 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${data.bat}%` }}></div>
+               </div>
+            </div>
+         </div>
+         
+         <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100 w-full md:w-auto">
+            <Cloud size={20} className="text-slate-400" />
+            <div>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Location</p>
+               <p className="text-sm font-semibold text-slate-700">
+                 {weather ? `${weather.name} (${Math.round(weather.main.temp)}°C)` : (data.lat !== "0" ? "Fetching GPS..." : "Indoor Mode")}
+               </p>
+            </div>
+         </div>
       </div>
     </div>
   );

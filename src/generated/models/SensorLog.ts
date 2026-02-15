@@ -35,6 +35,9 @@ export type SensorLogAvgAggregateOutputType = {
   lat: number | null
   lng: number | null
   weatherTemp: number | null
+  bpm: number | null
+  ambientTemp: number | null
+  pressure: number | null
 }
 
 export type SensorLogSumAggregateOutputType = {
@@ -46,6 +49,9 @@ export type SensorLogSumAggregateOutputType = {
   lat: number | null
   lng: number | null
   weatherTemp: number | null
+  bpm: number | null
+  ambientTemp: number | null
+  pressure: number | null
 }
 
 export type SensorLogMinAggregateOutputType = {
@@ -59,6 +65,9 @@ export type SensorLogMinAggregateOutputType = {
   lat: number | null
   lng: number | null
   weatherTemp: number | null
+  bpm: number | null
+  ambientTemp: number | null
+  pressure: number | null
   timestamp: Date | null
 }
 
@@ -73,6 +82,9 @@ export type SensorLogMaxAggregateOutputType = {
   lat: number | null
   lng: number | null
   weatherTemp: number | null
+  bpm: number | null
+  ambientTemp: number | null
+  pressure: number | null
   timestamp: Date | null
 }
 
@@ -87,6 +99,9 @@ export type SensorLogCountAggregateOutputType = {
   lat: number
   lng: number
   weatherTemp: number
+  bpm: number
+  ambientTemp: number
+  pressure: number
   timestamp: number
   _all: number
 }
@@ -101,6 +116,9 @@ export type SensorLogAvgAggregateInputType = {
   lat?: true
   lng?: true
   weatherTemp?: true
+  bpm?: true
+  ambientTemp?: true
+  pressure?: true
 }
 
 export type SensorLogSumAggregateInputType = {
@@ -112,6 +130,9 @@ export type SensorLogSumAggregateInputType = {
   lat?: true
   lng?: true
   weatherTemp?: true
+  bpm?: true
+  ambientTemp?: true
+  pressure?: true
 }
 
 export type SensorLogMinAggregateInputType = {
@@ -125,6 +146,9 @@ export type SensorLogMinAggregateInputType = {
   lat?: true
   lng?: true
   weatherTemp?: true
+  bpm?: true
+  ambientTemp?: true
+  pressure?: true
   timestamp?: true
 }
 
@@ -139,6 +163,9 @@ export type SensorLogMaxAggregateInputType = {
   lat?: true
   lng?: true
   weatherTemp?: true
+  bpm?: true
+  ambientTemp?: true
+  pressure?: true
   timestamp?: true
 }
 
@@ -153,6 +180,9 @@ export type SensorLogCountAggregateInputType = {
   lat?: true
   lng?: true
   weatherTemp?: true
+  bpm?: true
+  ambientTemp?: true
+  pressure?: true
   timestamp?: true
   _all?: true
 }
@@ -254,6 +284,9 @@ export type SensorLogGroupByOutputType = {
   lat: number | null
   lng: number | null
   weatherTemp: number | null
+  bpm: number | null
+  ambientTemp: number | null
+  pressure: number | null
   timestamp: Date
   _count: SensorLogCountAggregateOutputType | null
   _avg: SensorLogAvgAggregateOutputType | null
@@ -291,6 +324,9 @@ export type SensorLogWhereInput = {
   lat?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   lng?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   weatherTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  bpm?: Prisma.IntNullableFilter<"SensorLog"> | number | null
+  ambientTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  pressure?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   timestamp?: Prisma.DateTimeFilter<"SensorLog"> | Date | string
   patient?: Prisma.XOR<Prisma.PatientScalarRelationFilter, Prisma.PatientWhereInput>
 }
@@ -306,6 +342,9 @@ export type SensorLogOrderByWithRelationInput = {
   lat?: Prisma.SortOrderInput | Prisma.SortOrder
   lng?: Prisma.SortOrderInput | Prisma.SortOrder
   weatherTemp?: Prisma.SortOrderInput | Prisma.SortOrder
+  bpm?: Prisma.SortOrderInput | Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
+  pressure?: Prisma.SortOrderInput | Prisma.SortOrder
   timestamp?: Prisma.SortOrder
   patient?: Prisma.PatientOrderByWithRelationInput
 }
@@ -324,6 +363,9 @@ export type SensorLogWhereUniqueInput = Prisma.AtLeast<{
   lat?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   lng?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   weatherTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  bpm?: Prisma.IntNullableFilter<"SensorLog"> | number | null
+  ambientTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  pressure?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   timestamp?: Prisma.DateTimeFilter<"SensorLog"> | Date | string
   patient?: Prisma.XOR<Prisma.PatientScalarRelationFilter, Prisma.PatientWhereInput>
 }, "id">
@@ -339,6 +381,9 @@ export type SensorLogOrderByWithAggregationInput = {
   lat?: Prisma.SortOrderInput | Prisma.SortOrder
   lng?: Prisma.SortOrderInput | Prisma.SortOrder
   weatherTemp?: Prisma.SortOrderInput | Prisma.SortOrder
+  bpm?: Prisma.SortOrderInput | Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
+  pressure?: Prisma.SortOrderInput | Prisma.SortOrder
   timestamp?: Prisma.SortOrder
   _count?: Prisma.SensorLogCountOrderByAggregateInput
   _avg?: Prisma.SensorLogAvgOrderByAggregateInput
@@ -361,6 +406,9 @@ export type SensorLogScalarWhereWithAggregatesInput = {
   lat?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
   lng?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
   weatherTemp?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
+  bpm?: Prisma.IntNullableWithAggregatesFilter<"SensorLog"> | number | null
+  ambientTemp?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
+  pressure?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
   timestamp?: Prisma.DateTimeWithAggregatesFilter<"SensorLog"> | Date | string
 }
 
@@ -374,6 +422,9 @@ export type SensorLogCreateInput = {
   lat?: number | null
   lng?: number | null
   weatherTemp?: number | null
+  bpm?: number | null
+  ambientTemp?: number | null
+  pressure?: number | null
   timestamp?: Date | string
   patient: Prisma.PatientCreateNestedOneWithoutSensorLogsInput
 }
@@ -389,6 +440,9 @@ export type SensorLogUncheckedCreateInput = {
   lat?: number | null
   lng?: number | null
   weatherTemp?: number | null
+  bpm?: number | null
+  ambientTemp?: number | null
+  pressure?: number | null
   timestamp?: Date | string
 }
 
@@ -402,6 +456,9 @@ export type SensorLogUpdateInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patient?: Prisma.PatientUpdateOneRequiredWithoutSensorLogsNestedInput
 }
@@ -417,6 +474,9 @@ export type SensorLogUncheckedUpdateInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -431,6 +491,9 @@ export type SensorLogCreateManyInput = {
   lat?: number | null
   lng?: number | null
   weatherTemp?: number | null
+  bpm?: number | null
+  ambientTemp?: number | null
+  pressure?: number | null
   timestamp?: Date | string
 }
 
@@ -444,6 +507,9 @@ export type SensorLogUpdateManyMutationInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -458,6 +524,9 @@ export type SensorLogUncheckedUpdateManyInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -482,6 +551,9 @@ export type SensorLogCountOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   weatherTemp?: Prisma.SortOrder
+  bpm?: Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrder
+  pressure?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -494,6 +566,9 @@ export type SensorLogAvgOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   weatherTemp?: Prisma.SortOrder
+  bpm?: Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrder
+  pressure?: Prisma.SortOrder
 }
 
 export type SensorLogMaxOrderByAggregateInput = {
@@ -507,6 +582,9 @@ export type SensorLogMaxOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   weatherTemp?: Prisma.SortOrder
+  bpm?: Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrder
+  pressure?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -521,6 +599,9 @@ export type SensorLogMinOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   weatherTemp?: Prisma.SortOrder
+  bpm?: Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrder
+  pressure?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -533,6 +614,9 @@ export type SensorLogSumOrderByAggregateInput = {
   lat?: Prisma.SortOrder
   lng?: Prisma.SortOrder
   weatherTemp?: Prisma.SortOrder
+  bpm?: Prisma.SortOrder
+  ambientTemp?: Prisma.SortOrder
+  pressure?: Prisma.SortOrder
 }
 
 export type SensorLogCreateNestedManyWithoutPatientInput = {
@@ -611,6 +695,9 @@ export type SensorLogCreateWithoutPatientInput = {
   lat?: number | null
   lng?: number | null
   weatherTemp?: number | null
+  bpm?: number | null
+  ambientTemp?: number | null
+  pressure?: number | null
   timestamp?: Date | string
 }
 
@@ -624,6 +711,9 @@ export type SensorLogUncheckedCreateWithoutPatientInput = {
   lat?: number | null
   lng?: number | null
   weatherTemp?: number | null
+  bpm?: number | null
+  ambientTemp?: number | null
+  pressure?: number | null
   timestamp?: Date | string
 }
 
@@ -667,6 +757,9 @@ export type SensorLogScalarWhereInput = {
   lat?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   lng?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   weatherTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  bpm?: Prisma.IntNullableFilter<"SensorLog"> | number | null
+  ambientTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  pressure?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   timestamp?: Prisma.DateTimeFilter<"SensorLog"> | Date | string
 }
 
@@ -680,6 +773,9 @@ export type SensorLogCreateManyPatientInput = {
   lat?: number | null
   lng?: number | null
   weatherTemp?: number | null
+  bpm?: number | null
+  ambientTemp?: number | null
+  pressure?: number | null
   timestamp?: Date | string
 }
 
@@ -693,6 +789,9 @@ export type SensorLogUpdateWithoutPatientInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -706,6 +805,9 @@ export type SensorLogUncheckedUpdateWithoutPatientInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -719,6 +821,9 @@ export type SensorLogUncheckedUpdateManyWithoutPatientInput = {
   lat?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   lng?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   weatherTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -735,6 +840,9 @@ export type SensorLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   lat?: boolean
   lng?: boolean
   weatherTemp?: boolean
+  bpm?: boolean
+  ambientTemp?: boolean
+  pressure?: boolean
   timestamp?: boolean
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sensorLog"]>
@@ -750,6 +858,9 @@ export type SensorLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   lat?: boolean
   lng?: boolean
   weatherTemp?: boolean
+  bpm?: boolean
+  ambientTemp?: boolean
+  pressure?: boolean
   timestamp?: boolean
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sensorLog"]>
@@ -765,6 +876,9 @@ export type SensorLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   lat?: boolean
   lng?: boolean
   weatherTemp?: boolean
+  bpm?: boolean
+  ambientTemp?: boolean
+  pressure?: boolean
   timestamp?: boolean
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sensorLog"]>
@@ -780,10 +894,13 @@ export type SensorLogSelectScalar = {
   lat?: boolean
   lng?: boolean
   weatherTemp?: boolean
+  bpm?: boolean
+  ambientTemp?: boolean
+  pressure?: boolean
   timestamp?: boolean
 }
 
-export type SensorLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "angle" | "force" | "skinTemp" | "battery" | "riskScore" | "lat" | "lng" | "weatherTemp" | "timestamp", ExtArgs["result"]["sensorLog"]>
+export type SensorLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "angle" | "force" | "skinTemp" | "battery" | "riskScore" | "lat" | "lng" | "weatherTemp" | "bpm" | "ambientTemp" | "pressure" | "timestamp", ExtArgs["result"]["sensorLog"]>
 export type SensorLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }
@@ -810,6 +927,9 @@ export type $SensorLogPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     lat: number | null
     lng: number | null
     weatherTemp: number | null
+    bpm: number | null
+    ambientTemp: number | null
+    pressure: number | null
     timestamp: Date
   }, ExtArgs["result"]["sensorLog"]>
   composites: {}
@@ -1245,6 +1365,9 @@ export interface SensorLogFieldRefs {
   readonly lat: Prisma.FieldRef<"SensorLog", 'Float'>
   readonly lng: Prisma.FieldRef<"SensorLog", 'Float'>
   readonly weatherTemp: Prisma.FieldRef<"SensorLog", 'Float'>
+  readonly bpm: Prisma.FieldRef<"SensorLog", 'Int'>
+  readonly ambientTemp: Prisma.FieldRef<"SensorLog", 'Float'>
+  readonly pressure: Prisma.FieldRef<"SensorLog", 'Float'>
   readonly timestamp: Prisma.FieldRef<"SensorLog", 'DateTime'>
 }
     
