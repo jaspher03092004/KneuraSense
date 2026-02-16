@@ -19,6 +19,8 @@ model Clinician {
   specialization String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+   auditLogs AuditLog[]
 }
 
 model Patient {
@@ -58,3 +60,25 @@ model SensorLog {
 
   @@index([patientId])
 }
+
+// Add this below your existing models in prisma/schema.prisma
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  clinicianId String
+  action      String   // e.g., "EXPORT_DATA", "UPDATE_SETTINGS", "VIEW_PATIENT"
+  targetType  String?  // e.g., "Patient", "System"
+  targetId    String?  // The ID of the patient or resource affected
+  details     String?  // Optional JSON string for extra context
+  ipAddress   String?  
+  createdAt   DateTime @default(now())
+
+  // Create a relation back to the Clinician
+  clinician   Clinician @relation(fields: [clinicianId], references: [clinician_id])
+}
+
+// NOTE: You will also need to add `auditLogs AuditLog[]` to your Clinician model:
+// model Clinician {
+//   ... existing fields ...
+//   auditLogs AuditLog[]
+// }

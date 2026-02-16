@@ -11,4 +11,5 @@
 export type * from './models/Clinician.ts'
 export type * from './models/Patient.ts'
 export type * from './models/SensorLog.ts'
+export type * from './models/AuditLog.ts'
 export type * from './commonInputTypes.ts'

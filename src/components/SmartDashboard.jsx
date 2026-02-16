@@ -58,7 +58,6 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
 
 // --- Main Component (Saves to DB) ---
 export default function SmartDashboard({ patientName, patientId }) {
-  // 1. Pull data from our single source of truth hook
   const { data, deviceStatus, lastPacketTime } = useMQTT();
   
   const [weather, setWeather] = useState(null);
@@ -143,8 +142,9 @@ export default function SmartDashboard({ patientName, patientId }) {
               <p className="text-sm text-slate-500 font-medium">Knee Osteoarthritis stress indicator</p>
            </div>
            
-           <div className="relative w-full max-w-[240px] h-32 mt-4 mb-2 mx-auto flex justify-center items-end">
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110">
+           {/* UPDATED GAUGE CONTAINER FOR RESPONSIVENESS */}
+           <div className="relative w-full max-w-[240px] md:max-w-xs h-32 mt-4 mb-2 mx-auto flex justify-center items-end min-w-0">
+              <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
                 <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100" strokeWidth="18" strokeLinecap="round" />
                 <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
                   className={`transition-all duration-1000 ease-out ${

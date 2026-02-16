@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle
+  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle,
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -56,11 +56,16 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
   </div>
 );
 
-// --- Main Read-Only Component ---
-export default function LiveDashboard({ patientName }) {
-  // 1. Pull data from our single source of truth hook
+// --- Main Component (Saves to DB) ---
+export default function SmartDashboard({ patientName, patientId }) {
   const { data, deviceStatus, lastPacketTime } = useMQTT();
+  
   const [weather, setWeather] = useState(null);
+  const dataRef = useRef(data); 
+  const weatherRef = useRef(weather); 
+
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { weatherRef.current = weather; }, [weather]);
 
   // --- WEATHER FETCHING ---
   useEffect(() => {
@@ -78,18 +83,49 @@ export default function LiveDashboard({ patientName }) {
     }
   }, [data.lat, data.lng]); 
 
+  // --- AUTO-SAVE TO SUPABASE ---
+  useEffect(() => {
+    const saveInterval = setInterval(async () => {
+      const currentData = dataRef.current;
+      const currentWeather = weatherRef.current; 
+      
+      if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
+        try {
+           await fetch('/api/save-log', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ 
+               patientId: patientId,
+               risk_score: currentData.risk_score,
+               bat: currentData.bat,
+               angle: currentData.angle,
+               skin_temp: currentData.skin_temp,
+               fsr: currentData.fsr,
+               lat: currentData.lat, 
+               lng: currentData.lng,
+               weatherTemp: currentWeather ? currentWeather.main.temp : null,
+               bpm: currentData.bpm,
+               ambient_temp: currentData.ambient_temp,
+               pressure: currentData.pressure
+             }),
+           });
+        } catch (err) { console.error("Auto-save failed:", err); }
+      }
+    }, 10000); 
+    return () => clearInterval(saveInterval);
+  }, [deviceStatus, patientId]);
+
   const timeString = lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString() : "--:--";
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Clinical View (Live)</h1>
-          <p className="text-sm font-medium text-slate-500 mt-1">Read-only telemetry stream for {patientName || 'Patient'}</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Patient Monitoring</h1>
+          <p className="text-sm font-medium text-slate-500 mt-1">Live telemetry for {patientName}</p>
         </div>
-        
         <div className="flex flex-wrap items-center gap-3">
-           <StatusBadge icon={Bluetooth} label="KneuraSense-001" value={deviceStatus} isOnline={deviceStatus === 'Online'} />
+           <StatusBadge icon={Wifi} label="KneuraSense-001" value={deviceStatus} isOnline={deviceStatus === 'Online'} />
            <StatusBadge icon={RefreshCw} label="Last Sync" value={timeString} isOnline={deviceStatus === 'Online'} />
         </div>
       </div>
@@ -103,11 +139,12 @@ export default function LiveDashboard({ patientName }) {
            
            <div className="w-full text-center mb-6">
               <h2 className="text-xl font-bold text-slate-800">Overuse Risk Score</h2>
-              <p className="text-sm text-slate-500 font-medium">Osteoarthritis stress indicator</p>
+              <p className="text-sm text-slate-500 font-medium">Knee Osteoarthritis stress indicator</p>
            </div>
            
-           <div className="relative w-full max-w-[240px] h-32 mt-4 mb-2 mx-auto flex justify-center items-end">
-              <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110">
+           {/* UPDATED GAUGE CONTAINER FOR RESPONSIVENESS */}
+           <div className="relative w-full max-w-[240px] md:max-w-xs h-32 mt-4 mb-2 mx-auto flex justify-center items-end min-w-0">
+              <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
                 <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100" strokeWidth="18" strokeLinecap="round" />
                 <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
                   className={`transition-all duration-1000 ease-out ${
