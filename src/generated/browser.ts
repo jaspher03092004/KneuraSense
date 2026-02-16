@@ -32,3 +32,8 @@ export type Patient = Prisma.PatientModel
  * 
  */
 export type SensorLog = Prisma.SensorLogModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel

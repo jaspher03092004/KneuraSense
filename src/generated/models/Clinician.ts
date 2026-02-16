@@ -206,6 +206,7 @@ export type ClinicianWhereInput = {
   specialization?: Prisma.StringFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type ClinicianOrderByWithRelationInput = {
@@ -217,6 +218,7 @@ export type ClinicianOrderByWithRelationInput = {
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
@@ -231,6 +233,7 @@ export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
   specialization?: Prisma.StringFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "clinician_id" | "email" | "phone_number">
 
 export type ClinicianOrderByWithAggregationInput = {
@@ -270,6 +273,7 @@ export type ClinicianCreateInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianUncheckedCreateInput = {
@@ -281,6 +285,7 @@ export type ClinicianUncheckedCreateInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianUpdateInput = {
@@ -292,6 +297,7 @@ export type ClinicianUpdateInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianUncheckedUpdateInput = {
@@ -303,6 +309,7 @@ export type ClinicianUncheckedUpdateInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianCreateManyInput = {
@@ -371,6 +378,11 @@ export type ClinicianMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type ClinicianScalarRelationFilter = {
+  is?: Prisma.ClinicianWhereInput
+  isNot?: Prisma.ClinicianWhereInput
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -379,6 +391,109 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type ClinicianCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.ClinicianCreateWithoutAuditLogsInput, Prisma.ClinicianUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.ClinicianCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.ClinicianWhereUniqueInput
+}
+
+export type ClinicianUpdateOneRequiredWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.ClinicianCreateWithoutAuditLogsInput, Prisma.ClinicianUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.ClinicianCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.ClinicianUpsertWithoutAuditLogsInput
+  connect?: Prisma.ClinicianWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ClinicianUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.ClinicianUpdateWithoutAuditLogsInput>, Prisma.ClinicianUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type ClinicianCreateWithoutAuditLogsInput = {
+  clinician_id?: string
+  full_name: string
+  email: string
+  phone_number: string
+  password_hash: string
+  specialization: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ClinicianUncheckedCreateWithoutAuditLogsInput = {
+  clinician_id?: string
+  full_name: string
+  email: string
+  phone_number: string
+  password_hash: string
+  specialization: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ClinicianCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.ClinicianWhereUniqueInput
+  create: Prisma.XOR<Prisma.ClinicianCreateWithoutAuditLogsInput, Prisma.ClinicianUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type ClinicianUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.ClinicianUpdateWithoutAuditLogsInput, Prisma.ClinicianUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.ClinicianCreateWithoutAuditLogsInput, Prisma.ClinicianUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.ClinicianWhereInput
+}
+
+export type ClinicianUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.ClinicianWhereInput
+  data: Prisma.XOR<Prisma.ClinicianUpdateWithoutAuditLogsInput, Prisma.ClinicianUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type ClinicianUpdateWithoutAuditLogsInput = {
+  clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  specialization?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ClinicianUncheckedUpdateWithoutAuditLogsInput = {
+  clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  specialization?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type ClinicianCountOutputType
+ */
+
+export type ClinicianCountOutputType = {
+  auditLogs: number
+}
+
+export type ClinicianCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  auditLogs?: boolean | ClinicianCountOutputTypeCountAuditLogsArgs
+}
+
+/**
+ * ClinicianCountOutputType without action
+ */
+export type ClinicianCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ClinicianCountOutputType
+   */
+  select?: Prisma.ClinicianCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ClinicianCountOutputType without action
+ */
+export type ClinicianCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
 
 
 export type ClinicianSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -390,6 +505,8 @@ export type ClinicianSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   specialization?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  auditLogs?: boolean | Prisma.Clinician$auditLogsArgs<ExtArgs>
+  _count?: boolean | Prisma.ClinicianCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["clinician"]>
 
 export type ClinicianSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -426,10 +543,18 @@ export type ClinicianSelectScalar = {
 }
 
 export type ClinicianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"clinician_id" | "full_name" | "email" | "phone_number" | "password_hash" | "specialization" | "createdAt" | "updatedAt", ExtArgs["result"]["clinician"]>
+export type ClinicianInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  auditLogs?: boolean | Prisma.Clinician$auditLogsArgs<ExtArgs>
+  _count?: boolean | Prisma.ClinicianCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type ClinicianIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ClinicianIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $ClinicianPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Clinician"
-  objects: {}
+  objects: {
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     clinician_id: string
     full_name: string
@@ -833,6 +958,7 @@ readonly fields: ClinicianFieldRefs;
  */
 export interface Prisma__ClinicianClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  auditLogs<T extends Prisma.Clinician$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Clinician$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -887,6 +1013,10 @@ export type ClinicianFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  /**
    * Filter, which Clinician to fetch.
    */
   where: Prisma.ClinicianWhereUniqueInput
@@ -905,6 +1035,10 @@ export type ClinicianFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  /**
    * Filter, which Clinician to fetch.
    */
   where: Prisma.ClinicianWhereUniqueInput
@@ -922,6 +1056,10 @@ export type ClinicianFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Clinician
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
   /**
    * Filter, which Clinician to fetch.
    */
@@ -971,6 +1109,10 @@ export type ClinicianFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  /**
    * Filter, which Clinician to fetch.
    */
   where?: Prisma.ClinicianWhereInput
@@ -1019,6 +1161,10 @@ export type ClinicianFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  /**
    * Filter, which Clinicians to fetch.
    */
   where?: Prisma.ClinicianWhereInput
@@ -1061,6 +1207,10 @@ export type ClinicianCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Clinician
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
   /**
    * The data needed to create a Clinician.
    */
@@ -1109,6 +1259,10 @@ export type ClinicianUpdateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Clinician
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
   /**
    * The data needed to update a Clinician.
    */
@@ -1176,6 +1330,10 @@ export type ClinicianUpsertArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  /**
    * The filter to search for the Clinician to update in case it exists.
    */
   where: Prisma.ClinicianWhereUniqueInput
@@ -1202,6 +1360,10 @@ export type ClinicianDeleteArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  /**
    * Filter which Clinician to delete.
    */
   where: Prisma.ClinicianWhereUniqueInput
@@ -1222,6 +1384,30 @@ export type ClinicianDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
+ * Clinician.auditLogs
+ */
+export type Clinician$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
+}
+
+/**
  * Clinician without action
  */
 export type ClinicianDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1233,4 +1419,8 @@ export type ClinicianDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Clinician
    */
   omit?: Prisma.ClinicianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
 }
