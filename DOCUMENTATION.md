@@ -10,21 +10,21 @@ KneuraSense employs a modern full-stack architecture built on Next.js with clear
 ┌─────────────────────┐
 │   React Components  │  (components/, UI logic)
 └──────────┬──────────┘
-│
+           │
 ┌──────────v─────────────────────────────────────┐
 │   Next.js App Router (app/)                    │
 │   ├── Route Groups: (clinician), (auth)        │
 │   ├── Dynamic Routes: patient/[id]             │
 │   └── API Routes: api/                         │
 └──────────┬─────────────────────────────────────┘
-│
+           │
 ┌──────────v──────────────────┐
 │   Data Layer (lib/)         │
 │   ├── Prisma ORM Client     │
 │   ├── MQTT Integration      │
 │   └── Weather Service       │
 └──────────┬──────────────────┘
-│
+           │
 ┌──────────v──────────────────┐
 │   PostgreSQL Database       │
 └─────────────────────────────┘
@@ -210,19 +210,10 @@ const riskScore = calculateRisk(sensorData, weather);
 
 File Management Logic
 Components vs. App: Clear Separation of Concerns
-Aspect,src/components/,src/app/
-Purpose,Reusable UI components,Page routing & layouts
-State Management,"Local component state, props",Server/Client components
-Examples,"SmartDashboard.jsx, sidebar.jsx","dashboard/page.js, layout.js"
-Responsibility,"Rendering UI, handling user interactions",Orchestrating data flows & page structure
-Reusability,Used across multiple pages,Page-specific logic
+![alt text](image.png)
 
 Component Examples:
-Component,Purpose,Key Responsibilities
-sidebar.jsx,Unified navigation system,"Dynamically renders Clinician vs. Patient menus, handles mobile hamburger state, and manages the Dark Mode toggle."
-DashboardLayoutContent.jsx,Global layout wrapper,"Wraps all protected pages, integrates the sidebar, and enforces a 15-minute auto-logout inactivity timer."
-SmartDashboard.jsx,Real-time telemetry core,"Replaces older individual gauge components. Handles MQTT parsing, weather fetching, and renders the dynamic responsive SVG stress gauge."
-ThemeProvider.jsx,Global theme management,Client-side wrapper utilizing next-themes to prevent hydration mismatches while enabling persistent dark mode across the app.
+![alt text](image-1.png)
 
 Component Usage Pattern:
 // app/patient/[id]/dashboard/page.js
@@ -237,10 +228,7 @@ export default function PatientDashboard({ params }) {
 }
 
 Server Actions for Authentication
-The src/actions/ directory contains server-side logic for sensitive operations:
-File,Purpose,Exports
-login.js,User authentication,loginAction() - validates credentials
-register.js,New account creation,"registerAction() - hashes password, creates user"
+![alt text](image-2.png)
 
 Server Actions Pattern (Next.js 13+):
 // src/actions/login.js
@@ -269,11 +257,7 @@ Simplicity: Reduces API route verbosity for straightforward operations
 Developer Workflow & Standards
 Configuration Files Management
 The following files establish and maintain code quality standards:
-File,Purpose,Key Settings
-eslint.config.mjs,JavaScript linting,"Code style, best practices enforcement"
-postcss.config.mjs,CSS post-processing,"Tailwind CSS integration, vendor prefixes"
-next.config.mjs,Next.js compilation,"Environment variables, image optimization, API routes"
-jsconfig.json,JavaScript/TypeScript configuration,"Path aliases (@/ → src/), module resolution"
+![alt text](image-3.png)
 
 Path Alias Configuration (jsconfig.json):
 {
@@ -309,16 +293,7 @@ Code Quality Checklist:
 
 Environment & Dependencies
 Key Dependencies by Purpose:
-Category,Package,Version,Purpose
-Framework,Next.js,16,Full-stack React framework
-UI,React,19,Component library
-Styling,Tailwind CSS,Latest,Utility-first CSS framework
-Theme,next-themes,Latest,Handles Dark/Light mode switching & system preferences
-Database,Prisma,Latest,Type-safe ORM
-Database,pg,Latest,PostgreSQL driver
-Security,bcryptjs,Latest,Password hashing
-IoT,mqtt,Latest,MQTT client
-Dev Tools,ESLint,Latest,Code linting
+![alt text](image-4.png)
 
 Dependency Management:
 npm update              # Check for updates
@@ -404,12 +379,7 @@ Use Next.js Image optimization - Reduce dashboard load times
 Implement pagination - For large sensor datasets
 
 Troubleshooting Reference
-Issue,Cause,Solution
-Prisma Client errors,Schema out of sync,Run npx prisma generate && npx prisma db push
-MQTT connection fails,Broker unreachable,Verify MQTT_BROKER_URL in .env.local
-Authentication fails,Corrupted session,"Clear cookies, re-login"
-Slow dashboard loads,Unoptimized queries,Use Prisma select() to limit returned fields
-Database connection pool exhausted,Too many concurrent connections,Verify lib/prisma.js singleton usage
+![alt text](image-5.png)
 
 Additional Resources
 
