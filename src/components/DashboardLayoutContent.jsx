@@ -34,16 +34,17 @@ export default function DashboardLayoutContent({ children, user }) {
   }, [handleLogout]);
 
   return (
-    <div className="flex min-h-screen bg-gray-50 relative">
-      {/* Mobile Backdrop Overlay - Only shows on mobile when sidebar is open */}
+    // ADDED dark:bg-slate-950 HERE!
+    <div className="flex min-h-screen bg-gray-50 dark:bg-slate-950 relative transition-colors duration-300">
+      
+      {/* Mobile Backdrop Overlay */}
       {isSidebarExpanded && (
         <div 
-          className="md:hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm transition-opacity" 
+          className="md:hidden fixed inset-0 z-40 bg-slate-900/50 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" 
           onClick={() => setIsSidebarExpanded(false)}
         />
       )}
 
-      {/* The Sidebar component should internally manage its own z-index (e.g., z-50) and fixed positioning */}
       <Sidebar 
         isExpanded={isSidebarExpanded} 
         setIsExpanded={setIsSidebarExpanded}

@@ -9,7 +9,6 @@ export default function RefreshButton() {
   const [isPending, startTransition] = useTransition();
 
   const handleRefresh = () => {
-    // startTransition allows us to track the pending state of the server refresh
     startTransition(() => {
       router.refresh();
     });
@@ -19,7 +18,7 @@ export default function RefreshButton() {
     <button 
       onClick={handleRefresh}
       disabled={isPending}
-      className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors shadow-sm disabled:opacity-70"
+      className="flex w-full md:w-auto h-11 items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl md:rounded-lg text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-70"
     >
       <RefreshCw 
         size={16} 
