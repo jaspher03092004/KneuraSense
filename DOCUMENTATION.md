@@ -7,27 +7,29 @@ This section provides a comprehensive technical overview of the KneuraSense syst
 
 KneuraSense employs a modern full-stack architecture built on Next.js with clear separation of concerns:
 
+```
 ┌─────────────────────┐
 │   React Components  │  (components/, UI logic)
 └──────────┬──────────┘
            │
 ┌──────────v─────────────────────────────────────┐
-│   Next.js App Router (app/)                    │
+│   Next.js App Router (app/)                     │
 │   ├── Route Groups: (clinician), (auth)        │
-│   ├── Dynamic Routes: patient/[id]             │
-│   └── API Routes: api/                         │
-└──────────┬─────────────────────────────────────┘
+│   ├── Dynamic Routes: patient/[id]              │
+│   └── API Routes: api/                          │
+└──────────┬──────────────────────────────────────┘
            │
 ┌──────────v──────────────────┐
-│   Data Layer (lib/)         │
+│   Data Layer (lib/)          │
 │   ├── Prisma ORM Client     │
 │   ├── MQTT Integration      │
 │   └── Weather Service       │
 └──────────┬──────────────────┘
            │
 ┌──────────v──────────────────┐
-│   PostgreSQL Database       │
+│   PostgreSQL Database        │
 └─────────────────────────────┘
+```
 
 #### Frontend-API Interaction Flow
 
@@ -39,8 +41,9 @@ The application follows a clear request-response pattern:
 4. **Data Persistence** (`lib/prisma.js`): Singleton Prisma Client manages all database operations
 
 **Example flow for patient data retrieval:**
-
+```
 React Component → app/patient/[id]/dashboard/page.js → api/patient/[id]/route.js → lib/prisma.js → PostgreSQL
+```
 
 ### Route Architecture: (clinician) Route Group vs. patient/[id]
 
@@ -79,12 +82,15 @@ The `generated/` directory contains auto-generated Prisma client code that bridg
 **Generation Process:**
 ```bash
 npx prisma generate  # Re-generates client when schema.prisma changes
+```
 
-These files are auto-generated from prisma/schema.prisma, so they should never be manually edited. They update whenever your database schema changes.
+These files are auto-generated from `prisma/schema.prisma`, so they should **never be manually edited**. They update whenever your database schema changes.
 
-Singleton Prisma Instance: lib/prisma.js
-All database operations route through a single Prisma Client instance (lib/prisma.js) to prevent connection pool exhaustion and ensure consistent transaction handling:
+#### Singleton Prisma Instance: lib/prisma.js
 
+All database operations route through a single Prisma Client instance (`lib/prisma.js`) to prevent connection pool exhaustion and ensure consistent transaction handling:
+
+```javascript
 // lib/prisma.js - Singleton Pattern
 const globalForPrisma = global;
 
@@ -95,18 +101,19 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export default prisma;
+```
 
-Why Singleton?
+**Why Singleton?**
+- **Connection Pooling**: Reuses database connections across the entire application
+- **Memory Efficiency**: Prevents multiple Client instances consuming excessive resources
+- **Transaction Safety**: Centralized transaction management
+- **Hot Reload Support**: Preserves database connection during development
 
-Connection Pooling: Reuses database connections across the entire application
-Memory Efficiency: Prevents multiple Client instances consuming excessive resources
-Transaction Safety: Centralized transaction management
-Hot Reload Support: Preserves database connection during development
-
-Usage Example:
-
+**Usage Example:**
+```javascript
 // app/api/patient/[id]/route.js
 import prisma from "@/lib/prisma";
+
 export async function GET(request, { params }) {
   const patient = await prisma.patient.findUnique({
     where: { id: parseInt(params.id) },
@@ -114,9 +121,13 @@ export async function GET(request, { params }) {
   });
   return Response.json(patient);
 }
+```
 
-Model Relationships
+#### Model Relationships
+
 The data model defines relationships between Clinician and Patient entities:
+
+```
 Clinician
   ├── id (Primary Key)
   ├── email
@@ -131,42 +142,51 @@ Patient
   ├── clinician (Many-to-One Relation)
   ├── sensorReadings (One-to-Many Relation)
   └── [additional fields...]
+```
 
-  Querying with Relations:
-
-  // Fetch clinician with all patients
+**Querying with Relations:**
+```javascript
+// Fetch clinician with all patients
 const clinician = await prisma.clinician.findUnique({
   where: { id: clinicianId },
   include: { patients: true }
 });
+
 // Fetch patient with clinician details
 const patient = await prisma.patient.findUnique({
   where: { id: patientId },
   include: { clinician: true }
 });
+```
 
-Infrastructure & Utilities
-Real-Time Messaging: lib/mqtt.js
+---
+
+### Infrastructure & Utilities
+
+#### Real-Time Messaging: lib/mqtt.js
+
 MQTT (Message Queuing Telemetry Transport) handles real-time communication between IoT devices and the web application:
 
-Purpose:
+**Purpose:**
+- **Sensor Data Streaming**: Receives continuous updates from knee sensors
+- **Low Bandwidth**: MQTT is optimized for IoT with minimal overhead
+- **Publish-Subscribe Model**: Decouples device publishers from data consumers
+- **Reliability**: Supports message persistence and acknowledgment
 
-Sensor Data Streaming: Receives continuous updates from knee sensors
-Low Bandwidth: MQTT is optimized for IoT with minimal overhead
-Publish-Subscribe Model: Decouples device publishers from data consumers
-Reliability: Supports message persistence and acknowledgment
-
-Integration Points:
-
+**Integration Points:**
+```
 IoT Devices → MQTT Broker → lib/mqtt.js → Application State/Database
+```
 
-Topic Structure (typical pattern):
-
+**Topic Structure** (typical pattern):
+```
 keurasense/device/{deviceId}/sensor/{sensorType}/data
 keurasense/device/{deviceId}/alert
 keurasense/device/{deviceId}/status
+```
 
-Implementation Pattern:
+**Implementation Pattern:**
+```javascript
 // lib/mqtt.js - Example subscriber
 import mqtt from "mqtt";
 
@@ -180,57 +200,90 @@ client.on("message", (topic, message) => {
   const payload = JSON.parse(message);
   // Process sensor data, trigger alerts, update database
 });
+```
 
-Weather Integration: lib/weather.js
+#### Weather Integration: lib/weather.js
+
 Contextual weather data enriches knee stress analysis by accounting for environmental factors:
 
-Weather Impact on Knee Stress:
+**Weather Impact on Knee Stress:**
+- **Humidity**: Affects cartilage swelling and joint stiffness
+- **Temperature**: Cold temperatures increase inflammation risk
+- **Barometric Pressure**: Correlates with joint pain and tissue expansion
+- **Terrain Adaptation**: Wet/slippery conditions increase compensation stress
 
-Humidity: Affects cartilage swelling and joint stiffness
-Temperature: Cold temperatures increase inflammation risk
-Barometric Pressure: Correlates with joint pain and tissue expansion
-Terrain Adaptation: Wet/slippery conditions increase compensation stress
+**API Integration:**
+- Typically integrates with OpenWeatherMap, Weather API, or similar service
+- Caches weather data to minimize API calls
+- Timestamps all readings for correlation with sensor data
 
-API Integration:
-
-Typically integrates with OpenWeatherMap, Weather API, or similar service
-Caches weather data to minimize API calls
-Timestamps all readings for correlation with sensor data
-
-Usage in Dashboard:
+**Usage in Dashboard:**
+```
 Patient Sensor Reading + Weather Conditions → Risk Assessment Algorithm → Alert/Recommendation
+```
 
-Example Flow:
+**Example Flow:**
+```javascript
 // Fetch current weather and patient sensor data
 const weather = await lib.weather.getCurrent(patientLocation);
 const sensorData = await prisma.sensorReading.findLatest();
 
 // Combine factors in risk calculation
 const riskScore = calculateRisk(sensorData, weather);
+```
 
-File Management Logic
-Components vs. App: Clear Separation of Concerns
-![alt text](image.png)
+---
 
-Component Examples:
-![alt text](image-1.png)
+### File Management Logic
 
-Component Usage Pattern:
+#### Components vs. App: Clear Separation of Concerns
+
+| Aspect | `src/components/` | `src/app/` |
+|--------|-------------------|-----------|
+| **Purpose** | Reusable UI components | Page routing & layouts |
+| **State Management** | Local component state, props | Server/Client components |
+| **Examples** | `StressGauge.jsx`, `SensorGrid.jsx` | `dashboard/page.js`, `layout.js` |
+| **Responsibility** | Rendering UI, handling user interactions | Orchestrating data flows & page structure |
+| **Reusability** | Used across multiple pages | Page-specific logic |
+
+**Component Examples:**
+
+| Component | Purpose | Key Props |
+|-----------|---------|-----------|
+| `AlertModal.jsx` | Displays critical alerts | `isOpen`, `message`, `severity`, `onClose` |
+| `LogoutButton.jsx` | User session termination | `onLogout` callback |
+| `SensorGrid.jsx` | Multi-sensor data display | `sensorData[]`, `updateFrequency` |
+| `StressGauge.jsx` | Visual stress level indicator | `stressLevel`, `threshold`, `animated` |
+
+**Component Usage Pattern:**
+```javascript
 // app/patient/[id]/dashboard/page.js
-import SmartDashboard from "@/components/SmartDashboard";
+import StressGauge from "@/components/StressGauge";
+import SensorGrid from "@/components/SensorGrid";
 
 export default function PatientDashboard({ params }) {
+  const [sensorData, setSensorData] = useState([]);
+  
   return (
-    <div className="min-h-screen bg-transparent transition-colors duration-300">
-      <SmartDashboard patientName={patient.fullName} patientId={patient.id} />
+    <div className="dashboard">
+      <StressGauge stressLevel={calculateStress(sensorData)} />
+      <SensorGrid sensorData={sensorData} />
     </div>
   );
 }
+```
 
-Server Actions for Authentication
-![alt text](image-2.png)
+#### Server Actions for Authentication
 
-Server Actions Pattern (Next.js 13+):
+The `src/actions/` directory contains server-side logic for sensitive operations:
+
+| File | Purpose | Exports |
+|------|---------|---------|
+| `login.js` | User authentication | `loginAction()` - validates credentials |
+| `register.js` | New account creation | `registerAction()` - hashes password, creates user |
+
+**Server Actions Pattern** (Next.js 13+):
+```javascript
 // src/actions/login.js
 'use server'
 
@@ -247,19 +300,30 @@ export async function loginAction(email, password) {
   // Create session, return authentication token
   return { success: true, userId: user.id };
 }
+```
 
-Why Server Actions?
+**Why Server Actions?**
+- **Security**: Sensitive operations run on server, not exposed to browser
+- **Database Access**: Direct database queries without API route boilerplate
+- **Simplicity**: Reducesapi route verbosity for straightforward operations
 
-Security: Sensitive operations run on server, not exposed to browser
-Database Access: Direct database queries without API route boilerplate
-Simplicity: Reduces API route verbosity for straightforward operations
+---
 
-Developer Workflow & Standards
-Configuration Files Management
+### Developer Workflow & Standards
+
+#### Configuration Files Management
+
 The following files establish and maintain code quality standards:
-![alt text](image-3.png)
 
-Path Alias Configuration (jsconfig.json):
+| File | Purpose | Key Settings |
+|------|---------|--------------|
+| `eslint.config.mjs` | JavaScript linting | Code style, best practices enforcement |
+| `postcss.config.mjs` | CSS post-processing | Tailwind CSS integration, vendor prefixes |
+| `next.config.mjs` | Next.js compilation | Environment variables, image optimization, API routes |
+| `jsconfig.json` | JavaScript/TypeScript configuration | Path aliases (`@/` → `src/`), module resolution |
+
+**Path Alias Configuration** (`jsconfig.json`):
+```json
 {
   "compilerOptions": {
     "baseUrl": ".",
@@ -268,41 +332,66 @@ Path Alias Configuration (jsconfig.json):
     }
   }
 }
+```
 
 This enables clean imports across the application:
+```javascript
 // Instead of: import prisma from "../../../lib/prisma"
 import prisma from "@/lib/prisma";
+```
 
-Build & Development Workflow
-Development:
+#### Build & Development Workflow
+
+**Development:**
+```bash
 npm run dev              # Hot-reload development server
 npm run lint            # Check code quality before commit
+```
 
-Production:
+**Production:**
+```bash
 npm run build           # Compile optimized production bundle
 npm start               # Run production server
 npx prisma db push     # Sync database schema before deployment
+```
 
-Code Quality Checklist:
+**Code Quality Checklist:**
+1. ✅ Run `npm run lint` - Fix ESLint violations
+2. ✅ Test API routes with `curl` or Postman
+3. ✅ Verify Prisma schema changes with `npx prisma db push`
+4. ✅ Test authentication flows (login/register)
+5. ✅ Validate MQTT connectivity to sensor devices
 
-✅ Run npm run lint - Fix ESLint violations
-✅ Test API routes with curl or Postman
-✅ Verify Prisma schema changes with npx prisma db push
-✅ Test authentication flows (login/register)
-✅ Validate MQTT connectivity to sensor devices
+#### Environment & Dependencies
 
-Environment & Dependencies
-Key Dependencies by Purpose:
-![alt text](image-4.png)
+**Key Dependencies by Purpose:**
 
-Dependency Management:
+| Category | Package | Version | Purpose |
+|----------|---------|---------|---------|
+| **Framework** | Next.js | 16 | Full-stack React framework |
+| **UI** | React | 19 | Component library |
+| **Styling** | Tailwind CSS | Latest | Utility-first CSS framework |
+| **Database** | Prisma | Latest | Type-safe ORM |
+| **Database** | pg | Latest | PostgreSQL driver |
+| **Security** | bcryptjs | Latest | Password hashing |
+| **IoT** | mqtt | Latest | MQTT client |
+| **Dev Tools** | ESLint | Latest | Code linting |
+
+**Dependency Management:**
+```bash
 npm update              # Check for updates
 npm audit              # Security vulnerabilities
 npm ci                 # Clean install (production)
 npm install            # Add/update dependencies
+```
 
-Data Flow Diagrams
-Login & Session Flow
+---
+
+### Data Flow Diagrams
+
+#### Login & Session Flow
+
+```
 1. User submits credentials (UI)
           ↓
 2. Browser sends to /login (route)
@@ -313,11 +402,12 @@ Login & Session Flow
           ↓
 5. Create session/JWT token
           ↓
-6. Redirect to /clinician/[id]/dashboard or /patient/[id]/dashboard
-          ↓
-7. DashboardLayoutContent.jsx initializes a 15-minute inactivity timer. If no mouse/keyboard events occur, user is auto-redirected back to /login.
+6. Redirect to /clinician/[id]/dashboard
+```
 
-Real-Time Sensor Data Flow
+#### Real-Time Sensor Data Flow
+
+```
 IoT Knee Device
           ↓
 MQTT Topic: keurasense/device/{id}/sensor/pressure/data
@@ -330,11 +420,14 @@ Store in database (prisma.sensorReading.create)
           ↓
 Broadcast to connected clients (WebSocket/polling)
           ↓
-Components update (SmartDashboard)
+Components update (StressGauge, SensorGrid)
           ↓
 Alert if threshold exceeded
+```
 
-API Request Pattern
+#### API Request Pattern
+
+```
 React Component
           ↓
 fetch("/api/patient/[id]", { method: "GET" })
@@ -348,43 +441,62 @@ PostgreSQL returns data
 Response serialized as JSON
           ↓
 Component receives & renders data
+```
 
-Best Practices & Standards
-Security Guidelines
+---
 
-Never commit .env.local - Each environment has unique credentials
-Validate all inputs - Both client and server-side validation (using Zod)
-Use HTTPS in production - MQTT should use MQTTS (encrypted)
-Hash passwords with bcryptjs - Never store plain text passwords
-Implement Session Timeouts - DashboardLayoutContent currently enforces client-side inactivity timeouts to protect unattended devices.
-Implement rate limiting - Prevent brute-force attacks on auth endpoints
+### Best Practices & Standards
 
-Database Best Practices
+#### Security Guidelines
 
-Always use Prisma Client - Never raw SQL queries
-Use transactions for multi-step operations - Ensure consistency
-Index frequently queried fields - Improve query performance
-Review schema.prisma before pushing - Database migrations are permanent
+1. **Never commit `.env.local`** - Each environment has unique credentials
+2. **Validate all inputs** - Both client and server-side validation
+3. **Use HTTPS in production** - MQTT should use MQTTS (encrypted)
+4. **Hash passwords with bcryptjs** - Never store plain text passwords
+5. **Implement rate limiting** - Prevent brute-force attacks on auth endpoints
+
+#### Database Best Practices
+
+1. **Always use Prisma Client** - Never raw SQL queries
+2. **Use transactions for multi-step operations** - Ensure consistency
+3. **Index frequently queried fields** - Improve query performance
+4. **Review schema.prisma before pushing** - Database migrations are permanent
+
+```javascript
 // Good: Transactional operation
 await prisma.$transaction([
   prisma.patient.update({ ... }),
   prisma.sensorReading.createMany({ ... })
 ]);
+```
 
-Performance Optimization
+#### Performance Optimization
 
-Cache MQTT topic subscriptions - Avoid re-subscribing on every render
-Debounce sensor data updates - Limit database writes
-Use Next.js Image optimization - Reduce dashboard load times
-Implement pagination - For large sensor datasets
+1. **Cache MQTT topic subscriptions** - Avoid re-subscribing on every render
+2. **Debounce sensor data updates** - Limit database writes
+3. **Use Next.js Image optimization** - Reduce dashboard load times
+4. **Implement pagination** - For large sensor datasets
 
-Troubleshooting Reference
-![alt text](image-5.png)
+---
 
-Additional Resources
+### Troubleshooting Reference
 
-Next.js App Router: https://nextjs.org/docs/app
-Prisma ORM: https://www.prisma.io/docs
-MQTT Protocol: https://mqtt.org/
-PostgreSQL: https://www.postgresql.org/docs
-Tailwind CSS: https://tailwindcss.com/docs
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Prisma Client errors | Schema out of sync | Run `npx prisma generate && npx prisma db push` |
+| MQTT connection fails | Broker unreachable | Verify MQTT_BROKER_URL in .env.local |
+| Authentication fails | Corrupted session | Clear cookies, re-login |
+| Slow dashboard loads | Unoptimized queries | Use Prisma select() to limit returned fields |
+| Database connection pool exhausted | Too many concurrent connections | Verify lib/prisma.js singleton usage |
+
+---
+
+### Additional Resources
+
+- **Next.js App Router**: https://nextjs.org/docs/app
+- **Prisma ORM**: https://www.prisma.io/docs
+- **MQTT Protocol**: https://mqtt.org/
+- **PostgreSQL**: https://www.postgresql.org/docs
+- **Tailwind CSS**: https://tailwindcss.com/docs
+
+---
