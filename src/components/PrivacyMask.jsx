@@ -17,7 +17,7 @@ export default function PrivacyMask({ children, defaultVisible = false }) {
       </span>
       <button 
         type="button"
-        className="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none"
+        className="text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity focus:outline-none"
         aria-label={isVisible ? "Hide data" : "Show data"}
       >
         {isVisible ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
