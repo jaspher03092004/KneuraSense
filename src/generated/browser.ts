@@ -37,3 +37,8 @@ export type SensorLog = Prisma.SensorLogModel
  * 
  */
 export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Intervention
+ * 
+ */
+export type Intervention = Prisma.InterventionModel

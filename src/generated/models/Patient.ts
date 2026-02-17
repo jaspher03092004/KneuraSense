@@ -293,6 +293,7 @@ export type PatientWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   sensorLogs?: Prisma.SensorLogListRelationFilter
+  interventions?: Prisma.InterventionListRelationFilter
 }
 
 export type PatientOrderByWithRelationInput = {
@@ -311,6 +312,7 @@ export type PatientOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
+  interventions?: Prisma.InterventionOrderByRelationAggregateInput
 }
 
 export type PatientWhereUniqueInput = Prisma.AtLeast<{
@@ -332,6 +334,7 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   sensorLogs?: Prisma.SensorLogListRelationFilter
+  interventions?: Prisma.InterventionListRelationFilter
 }, "id" | "phoneNumber" | "email">
 
 export type PatientOrderByWithAggregationInput = {
@@ -392,6 +395,7 @@ export type PatientCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
+  interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
 
 export type PatientUncheckedCreateInput = {
@@ -410,6 +414,7 @@ export type PatientUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
+  interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
 export type PatientUpdateInput = {
@@ -428,6 +433,7 @@ export type PatientUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
+  interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
 
 export type PatientUncheckedUpdateInput = {
@@ -446,6 +452,7 @@ export type PatientUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
+  interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
 export type PatientCreateManyInput = {
@@ -595,6 +602,20 @@ export type PatientUpdateOneRequiredWithoutSensorLogsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PatientUpdateToOneWithWhereWithoutSensorLogsInput, Prisma.PatientUpdateWithoutSensorLogsInput>, Prisma.PatientUncheckedUpdateWithoutSensorLogsInput>
 }
 
+export type PatientCreateNestedOneWithoutInterventionsInput = {
+  create?: Prisma.XOR<Prisma.PatientCreateWithoutInterventionsInput, Prisma.PatientUncheckedCreateWithoutInterventionsInput>
+  connectOrCreate?: Prisma.PatientCreateOrConnectWithoutInterventionsInput
+  connect?: Prisma.PatientWhereUniqueInput
+}
+
+export type PatientUpdateOneRequiredWithoutInterventionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PatientCreateWithoutInterventionsInput, Prisma.PatientUncheckedCreateWithoutInterventionsInput>
+  connectOrCreate?: Prisma.PatientCreateOrConnectWithoutInterventionsInput
+  upsert?: Prisma.PatientUpsertWithoutInterventionsInput
+  connect?: Prisma.PatientWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PatientUpdateToOneWithWhereWithoutInterventionsInput, Prisma.PatientUpdateWithoutInterventionsInput>, Prisma.PatientUncheckedUpdateWithoutInterventionsInput>
+}
+
 export type PatientCreateWithoutSensorLogsInput = {
   id?: string
   fullName: string
@@ -610,6 +631,7 @@ export type PatientCreateWithoutSensorLogsInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
 
 export type PatientUncheckedCreateWithoutSensorLogsInput = {
@@ -627,6 +649,7 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
 export type PatientCreateOrConnectWithoutSensorLogsInput = {
@@ -660,6 +683,7 @@ export type PatientUpdateWithoutSensorLogsInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
 
 export type PatientUncheckedUpdateWithoutSensorLogsInput = {
@@ -677,6 +701,95 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
+}
+
+export type PatientCreateWithoutInterventionsInput = {
+  id?: string
+  fullName: string
+  age?: number | null
+  gender?: string | null
+  phoneNumber: string
+  email: string
+  passwordHash: string
+  oaDiagnosis?: boolean
+  affectedKnee?: string | null
+  painSeverity?: number | null
+  occupation?: string | null
+  activityLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
+}
+
+export type PatientUncheckedCreateWithoutInterventionsInput = {
+  id?: string
+  fullName: string
+  age?: number | null
+  gender?: string | null
+  phoneNumber: string
+  email: string
+  passwordHash: string
+  oaDiagnosis?: boolean
+  affectedKnee?: string | null
+  painSeverity?: number | null
+  occupation?: string | null
+  activityLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
+}
+
+export type PatientCreateOrConnectWithoutInterventionsInput = {
+  where: Prisma.PatientWhereUniqueInput
+  create: Prisma.XOR<Prisma.PatientCreateWithoutInterventionsInput, Prisma.PatientUncheckedCreateWithoutInterventionsInput>
+}
+
+export type PatientUpsertWithoutInterventionsInput = {
+  update: Prisma.XOR<Prisma.PatientUpdateWithoutInterventionsInput, Prisma.PatientUncheckedUpdateWithoutInterventionsInput>
+  create: Prisma.XOR<Prisma.PatientCreateWithoutInterventionsInput, Prisma.PatientUncheckedCreateWithoutInterventionsInput>
+  where?: Prisma.PatientWhereInput
+}
+
+export type PatientUpdateToOneWithWhereWithoutInterventionsInput = {
+  where?: Prisma.PatientWhereInput
+  data: Prisma.XOR<Prisma.PatientUpdateWithoutInterventionsInput, Prisma.PatientUncheckedUpdateWithoutInterventionsInput>
+}
+
+export type PatientUpdateWithoutInterventionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
+}
+
+export type PatientUncheckedUpdateWithoutInterventionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
 }
 
 
@@ -686,10 +799,12 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
 
 export type PatientCountOutputType = {
   sensorLogs: number
+  interventions: number
 }
 
 export type PatientCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | PatientCountOutputTypeCountSensorLogsArgs
+  interventions?: boolean | PatientCountOutputTypeCountInterventionsArgs
 }
 
 /**
@@ -709,6 +824,13 @@ export type PatientCountOutputTypeCountSensorLogsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.SensorLogWhereInput
 }
 
+/**
+ * PatientCountOutputType without action
+ */
+export type PatientCountOutputTypeCountInterventionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.InterventionWhereInput
+}
+
 
 export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -726,6 +848,7 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
+  interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
@@ -783,6 +906,7 @@ export type PatientSelectScalar = {
 export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
+  interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PatientIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -792,6 +916,7 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Patient"
   objects: {
     sensorLogs: Prisma.$SensorLogPayload<ExtArgs>[]
+    interventions: Prisma.$InterventionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1203,6 +1328,7 @@ readonly fields: PatientFieldRefs;
 export interface Prisma__PatientClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sensorLogs<T extends Prisma.Patient$sensorLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Patient$sensorLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SensorLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  interventions<T extends Prisma.Patient$interventionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Patient$interventionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1655,6 +1781,30 @@ export type Patient$sensorLogsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.SensorLogScalarFieldEnum | Prisma.SensorLogScalarFieldEnum[]
+}
+
+/**
+ * Patient.interventions
+ */
+export type Patient$interventionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Intervention
+   */
+  select?: Prisma.InterventionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Intervention
+   */
+  omit?: Prisma.InterventionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.InterventionInclude<ExtArgs> | null
+  where?: Prisma.InterventionWhereInput
+  orderBy?: Prisma.InterventionOrderByWithRelationInput | Prisma.InterventionOrderByWithRelationInput[]
+  cursor?: Prisma.InterventionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.InterventionScalarFieldEnum | Prisma.InterventionScalarFieldEnum[]
 }
 
 /**
