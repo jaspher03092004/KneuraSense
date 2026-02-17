@@ -7,14 +7,12 @@ export default async function AnalyticsPage({ params, searchParams }) {
 
   const { id: clinicianId } = resolvedParams;
   const targetPatientId = resolvedSearchParams.patientId;
+  const period = resolvedSearchParams.period; 
+  const start = resolvedSearchParams.start;
+  const end = resolvedSearchParams.end;
 
   const allPatients = await prisma.patient.findMany({
-    select: {
-      id: true,
-      fullName: true,
-      age: true,
-      oaDiagnosis: true,
-    },
+    select: { id: true, fullName: true, age: true, oaDiagnosis: true },
     orderBy: { fullName: 'asc' }
   });
 
@@ -27,15 +25,40 @@ export default async function AnalyticsPage({ params, searchParams }) {
     });
 
     if (patient) {
+      const now = new Date();
+      let startDate = new Date();
+      let endDate = new Date(); // Added to track the end of the range
+
+      // Check if custom start and end dates were provided
+      if (start && end) {
+        startDate = new Date(start);
+        endDate = new Date(end);
+        endDate.setHours(23, 59, 59); // Set to end of the day
+      } else if (period === '7d') {
+        startDate.setDate(now.getDate() - 7);
+      } else if (period === '30d') {
+        startDate.setDate(now.getDate() - 30);
+      } else {
+        // Default to 24 hours
+        startDate.setHours(now.getHours() - 24);
+      }
+
       const rawSensorLogs = await prisma.sensorLog.findMany({
-        where: { patientId: patient.id },
+        where: { 
+          patientId: patient.id,
+          timestamp: {
+            gte: startDate,
+            lte: endDate // Now limits to endDate instead of strictly "now"
+          }
+        },
         orderBy: { timestamp: 'desc' },
-        take: 24
+        take: 1000 
       });
       sensorLogs = rawSensorLogs.reverse();
     }
   }
 
+  // ... (rest of the data formatting code remains exactly the same) ...
   let patientData = null;
   let chartData = [];
 

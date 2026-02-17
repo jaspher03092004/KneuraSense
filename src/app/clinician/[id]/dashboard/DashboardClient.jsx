@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { patientRegistrationSchema } from '@/lib/validations';
 import PrivacyMask from '@/components/PrivacyMask';
 import SmartDashboard from '@/components/SmartDashboard';
+import { clinicianRegisterPatient } from '@/actions/clinicianRegisterPatient';
 import {
   Search, Filter, Users, Activity, AlertCircle, WifiOff, Plus, ChevronLeft,
   ChevronRight, X, Clock, AlertTriangle, CheckCircle, Download, Loader2, ArrowRight
@@ -101,10 +102,9 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
       Object.keys(data).forEach((key) => {
         if (data[key] !== undefined && data[key] !== null) formDataObj.append(key, data[key]);
       });
-      formDataObj.append('role', 'Patient');
 
-      const response = await fetch('/api/register', { method: 'POST', body: formDataObj });
-      const result = await response.json();
+      // 2. Call the Server Action instead of fetch('/api/register')
+      const result = await clinicianRegisterPatient(formDataObj);
 
       if (result.success) {
         setRegistrationMessage({ type: 'success', text: 'Patient registered successfully!' });
@@ -118,6 +118,8 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
         setRegistrationMessage({ type: 'error', text: `Error: ${result.error || 'Registration failed'}` });
       }
     } catch (error) {
+      // If it fails now, you know it's an actual code error, not a missing API route
+      console.error(error); 
       setRegistrationMessage({ type: 'error', text: 'An error occurred during registration.' });
     }
   };
