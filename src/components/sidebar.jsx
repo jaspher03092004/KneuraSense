@@ -63,7 +63,6 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
   ];
 
   const clinicianManagementItems = [
-    { icon: Shield, label: 'System Management', href: `/clinician/${user?.id}/system-management` },
     { icon: FileText, label: 'Reports', href: `/clinician/${user?.id}/reports` },
     { icon: Settings, label: 'Settings', href: `/clinician/${user?.id}/settings` },
   ];
