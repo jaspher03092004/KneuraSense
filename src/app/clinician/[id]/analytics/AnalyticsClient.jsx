@@ -1,18 +1,43 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { RiskDonutChart, OveruseComposedChart, BiomechanicalScatterChart, MiniLineChart } from '@/components/HistoryCharts';
 import ExportButton from '@/components/ExportButton';
 import { 
-  Activity, Mountain, ChevronLeft, ChevronRight, User, AlertTriangle, Zap, Users, Thermometer, Target, Clock, ActivitySquare
+  Activity, Mountain, ChevronLeft, ChevronRight, User, AlertTriangle, Zap, Users, Thermometer, Target, Clock, ActivitySquare, Calendar
 } from 'lucide-react';
 
 export default function AnalyticsClient({ clinicianId, patientData, chartData, rawLogs, allPatients }) {
   const router = useRouter();
-  const [activePeriod, setActivePeriod] = useState("24h");
+  const searchParams = useSearchParams();
+  
+  // Read parameters from the URL
+  const activePeriod = searchParams.get('period') || '24h';
+  const patientId = searchParams.get('patientId');
+  const start = searchParams.get('start') || '';
+  const end = searchParams.get('end') || '';
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const handlePeriodChange = (newPeriod) => {
+    // Navigates and drops the start/end custom dates when a quick button is clicked
+    router.push(`/clinician/${clinicianId}/analytics?patientId=${patientId}&period=${newPeriod}`);
+    setCurrentPage(1); // Reset to page 1 on filter change
+  };
+
+  const handleCustomDateSubmit = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const sDate = formData.get('start');
+    const eDate = formData.get('end');
+    if (sDate && eDate) {
+      // Navigates with the custom date range instead of a quick period
+      router.push(`/clinician/${clinicianId}/analytics?patientId=${patientId}&start=${sDate}&end=${eDate}`);
+      setCurrentPage(1);
+    }
+  };
 
   // PATIENT SELECTION SCREEN
   if (!patientData) {
@@ -36,7 +61,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
             {allPatients?.map(p => (
               <div 
                 key={p.id} 
-                onClick={() => router.push(`/clinician/${clinicianId}/analytics?patientId=${p.id}`)} 
+                onClick={() => router.push(`/clinician/${clinicianId}/analytics?patientId=${p.id}&period=24h`)} 
                 className="cursor-pointer group bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-6 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300"
               >
                 <div className="flex items-center justify-between mb-4">
@@ -134,12 +159,24 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
         </header>
 
         {/* DATE FILTERS */}
-        <div className="mb-6 border-b border-slate-200 dark:border-slate-800 pb-4">
-          <nav className="flex items-center gap-2">
-            <FilterLink label="Today (24h)" active={activePeriod === '24h'} onClick={() => setActivePeriod('24h')} />
-            <FilterLink label="Last 7 Days" active={activePeriod === '7d'} onClick={() => setActivePeriod('7d')} />
-            <FilterLink label="Last 30 Days" active={activePeriod === '30d'} onClick={() => setActivePeriod('30d')} />
+        <div className="mb-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <nav className="flex items-center gap-2 overflow-x-auto pb-2 xl:pb-0 snap-x touch-pan-x min-w-0">
+            <FilterLink label="24 Hours" active={activePeriod === '24h' && !start} onClick={() => handlePeriodChange('24h')} />
+            <FilterLink label="7 Days" active={activePeriod === '7d' && !start} onClick={() => handlePeriodChange('7d')} />
+            <FilterLink label="30 Days" active={activePeriod === '30d' && !start} onClick={() => handlePeriodChange('30d')} />
           </nav>
+
+          <form onSubmit={handleCustomDateSubmit} className="flex flex-col sm:flex-row w-full xl:w-fit items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl md:rounded-full border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+            <div className="flex items-center justify-between sm:justify-start gap-2 px-1 w-full sm:w-auto">
+              <Calendar size={14} className="text-slate-400 dark:text-slate-500 shrink-0 hidden sm:block" />
+              <input type="date" name="start" required defaultValue={start} className="text-[13px] text-slate-600 dark:text-slate-300 bg-transparent outline-none cursor-pointer w-full sm:w-auto dark:[color-scheme:dark]" />
+              <span className="text-slate-300 dark:text-slate-600 text-xs font-bold shrink-0">to</span>
+              <input type="date" name="end" required defaultValue={end} className="text-[13px] text-slate-600 dark:text-slate-300 bg-transparent outline-none cursor-pointer w-full sm:w-auto dark:[color-scheme:dark]" />
+            </div>
+            <button type="submit" className="bg-slate-900 dark:bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl md:rounded-full hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors shrink-0 w-full sm:w-auto text-center">
+              Apply Filter
+            </button>
+          </form>
         </div>
 
         {/* ROW 1: PRIMARY KPIs */}
