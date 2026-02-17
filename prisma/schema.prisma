@@ -22,6 +22,7 @@ model Clinician {
 
   auditLogs AuditLog[]
   interventions Intervention[]
+  isVerified    Boolean  @default(false)
 }
 
 model Patient {
@@ -41,6 +42,7 @@ model Patient {
   updatedAt     DateTime @updatedAt
   sensorLogs    SensorLog[]
   interventions Intervention[]
+  isVerified    Boolean  @default(false)
 }
 
 model SensorLog {
@@ -101,4 +103,24 @@ model Intervention {
 
   @@index([patientId])
   @@index([clinicianId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String   @db.Citext
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  email     String   @db.Citext
+  token     String   // This will be the 6-digit code
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([email, token])
 }

@@ -64,3 +64,13 @@ export type AuditLog = Prisma.AuditLogModel
  * 
  */
 export type Intervention = Prisma.InterventionModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model EmailVerificationToken
+ * 
+ */
+export type EmailVerificationToken = Prisma.EmailVerificationTokenModel

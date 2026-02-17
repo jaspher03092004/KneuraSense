@@ -29,10 +29,10 @@ export async function initiateRegistration(formData) {
     }
 
     // 2. Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); // e.g. "482910"
     const expires = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
 
-    // 3. Clear old tokens and save ONLY the OTP token to the database
+    // 3. Clear old tokens and save ONLY the OTP token to Supabase
     await prisma.emailVerificationToken.deleteMany({ where: { email } });
     await prisma.emailVerificationToken.create({ data: { email, token: otp, expires } });
 
@@ -74,8 +74,6 @@ export async function finalizeRegistration(formData, otp) {
     const email = data.email?.trim().toLowerCase();
     const role = (data.role || 'Patient').toString();
     const password = data.password?.trim();
-    const phoneNumber = data.phoneNumber?.trim();
-    const fullName = data.fullName?.trim();
 
     if (!email || !otp || !password) {
       return { success: false, error: 'Missing required fields for finalization.' };
@@ -98,32 +96,31 @@ export async function finalizeRegistration(formData, otp) {
     const hashed = await bcrypt.hash(password, 10);
 
     if (role === 'Clinician') {
-      const specialization = data.specialization?.trim() || 'General';
       await prisma.clinician.create({
         data: {
-          full_name: fullName,
+          full_name: data.fullName?.trim(),
           email,
-          phone_number: phoneNumber,
+          phone_number: data.phoneNumber?.trim(),
           password_hash: hashed,
-          specialization,
-          isVerified: true, // Mark as verified immediately
+          specialization: data.specialization?.trim() || 'General',
+          isVerified: true, // Since they just verified the OTP
         },
       });
     } else {
       await prisma.patient.create({
         data: {
-          fullName: fullName,
-          age: data.age ? parseInt(data.age) : null,
+          fullName: data.fullName?.trim(),
+          age: parseInt(data.age) || null,
           gender: data.gender || null,
-          phoneNumber: phoneNumber,
+          phoneNumber: data.phoneNumber?.trim(),
           email,
           passwordHash: hashed,
           oaDiagnosis: data.oaDiagnosis === 'Yes',
           affectedKnee: data.affectedKnee || null,
-          painSeverity: data.painSeverity ? parseInt(data.painSeverity) : null,
+          painSeverity: parseInt(data.painSeverity) || null,
           occupation: data.occupation || null,
           activityLevel: data.activityLevel || null,
-          isVerified: true, // Mark as verified immediately
+          isVerified: true, // Since they just verified the OTP
         },
       });
     }
@@ -136,9 +133,8 @@ export async function finalizeRegistration(formData, otp) {
   } catch (error) {
     console.error('Finalize Registration Error:', error);
     
-    // Catch Prisma unique constraint errors (e.g. if someone registers the same email in the exact split second before them)
     if (error.code === 'P2002') {
-      return { success: false, error: 'This account was already created or the credentials are taken.' };
+      return { success: false, error: 'This account was already created during verification.' };
     }
     
     return { success: false, error: 'Failed to save account. Please try again.' };
