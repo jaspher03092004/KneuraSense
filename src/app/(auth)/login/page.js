@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/actions/login';
+import Image from 'next/image';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,19 +43,29 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4 sm:p-8 font-sans">
       <div className="w-full max-w-5xl flex bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-200">
         
-        {/* Left Side - Brand & Features (Solid Colors) */}
-        <div className="hidden lg:flex lg:w-1/2 bg-slate-900 p-12 flex-col justify-between">
+        {/* Left Side - Brand & Features (Image Background) */}
+        <div className="hidden lg:flex lg:w-1/2 relative p-12 flex-col justify-between overflow-hidden">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+            style={{ backgroundImage: "url('/images/auth-bg.svg')" }} 
+          />
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-slate-900/80 z-0"></div>
+
           <div className="relative z-10">
             <Link href="/" className="inline-block group">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <div>
+                <Image 
+                  src="/images/Logo.svg" 
+                  alt="KneuraSense Logo" 
+                  width={48} 
+                  height={48} 
+                  className="scale-125 group-hover:scale-150 transition-transform duration-300 drop-shadow-md"
+                />
+                <div className="ml-2">
                   <h1 className="text-2xl font-bold text-white tracking-tight">KneuraSense</h1>
-                  <p className="text-blue-300 text-xs font-medium tracking-wide uppercase">Edge AI Monitoring</p>
+                  <p className="text-blue-300 text-xs font-medium tracking-wide uppercase">Knee osteoarthritis Monitoring</p>
                 </div>
               </div>
             </Link>
@@ -64,27 +75,17 @@ export default function LoginPage() {
             <h2 className="text-4xl font-extrabold text-white mb-6 leading-[1.15] tracking-tight">
               Predictive knee health, <br />
               <span className="text-blue-400">
-                powered by AI.
+                powered by Edge AI.
               </span>
             </h2>
-            <p className="text-slate-400 text-lg leading-relaxed max-w-md">
+            <p className="text-slate-300 text-lg leading-relaxed max-w-md">
               Monitor your joint stress in real-time with context-aware predictions tailored to your exact environment and lifestyle.
             </p>
           </div>
 
           {/* Testimonial / Social Proof element */}
-          <div className="relative z-10 bg-slate-800 border border-slate-700 rounded-2xl p-6">
-            <div className="flex items-center gap-4 mb-3">
-              <div className="flex -space-x-2">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="w-8 h-8 rounded-full bg-slate-600 border-2 border-slate-800"></div>
-                ))}
-              </div>
-              <div className="text-sm text-slate-400">
-                <span className="text-white font-semibold">500+</span> active users
-              </div>
-            </div>
-            <p className="text-sm text-slate-400 italic">
+          <div className="relative z-10 bg-slate-800/60 backdrop-blur-md border border-slate-700/50 rounded-2xl p-6">
+            <p className="text-sm text-slate-300 italic">
               &quot;Designed specifically for individuals at risk of knee osteoarthritis.&quot;
             </p>
           </div>

@@ -1,5 +1,5 @@
 'use client';
-
+import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -147,15 +147,31 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans flex justify-center items-center">
       <div className="w-full max-w-[1100px] flex flex-col lg:flex-row bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-200">
         
-        {/* Left Side Panel (Solid Colors) */}
-        <div className="hidden lg:flex lg:w-5/12 bg-slate-900 p-12 flex-col justify-between">
+        {/* Left Side Panel (Image Background) */}
+        <div className="hidden lg:flex lg:w-5/12 relative p-12 flex-col justify-between overflow-hidden">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+            style={{ backgroundImage: "url('/images/auth-bg.svg')" }} 
+          />
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-slate-900/85 z-0"></div>
+
           <div className="relative z-10">
             <Link href="/" className="inline-block group">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                <Image 
+                  src="/images/Logo.svg" 
+                  alt="KneuraSense Logo" 
+                  width={40} 
+                  height={40} 
+                  className="group-hover:scale-105 transition-transform drop-shadow-md"
+                />
+                <div>
+                  <h1 className="text-2xl font-bold text-white tracking-tight">KneuraSense</h1>
+                  {/* Only include this paragraph if you are on the Login page */}
+                  <p className="text-blue-300 text-xs font-medium tracking-wide uppercase">Knee osteoarthritis Monitoring</p>
                 </div>
-                <h1 className="text-2xl font-bold text-white tracking-tight">KneuraSense</h1>
               </div>
             </Link>
           </div>
@@ -165,26 +181,26 @@ export default function RegisterPage() {
             <div className="w-12 h-1 bg-blue-500 rounded-full mb-6"></div>
             <ul className="space-y-5 text-slate-300">
               <li className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm border border-slate-700 flex items-center justify-center shrink-0">
                   <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
                 </div>
-                <span>Personalized AI Monitoring</span>
+                <span>Personalized Monitoring</span>
               </li>
               <li className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm border border-slate-700 flex items-center justify-center shrink-0">
                   <svg className="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
                 </div>
                 <span>Real-time Risk Alerts</span>
               </li>
               <li className="flex items-center gap-4">
-                <div className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm border border-slate-700 flex items-center justify-center shrink-0">
                   <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                 </div>
                 <span>Comprehensive Analytics</span>
               </li>
             </ul>
           </div>
-          <div className="relative z-10 text-xs text-slate-500">© 2025 KneuraSense IoT System.</div>
+          <div className="relative z-10 text-xs text-slate-400">© 2025 KneuraSense IoT System.</div>
         </div>
 
         {/* Right Side Form */}
