@@ -2,14 +2,12 @@ import { prisma } from '@/lib/prisma';
 import AnalyticsClient from './AnalyticsClient';
 
 export default async function AnalyticsPage({ params, searchParams }) {
-  // 1. AWAIT the params and searchParams promises first
   const resolvedParams = await params;
   const resolvedSearchParams = await searchParams;
 
   const { id: clinicianId } = resolvedParams;
   const targetPatientId = resolvedSearchParams.patientId;
 
-  // 2. Fetch ALL patients so the clinician has a list to choose from
   const allPatients = await prisma.patient.findMany({
     select: {
       id: true,
@@ -23,7 +21,6 @@ export default async function AnalyticsPage({ params, searchParams }) {
   let patient = null;
   let sensorLogs = [];
 
-  // 3. Only fetch specific patient data if they clicked on one
   if (targetPatientId) {
     patient = await prisma.patient.findUnique({
       where: { id: targetPatientId }
@@ -42,7 +39,6 @@ export default async function AnalyticsPage({ params, searchParams }) {
   let patientData = null;
   let chartData = [];
 
-  // 4. If a patient is selected, map their data for the dashboard
   if (patient) {
     patientData = {
       name: patient.fullName,
@@ -58,9 +54,12 @@ export default async function AnalyticsPage({ params, searchParams }) {
 
     chartData = sensorLogs.map(log => ({
       hour: new Date(log.timestamp).getHours(),
+      timestamp: log.timestamp,
       risk: log.riskScore,
       angle: log.angle,
-      force: log.force
+      force: log.force,
+      skinTemp: log.skinTemp,
+      bpm: log.bpm
     }));
   }
 
@@ -70,7 +69,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
       patientData={patientData} 
       chartData={chartData} 
       rawLogs={sensorLogs} 
-      allPatients={allPatients} // Pass the list of all patients to the client
+      allPatients={allPatients} 
     />
   );
 }
