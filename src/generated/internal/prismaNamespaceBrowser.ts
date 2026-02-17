@@ -54,7 +54,8 @@ export const ModelName = {
   Clinician: 'Clinician',
   Patient: 'Patient',
   SensorLog: 'SensorLog',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  Intervention: 'Intervention'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -139,6 +140,21 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const InterventionScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  clinicianId: 'clinicianId',
+  title: 'title',
+  type: 'type',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  isAcknowledged: 'isAcknowledged',
+  acknowledgedAt: 'acknowledgedAt'
+} as const
+
+export type InterventionScalarFieldEnum = (typeof InterventionScalarFieldEnum)[keyof typeof InterventionScalarFieldEnum]
 
 
 export const SortOrder = {

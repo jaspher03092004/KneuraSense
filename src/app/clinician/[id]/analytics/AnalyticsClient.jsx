@@ -114,12 +114,10 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
     temp: `${log.skinTemp?.toFixed(1) || 0}°C`,
     status: log.riskScore > 70 ? 'High' : log.riskScore > 40 ? 'Medium' : 'Low'
   }));
-
+  
   return (
     <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-slate-800 antialiased overflow-x-hidden p-4 md:p-8">
       <div className="mx-auto w-full max-w-7xl">
-        
-        <Breadcrumb items={['Analytics', 'Patient Selection', patientData.name]} />
         
         {/* Header Section */}
         <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

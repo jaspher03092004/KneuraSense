@@ -387,7 +387,8 @@ export const ModelName = {
   Clinician: 'Clinician',
   Patient: 'Patient',
   SensorLog: 'SensorLog',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  Intervention: 'Intervention'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "clinician" | "patient" | "sensorLog" | "auditLog"
+    modelProps: "clinician" | "patient" | "sensorLog" | "auditLog" | "intervention"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -703,6 +704,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Intervention: {
+      payload: Prisma.$InterventionPayload<ExtArgs>
+      fields: Prisma.InterventionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.InterventionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.InterventionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>
+        }
+        findFirst: {
+          args: Prisma.InterventionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.InterventionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>
+        }
+        findMany: {
+          args: Prisma.InterventionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>[]
+        }
+        create: {
+          args: Prisma.InterventionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>
+        }
+        createMany: {
+          args: Prisma.InterventionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.InterventionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>[]
+        }
+        delete: {
+          args: Prisma.InterventionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>
+        }
+        update: {
+          args: Prisma.InterventionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>
+        }
+        deleteMany: {
+          args: Prisma.InterventionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.InterventionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.InterventionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>[]
+        }
+        upsert: {
+          args: Prisma.InterventionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$InterventionPayload>
+        }
+        aggregate: {
+          args: Prisma.InterventionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateIntervention>
+        }
+        groupBy: {
+          args: Prisma.InterventionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InterventionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.InterventionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.InterventionCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -808,6 +883,21 @@ export const AuditLogScalarFieldEnum = {
 } as const
 
 export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const InterventionScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  clinicianId: 'clinicianId',
+  title: 'title',
+  type: 'type',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  isAcknowledged: 'isAcknowledged',
+  acknowledgedAt: 'acknowledgedAt'
+} as const
+
+export type InterventionScalarFieldEnum = (typeof InterventionScalarFieldEnum)[keyof typeof InterventionScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1001,6 +1091,7 @@ export type GlobalOmitConfig = {
   patient?: Prisma.PatientOmit
   sensorLog?: Prisma.SensorLogOmit
   auditLog?: Prisma.AuditLogOmit
+  intervention?: Prisma.InterventionOmit
 }
 
 /* Types for Logging */
