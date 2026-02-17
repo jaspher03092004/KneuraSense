@@ -51,6 +51,7 @@ export type PatientMinAggregateOutputType = {
   activityLevel: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isVerified: boolean | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -68,6 +69,7 @@ export type PatientMaxAggregateOutputType = {
   activityLevel: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isVerified: boolean | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -85,6 +87,7 @@ export type PatientCountAggregateOutputType = {
   activityLevel: number
   createdAt: number
   updatedAt: number
+  isVerified: number
   _all: number
 }
 
@@ -114,6 +117,7 @@ export type PatientMinAggregateInputType = {
   activityLevel?: true
   createdAt?: true
   updatedAt?: true
+  isVerified?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -131,6 +135,7 @@ export type PatientMaxAggregateInputType = {
   activityLevel?: true
   createdAt?: true
   updatedAt?: true
+  isVerified?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -148,6 +153,7 @@ export type PatientCountAggregateInputType = {
   activityLevel?: true
   createdAt?: true
   updatedAt?: true
+  isVerified?: true
   _all?: true
 }
 
@@ -252,6 +258,7 @@ export type PatientGroupByOutputType = {
   activityLevel: string | null
   createdAt: Date
   updatedAt: Date
+  isVerified: boolean
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -292,6 +299,7 @@ export type PatientWhereInput = {
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
+  isVerified?: Prisma.BoolFilter<"Patient"> | boolean
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }
@@ -311,6 +319,7 @@ export type PatientOrderByWithRelationInput = {
   activityLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
 }
@@ -333,6 +342,7 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
+  isVerified?: Prisma.BoolFilter<"Patient"> | boolean
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }, "id" | "phoneNumber" | "email">
@@ -352,6 +362,7 @@ export type PatientOrderByWithAggregationInput = {
   activityLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -377,6 +388,7 @@ export type PatientScalarWhereWithAggregatesInput = {
   activityLevel?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
+  isVerified?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
 }
 
 export type PatientCreateInput = {
@@ -394,6 +406,7 @@ export type PatientCreateInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
@@ -413,6 +426,7 @@ export type PatientUncheckedCreateInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -432,6 +446,7 @@ export type PatientUpdateInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
@@ -451,6 +466,7 @@ export type PatientUncheckedUpdateInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -470,6 +486,7 @@ export type PatientCreateManyInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -487,6 +504,7 @@ export type PatientUpdateManyMutationInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientUncheckedUpdateManyInput = {
@@ -504,6 +522,7 @@ export type PatientUncheckedUpdateManyInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientCountOrderByAggregateInput = {
@@ -521,6 +540,7 @@ export type PatientCountOrderByAggregateInput = {
   activityLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
@@ -543,6 +563,7 @@ export type PatientMaxOrderByAggregateInput = {
   activityLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -560,6 +581,7 @@ export type PatientMinOrderByAggregateInput = {
   activityLevel?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
@@ -582,10 +604,6 @@ export type NullableIntFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
-}
-
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
 }
 
 export type PatientCreateNestedOneWithoutSensorLogsInput = {
@@ -631,6 +649,7 @@ export type PatientCreateWithoutSensorLogsInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
 
@@ -649,6 +668,7 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -683,6 +703,7 @@ export type PatientUpdateWithoutSensorLogsInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
 
@@ -701,6 +722,7 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -719,6 +741,7 @@ export type PatientCreateWithoutInterventionsInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
 }
 
@@ -737,6 +760,7 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   activityLevel?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -771,6 +795,7 @@ export type PatientUpdateWithoutInterventionsInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
 }
 
@@ -789,6 +814,7 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -847,6 +873,7 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
@@ -867,6 +894,7 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -884,6 +912,7 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectScalar = {
@@ -901,9 +930,10 @@ export type PatientSelectScalar = {
   activityLevel?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
@@ -933,6 +963,7 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     activityLevel: string | null
     createdAt: Date
     updatedAt: Date
+    isVerified: boolean
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1372,6 +1403,7 @@ export interface PatientFieldRefs {
   readonly activityLevel: Prisma.FieldRef<"Patient", 'String'>
   readonly createdAt: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Patient", 'DateTime'>
+  readonly isVerified: Prisma.FieldRef<"Patient", 'Boolean'>
 }
     
 

@@ -33,6 +33,7 @@ export type ClinicianMinAggregateOutputType = {
   specialization: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isVerified: boolean | null
 }
 
 export type ClinicianMaxAggregateOutputType = {
@@ -44,6 +45,7 @@ export type ClinicianMaxAggregateOutputType = {
   specialization: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  isVerified: boolean | null
 }
 
 export type ClinicianCountAggregateOutputType = {
@@ -55,6 +57,7 @@ export type ClinicianCountAggregateOutputType = {
   specialization: number
   createdAt: number
   updatedAt: number
+  isVerified: number
   _all: number
 }
 
@@ -68,6 +71,7 @@ export type ClinicianMinAggregateInputType = {
   specialization?: true
   createdAt?: true
   updatedAt?: true
+  isVerified?: true
 }
 
 export type ClinicianMaxAggregateInputType = {
@@ -79,6 +83,7 @@ export type ClinicianMaxAggregateInputType = {
   specialization?: true
   createdAt?: true
   updatedAt?: true
+  isVerified?: true
 }
 
 export type ClinicianCountAggregateInputType = {
@@ -90,6 +95,7 @@ export type ClinicianCountAggregateInputType = {
   specialization?: true
   createdAt?: true
   updatedAt?: true
+  isVerified?: true
   _all?: true
 }
 
@@ -174,6 +180,7 @@ export type ClinicianGroupByOutputType = {
   specialization: string
   createdAt: Date
   updatedAt: Date
+  isVerified: boolean
   _count: ClinicianCountAggregateOutputType | null
   _min: ClinicianMinAggregateOutputType | null
   _max: ClinicianMaxAggregateOutputType | null
@@ -206,6 +213,7 @@ export type ClinicianWhereInput = {
   specialization?: Prisma.StringFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
+  isVerified?: Prisma.BoolFilter<"Clinician"> | boolean
   auditLogs?: Prisma.AuditLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }
@@ -219,6 +227,7 @@ export type ClinicianOrderByWithRelationInput = {
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
 }
@@ -235,6 +244,7 @@ export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
   specialization?: Prisma.StringFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Clinician"> | Date | string
+  isVerified?: Prisma.BoolFilter<"Clinician"> | boolean
   auditLogs?: Prisma.AuditLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }, "clinician_id" | "email" | "phone_number">
@@ -248,6 +258,7 @@ export type ClinicianOrderByWithAggregationInput = {
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
   _count?: Prisma.ClinicianCountOrderByAggregateInput
   _max?: Prisma.ClinicianMaxOrderByAggregateInput
   _min?: Prisma.ClinicianMinOrderByAggregateInput
@@ -265,6 +276,7 @@ export type ClinicianScalarWhereWithAggregatesInput = {
   specialization?: Prisma.StringWithAggregatesFilter<"Clinician"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Clinician"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Clinician"> | Date | string
+  isVerified?: Prisma.BoolWithAggregatesFilter<"Clinician"> | boolean
 }
 
 export type ClinicianCreateInput = {
@@ -276,6 +288,7 @@ export type ClinicianCreateInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutClinicianInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutClinicianInput
 }
@@ -289,6 +302,7 @@ export type ClinicianUncheckedCreateInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutClinicianInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutClinicianInput
 }
@@ -302,6 +316,7 @@ export type ClinicianUpdateInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUpdateManyWithoutClinicianNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutClinicianNestedInput
 }
@@ -315,6 +330,7 @@ export type ClinicianUncheckedUpdateInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutClinicianNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutClinicianNestedInput
 }
@@ -328,6 +344,7 @@ export type ClinicianCreateManyInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
 }
 
 export type ClinicianUpdateManyMutationInput = {
@@ -339,6 +356,7 @@ export type ClinicianUpdateManyMutationInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ClinicianUncheckedUpdateManyInput = {
@@ -350,6 +368,7 @@ export type ClinicianUncheckedUpdateManyInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type ClinicianCountOrderByAggregateInput = {
@@ -361,6 +380,7 @@ export type ClinicianCountOrderByAggregateInput = {
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
 }
 
 export type ClinicianMaxOrderByAggregateInput = {
@@ -372,6 +392,7 @@ export type ClinicianMaxOrderByAggregateInput = {
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
 }
 
 export type ClinicianMinOrderByAggregateInput = {
@@ -383,6 +404,7 @@ export type ClinicianMinOrderByAggregateInput = {
   specialization?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  isVerified?: Prisma.SortOrder
 }
 
 export type ClinicianScalarRelationFilter = {
@@ -396,6 +418,10 @@ export type StringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type ClinicianCreateNestedOneWithoutAuditLogsInput = {
@@ -435,6 +461,7 @@ export type ClinicianCreateWithoutAuditLogsInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   interventions?: Prisma.InterventionCreateNestedManyWithoutClinicianInput
 }
 
@@ -447,6 +474,7 @@ export type ClinicianUncheckedCreateWithoutAuditLogsInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutClinicianInput
 }
 
@@ -475,6 +503,7 @@ export type ClinicianUpdateWithoutAuditLogsInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUpdateManyWithoutClinicianNestedInput
 }
 
@@ -487,6 +516,7 @@ export type ClinicianUncheckedUpdateWithoutAuditLogsInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutClinicianNestedInput
 }
 
@@ -499,6 +529,7 @@ export type ClinicianCreateWithoutInterventionsInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutClinicianInput
 }
 
@@ -511,6 +542,7 @@ export type ClinicianUncheckedCreateWithoutInterventionsInput = {
   specialization: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  isVerified?: boolean
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutClinicianInput
 }
 
@@ -539,6 +571,7 @@ export type ClinicianUpdateWithoutInterventionsInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUpdateManyWithoutClinicianNestedInput
 }
 
@@ -551,6 +584,7 @@ export type ClinicianUncheckedUpdateWithoutInterventionsInput = {
   specialization?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutClinicianNestedInput
 }
 
@@ -603,6 +637,7 @@ export type ClinicianSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   specialization?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
   auditLogs?: boolean | Prisma.Clinician$auditLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Clinician$interventionsArgs<ExtArgs>
   _count?: boolean | Prisma.ClinicianCountOutputTypeDefaultArgs<ExtArgs>
@@ -617,6 +652,7 @@ export type ClinicianSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   specialization?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
 }, ExtArgs["result"]["clinician"]>
 
 export type ClinicianSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -628,6 +664,7 @@ export type ClinicianSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   specialization?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
 }, ExtArgs["result"]["clinician"]>
 
 export type ClinicianSelectScalar = {
@@ -639,9 +676,10 @@ export type ClinicianSelectScalar = {
   specialization?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  isVerified?: boolean
 }
 
-export type ClinicianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"clinician_id" | "full_name" | "email" | "phone_number" | "password_hash" | "specialization" | "createdAt" | "updatedAt", ExtArgs["result"]["clinician"]>
+export type ClinicianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"clinician_id" | "full_name" | "email" | "phone_number" | "password_hash" | "specialization" | "createdAt" | "updatedAt" | "isVerified", ExtArgs["result"]["clinician"]>
 export type ClinicianInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   auditLogs?: boolean | Prisma.Clinician$auditLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Clinician$interventionsArgs<ExtArgs>
@@ -665,6 +703,7 @@ export type $ClinicianPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     specialization: string
     createdAt: Date
     updatedAt: Date
+    isVerified: boolean
   }, ExtArgs["result"]["clinician"]>
   composites: {}
 }
@@ -1098,6 +1137,7 @@ export interface ClinicianFieldRefs {
   readonly specialization: Prisma.FieldRef<"Clinician", 'String'>
   readonly createdAt: Prisma.FieldRef<"Clinician", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Clinician", 'DateTime'>
+  readonly isVerified: Prisma.FieldRef<"Clinician", 'Boolean'>
 }
     
 

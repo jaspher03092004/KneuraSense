@@ -55,7 +55,9 @@ export const ModelName = {
   Patient: 'Patient',
   SensorLog: 'SensorLog',
   AuditLog: 'AuditLog',
-  Intervention: 'Intervention'
+  Intervention: 'Intervention',
+  PasswordResetToken: 'PasswordResetToken',
+  EmailVerificationToken: 'EmailVerificationToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -82,7 +84,8 @@ export const ClinicianScalarFieldEnum = {
   password_hash: 'password_hash',
   specialization: 'specialization',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isVerified: 'isVerified'
 } as const
 
 export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]
@@ -102,7 +105,8 @@ export const PatientScalarFieldEnum = {
   occupation: 'occupation',
   activityLevel: 'activityLevel',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isVerified: 'isVerified'
 } as const
 
 export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
@@ -155,6 +159,28 @@ export const InterventionScalarFieldEnum = {
 } as const
 
 export type InterventionScalarFieldEnum = (typeof InterventionScalarFieldEnum)[keyof typeof InterventionScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const EmailVerificationTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailVerificationTokenScalarFieldEnum = (typeof EmailVerificationTokenScalarFieldEnum)[keyof typeof EmailVerificationTokenScalarFieldEnum]
 
 
 export const SortOrder = {
