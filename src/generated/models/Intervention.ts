@@ -31,6 +31,7 @@ export type InterventionMinAggregateOutputType = {
   title: string | null
   type: string | null
   notes: string | null
+  patientFriendlyNote: string | null
   createdAt: Date | null
   isAcknowledged: boolean | null
   acknowledgedAt: Date | null
@@ -43,6 +44,7 @@ export type InterventionMaxAggregateOutputType = {
   title: string | null
   type: string | null
   notes: string | null
+  patientFriendlyNote: string | null
   createdAt: Date | null
   isAcknowledged: boolean | null
   acknowledgedAt: Date | null
@@ -55,6 +57,7 @@ export type InterventionCountAggregateOutputType = {
   title: number
   type: number
   notes: number
+  patientFriendlyNote: number
   createdAt: number
   isAcknowledged: number
   acknowledgedAt: number
@@ -69,6 +72,7 @@ export type InterventionMinAggregateInputType = {
   title?: true
   type?: true
   notes?: true
+  patientFriendlyNote?: true
   createdAt?: true
   isAcknowledged?: true
   acknowledgedAt?: true
@@ -81,6 +85,7 @@ export type InterventionMaxAggregateInputType = {
   title?: true
   type?: true
   notes?: true
+  patientFriendlyNote?: true
   createdAt?: true
   isAcknowledged?: true
   acknowledgedAt?: true
@@ -93,6 +98,7 @@ export type InterventionCountAggregateInputType = {
   title?: true
   type?: true
   notes?: true
+  patientFriendlyNote?: true
   createdAt?: true
   isAcknowledged?: true
   acknowledgedAt?: true
@@ -178,6 +184,7 @@ export type InterventionGroupByOutputType = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote: string | null
   createdAt: Date
   isAcknowledged: boolean
   acknowledgedAt: Date | null
@@ -211,6 +218,7 @@ export type InterventionWhereInput = {
   title?: Prisma.StringFilter<"Intervention"> | string
   type?: Prisma.StringFilter<"Intervention"> | string
   notes?: Prisma.StringFilter<"Intervention"> | string
+  patientFriendlyNote?: Prisma.StringNullableFilter<"Intervention"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Intervention"> | Date | string
   isAcknowledged?: Prisma.BoolFilter<"Intervention"> | boolean
   acknowledgedAt?: Prisma.DateTimeNullableFilter<"Intervention"> | Date | string | null
@@ -225,6 +233,7 @@ export type InterventionOrderByWithRelationInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  patientFriendlyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   isAcknowledged?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -242,6 +251,7 @@ export type InterventionWhereUniqueInput = Prisma.AtLeast<{
   title?: Prisma.StringFilter<"Intervention"> | string
   type?: Prisma.StringFilter<"Intervention"> | string
   notes?: Prisma.StringFilter<"Intervention"> | string
+  patientFriendlyNote?: Prisma.StringNullableFilter<"Intervention"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Intervention"> | Date | string
   isAcknowledged?: Prisma.BoolFilter<"Intervention"> | boolean
   acknowledgedAt?: Prisma.DateTimeNullableFilter<"Intervention"> | Date | string | null
@@ -256,6 +266,7 @@ export type InterventionOrderByWithAggregationInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  patientFriendlyNote?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   isAcknowledged?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -274,6 +285,7 @@ export type InterventionScalarWhereWithAggregatesInput = {
   title?: Prisma.StringWithAggregatesFilter<"Intervention"> | string
   type?: Prisma.StringWithAggregatesFilter<"Intervention"> | string
   notes?: Prisma.StringWithAggregatesFilter<"Intervention"> | string
+  patientFriendlyNote?: Prisma.StringNullableWithAggregatesFilter<"Intervention"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Intervention"> | Date | string
   isAcknowledged?: Prisma.BoolWithAggregatesFilter<"Intervention"> | boolean
   acknowledgedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Intervention"> | Date | string | null
@@ -284,6 +296,7 @@ export type InterventionCreateInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -298,6 +311,7 @@ export type InterventionUncheckedCreateInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -308,6 +322,7 @@ export type InterventionUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -322,6 +337,7 @@ export type InterventionUncheckedUpdateInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -334,6 +350,7 @@ export type InterventionCreateManyInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -344,6 +361,7 @@ export type InterventionUpdateManyMutationInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -356,6 +374,7 @@ export type InterventionUncheckedUpdateManyInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -378,6 +397,7 @@ export type InterventionCountOrderByAggregateInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  patientFriendlyNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   isAcknowledged?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
@@ -390,6 +410,7 @@ export type InterventionMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  patientFriendlyNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   isAcknowledged?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
@@ -402,6 +423,7 @@ export type InterventionMinOrderByAggregateInput = {
   title?: Prisma.SortOrder
   type?: Prisma.SortOrder
   notes?: Prisma.SortOrder
+  patientFriendlyNote?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   isAcknowledged?: Prisma.SortOrder
   acknowledgedAt?: Prisma.SortOrder
@@ -500,6 +522,7 @@ export type InterventionCreateWithoutClinicianInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -512,6 +535,7 @@ export type InterventionUncheckedCreateWithoutClinicianInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -553,6 +577,7 @@ export type InterventionScalarWhereInput = {
   title?: Prisma.StringFilter<"Intervention"> | string
   type?: Prisma.StringFilter<"Intervention"> | string
   notes?: Prisma.StringFilter<"Intervention"> | string
+  patientFriendlyNote?: Prisma.StringNullableFilter<"Intervention"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Intervention"> | Date | string
   isAcknowledged?: Prisma.BoolFilter<"Intervention"> | boolean
   acknowledgedAt?: Prisma.DateTimeNullableFilter<"Intervention"> | Date | string | null
@@ -563,6 +588,7 @@ export type InterventionCreateWithoutPatientInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -575,6 +601,7 @@ export type InterventionUncheckedCreateWithoutPatientInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -612,6 +639,7 @@ export type InterventionCreateManyClinicianInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -622,6 +650,7 @@ export type InterventionUpdateWithoutClinicianInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -634,6 +663,7 @@ export type InterventionUncheckedUpdateWithoutClinicianInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -645,6 +675,7 @@ export type InterventionUncheckedUpdateManyWithoutClinicianInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -656,6 +687,7 @@ export type InterventionCreateManyPatientInput = {
   title: string
   type: string
   notes: string
+  patientFriendlyNote?: string | null
   createdAt?: Date | string
   isAcknowledged?: boolean
   acknowledgedAt?: Date | string | null
@@ -666,6 +698,7 @@ export type InterventionUpdateWithoutPatientInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -678,6 +711,7 @@ export type InterventionUncheckedUpdateWithoutPatientInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -689,6 +723,7 @@ export type InterventionUncheckedUpdateManyWithoutPatientInput = {
   title?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   notes?: Prisma.StringFieldUpdateOperationsInput | string
+  patientFriendlyNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isAcknowledged?: Prisma.BoolFieldUpdateOperationsInput | boolean
   acknowledgedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -703,6 +738,7 @@ export type InterventionSelect<ExtArgs extends runtime.Types.Extensions.Internal
   title?: boolean
   type?: boolean
   notes?: boolean
+  patientFriendlyNote?: boolean
   createdAt?: boolean
   isAcknowledged?: boolean
   acknowledgedAt?: boolean
@@ -717,6 +753,7 @@ export type InterventionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   title?: boolean
   type?: boolean
   notes?: boolean
+  patientFriendlyNote?: boolean
   createdAt?: boolean
   isAcknowledged?: boolean
   acknowledgedAt?: boolean
@@ -731,6 +768,7 @@ export type InterventionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   title?: boolean
   type?: boolean
   notes?: boolean
+  patientFriendlyNote?: boolean
   createdAt?: boolean
   isAcknowledged?: boolean
   acknowledgedAt?: boolean
@@ -745,12 +783,13 @@ export type InterventionSelectScalar = {
   title?: boolean
   type?: boolean
   notes?: boolean
+  patientFriendlyNote?: boolean
   createdAt?: boolean
   isAcknowledged?: boolean
   acknowledgedAt?: boolean
 }
 
-export type InterventionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "clinicianId" | "title" | "type" | "notes" | "createdAt" | "isAcknowledged" | "acknowledgedAt", ExtArgs["result"]["intervention"]>
+export type InterventionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "clinicianId" | "title" | "type" | "notes" | "patientFriendlyNote" | "createdAt" | "isAcknowledged" | "acknowledgedAt", ExtArgs["result"]["intervention"]>
 export type InterventionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
   clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
@@ -777,6 +816,7 @@ export type $InterventionPayload<ExtArgs extends runtime.Types.Extensions.Intern
     title: string
     type: string
     notes: string
+    patientFriendlyNote: string | null
     createdAt: Date
     isAcknowledged: boolean
     acknowledgedAt: Date | null
@@ -1211,6 +1251,7 @@ export interface InterventionFieldRefs {
   readonly title: Prisma.FieldRef<"Intervention", 'String'>
   readonly type: Prisma.FieldRef<"Intervention", 'String'>
   readonly notes: Prisma.FieldRef<"Intervention", 'String'>
+  readonly patientFriendlyNote: Prisma.FieldRef<"Intervention", 'String'>
   readonly createdAt: Prisma.FieldRef<"Intervention", 'DateTime'>
   readonly isAcknowledged: Prisma.FieldRef<"Intervention", 'Boolean'>
   readonly acknowledgedAt: Prisma.FieldRef<"Intervention", 'DateTime'>

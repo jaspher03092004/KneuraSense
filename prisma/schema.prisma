@@ -98,6 +98,7 @@ model Intervention {
   title       String   // e.g., "Advised to reduce walking speed"
   type        String   // e.g., "Advice", "Medication", "Exercise", "Other"
   notes       String   @db.Text
+  patientFriendlyNote String?   @db.Text
   createdAt   DateTime @default(now())
   isAcknowledged Boolean   @default(false)
   acknowledgedAt DateTime?
