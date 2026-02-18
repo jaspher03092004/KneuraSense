@@ -60,9 +60,12 @@ export default async function ClinicianDashboardPage({ params }) {
     let lastActive = 'Never';
     if (latestLog) {
       const diffMins = Math.floor((now - new Date(latestLog.timestamp)) / 60000);
-      if (diffMins < 60) lastActive = `${diffMins} mins ago`;
-      else if (diffMins < 1440) lastActive = `${Math.floor(diffMins / 60)} hours ago`;
-      else lastActive = `${Math.floor(diffMins / 1440)} days ago`;
+      
+      // FIX: Add "Just now" for 0 minutes
+      if (diffMins < 1) lastActive = 'Just now';
+      else if (diffMins < 60) lastActive = `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+      else if (diffMins < 1440) lastActive = `${Math.floor(diffMins / 60)} hour${Math.floor(diffMins / 60) === 1 ? '' : 's'} ago`;
+      else lastActive = `${Math.floor(diffMins / 1440)} day${Math.floor(diffMins / 1440) === 1 ? '' : 's'} ago`;
     }
 
     return {

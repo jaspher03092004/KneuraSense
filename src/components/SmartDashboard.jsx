@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle,
+  Cloud, HeartPulse, Wind, AlertCircle
 } from 'lucide-react';
 
-// Moved outside component to prevent recreation on every render
 const THEMES = {
   blue: "bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400",
   rose: "bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400",
@@ -60,45 +59,26 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
 export default function SmartDashboard({ patientName, patientId }) {
   const { data, deviceStatus, lastPacketTime } = useMQTT();
   const [weather, setWeather] = useState(null);
-  
-  const dataRef = useRef(data); 
-  const weatherRef = useRef(weather); 
 
-  useEffect(() => { dataRef.current = data; }, [data]);
-  useEffect(() => { weatherRef.current = weather; }, [weather]);
-
-  // Derived risk config (returns full class strings so Tailwind compiles them properly)
   const riskConfig = useMemo(() => {
     if (data.risk_score > 70) return { 
-      isCritical: true,
-      label: 'CRITICAL STRESS',
-      bgBar: 'bg-rose-500',
-      textMain: 'text-rose-500 dark:text-rose-400',
+      isCritical: true, label: 'CRITICAL STRESS', bgBar: 'bg-rose-500', textMain: 'text-rose-500 dark:text-rose-400',
       badgeStyles: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
     };
     if (data.risk_score > 40) return { 
-      isCritical: false,
-      label: 'MODERATE LOAD',
-      bgBar: 'bg-amber-500',
-      textMain: 'text-amber-500 dark:text-amber-400',
+      isCritical: false, label: 'MODERATE LOAD', bgBar: 'bg-amber-500', textMain: 'text-amber-500 dark:text-amber-400',
       badgeStyles: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
     };
     return { 
-      isCritical: false,
-      label: 'SAFE ZONE',
-      bgBar: 'bg-emerald-500',
-      textMain: 'text-emerald-500 dark:text-emerald-400',
+      isCritical: false, label: 'SAFE ZONE', bgBar: 'bg-emerald-500', textMain: 'text-emerald-500 dark:text-emerald-400',
       badgeStyles: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
     };
   }, [data.risk_score]);
 
-  // Rounded GPS to prevent Weather API spamming on minor GPS jitter
   const roundedLat = Number(data.lat).toFixed(2);
   const roundedLng = Number(data.lng).toFixed(2);
 
   useEffect(() => {
-    // 1. Use the rounded coordinates for the check instead of data.lat/data.lng
-    // Note: Number("0").toFixed(2) becomes "0.00"
     if (roundedLat && roundedLng && roundedLat !== "0.00" && roundedLng !== "0.00" && roundedLat !== "NaN" && roundedLng !== "NaN") {
       const fetchWeather = async () => {
         const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY; 
@@ -107,44 +87,16 @@ export default function SmartDashboard({ patientName, patientId }) {
           const response = await fetch(url);
           const result = await response.json();
           if (result.cod === 200) setWeather(result);
-        } catch (error) { 
-          console.error("Error fetching weather:", error); 
-        }
+        } catch (error) { console.error("Error fetching weather:", error); }
       };
       fetchWeather();
     }
-  }, [roundedLat, roundedLng]); // Depend on rounded coordinates
-
-  useEffect(() => {
-    const saveInterval = setInterval(async () => {
-      const currentData = dataRef.current;
-      const currentWeather = weatherRef.current; 
-      
-      if (deviceStatus === 'Online' && patientId && currentData.bat !== undefined) {
-        try {
-           await fetch('/api/save-log', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ 
-               patientId, risk_score: currentData.risk_score, bat: currentData.bat,
-               angle: currentData.angle, skin_temp: currentData.skin_temp, fsr: currentData.fsr,
-               lat: currentData.lat, lng: currentData.lng,
-               weatherTemp: currentWeather ? currentWeather.main.temp : null,
-               bpm: currentData.bpm, ambient_temp: currentData.ambient_temp, pressure: currentData.pressure
-             }),
-           });
-        } catch (err) { 
-          console.error("Auto-save failed:", err); 
-        }
-      }
-    }, 10000); 
-    return () => clearInterval(saveInterval);
-  }, [deviceStatus, patientId]);
+  }, [roundedLat, roundedLng]);
 
   const timeString = lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString() : "--:--";
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto transition-colors duration-300">
+    <div className="space-y-6 max-w-7xl mx-auto transition-colors duration-300 relative">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight transition-colors duration-300">Patient Monitoring</h1>

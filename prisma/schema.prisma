@@ -45,6 +45,10 @@ model Patient {
   sensorLogs    SensorLog[]
   interventions Intervention[]
   isVerified    Boolean  @default(false)
+  highStressAlerts   Boolean  @default(true)
+  vibrationEnabled   Boolean  @default(true)
+  vibrationIntensity Int      @default(2)
+  ledEnabled         Boolean  @default(true)
 }
 
 model SensorLog {
