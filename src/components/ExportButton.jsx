@@ -9,17 +9,35 @@ export default function ExportButton({ logs, patientName }) {
       return;
     }
 
+    // 1. Use descriptive headers with units for clarity
     const headers = [
-      "Timestamp", "Risk Score", "Knee Angle (deg)", "Applied Force (N)",
-      "Heart Rate (BPM)", "Skin Temp (C)", "Ambient Temp (C)", "Pressure (hPa)",
-      "Latitude", "Longitude"
+      "Date & Time", 
+      "Risk Level (0-100)", 
+      "Knee Bend (Degrees)", 
+      "Applied Pressure (Newtons)",
+      "Heart Rate (BPM)", 
+      "Skin Temperature (°C)", 
+      "Room Temperature (°C)", 
+      "Atmospheric Pressure (hPa)"
     ];
 
     const csvRows = logs.map(log => {
-      const dateStr = new Date(log.timestamp).toLocaleString().replace(/,/g, '');
+      // 2. Format the date to be human-readable (e.g., "Feb 19, 2026, 7:30 AM")
+      const dateStr = new Date(log.timestamp).toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      }).replace(/,/g, '');
+
+      // 3. Round values and provide defaults to avoid confusing "0" or "null"
       return [
-        dateStr, log.riskScore, log.angle, log.force, log.bpm || 0,
-        log.skinTemp, log.ambientTemp || 0, log.pressure || 0, log.lat || 0, log.lng || 0
+        dateStr, 
+        log.riskScore, 
+        log.angle.toFixed(1), // Show only 1 decimal place
+        log.force, 
+        log.bpm || "N/A",      // Use "N/A" instead of 0 for missing data
+        log.skinTemp.toFixed(1), 
+        log.ambientTemp ? log.ambientTemp.toFixed(1) : "N/A", 
+        log.pressure ? Math.round(log.pressure) : "N/A"
       ].join(',');
     });
 
@@ -30,9 +48,10 @@ export default function ExportButton({ logs, patientName }) {
     const link = document.createElement('a');
     link.href = url;
     
-    const safeName = patientName.replace(/[^a-z0-9]/gi, '_').toLowerCase();
-    const dateString = new Date().toISOString().split('T')[0];
-    link.download = `KneuraSense_Export_${safeName}_${dateString}.csv`;
+    // 4. Use a clear, descriptive filename
+    const safeName = patientName.replace(/[^a-z0-9]/gi, '_');
+    const dateString = new Date().toLocaleDateString().replace(/\//g, '-');
+    link.download = `KneuraSense_Report_${safeName}_${dateString}.csv`;
     
     document.body.appendChild(link);
     link.click();
@@ -43,10 +62,10 @@ export default function ExportButton({ logs, patientName }) {
   return (
     <button 
       onClick={handleExport}
-      className="flex h-11 w-full md:w-auto items-center justify-center gap-2 rounded-xl md:rounded-lg bg-slate-900 dark:bg-blue-600 px-5 text-sm font-bold text-white shadow-sm transition-transform active:scale-95 hover:bg-slate-800 dark:hover:bg-blue-700"
+      className="flex h-11 w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-blue-600 px-5 text-sm font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-slate-800 dark:hover:bg-blue-700"
     >
       <Download size={16} />
-      <span>Export</span>
+      <span>Download Report</span>
     </button>
   );
 }
