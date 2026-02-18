@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect, useRef } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -25,19 +25,12 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [registrationMessage, setRegistrationMessage] = useState({ type: '', text: '' });
   
-  // State for Critical Alerts Toast
-  const [alertToast, setAlertToast] = useState(null);
-  
-  // USE REF: Keeps track of who we already alerted about without causing re-renders
-  const alertedPatientIds = useRef(new Set()); 
-
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(patientRegistrationSchema),
     defaultValues: { oaDiagnosis: 'No', gender: '', affectedKnee: '', activityLevel: '' }
   });
 
   const isCompact = clinician?.compactView || false;
-  const criticalAlertsEnabled = clinician?.criticalAlerts ?? true;
 
   // --- AUTO REFRESH DASHBOARD ---
   // Silently fetches new data from the database every 10 seconds
@@ -48,38 +41,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
     
     return () => clearInterval(interval);
   }, [router]);
-
-  // --- SMARTER TOAST NOTIFICATION ---
-  useEffect(() => {
-    if (!criticalAlertsEnabled) return;
-
-    // Look for patients currently in high-risk
-    const highRiskPatients = initialPatients.filter(p => p.status === 'high-risk');
-    
-    // Only alert for patients we haven't alerted for yet during this session
-    const newHighRisk = highRiskPatients.filter(p => !alertedPatientIds.current.has(p.id));
-
-    if (newHighRisk.length > 0) {
-      // Add these new high-risk patients to our tracked ref list
-      newHighRisk.forEach(p => alertedPatientIds.current.add(p.id));
-
-      // Show the popup (Wrapped in timeout to prevent React render warnings)
-      const showTimer = setTimeout(() => {
-        setAlertToast({
-          title: 'High Risk Alert',
-          message: `${newHighRisk.length} new patient(s) reached a critical risk score!`
-        });
-      }, 100);
-
-      const hideTimer = setTimeout(() => setAlertToast(null), 10100);
-      
-      return () => {
-        clearTimeout(showTimer);
-        clearTimeout(hideTimer);
-      };
-    }
-  }, [initialPatients, criticalAlertsEnabled]);
-
 
   const filters = [
     { id: 'all', label: 'All Patients', count: initialPatients.length },
@@ -177,25 +138,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
 
   return (
     <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans antialiased overflow-x-hidden p-4 md:p-8 relative">
-      
-      {/* Toast Notification for Critical Alerts */}
-      {alertToast && (
-        <div className="fixed top-6 right-6 z-50 animate-in slide-in-from-top-4 fade-in duration-300">
-          <div className="bg-rose-50 dark:bg-slate-800 border border-rose-200 dark:border-rose-900/50 shadow-lg rounded-2xl p-4 flex gap-4 max-w-sm">
-            <div className="bg-rose-100 dark:bg-rose-500/20 p-2 rounded-xl h-fit text-rose-600 dark:text-rose-400">
-              <AlertTriangle size={20} />
-            </div>
-            <div>
-              <h4 className="font-bold text-slate-900 dark:text-white text-sm">{alertToast.title}</h4>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">{alertToast.message}</p>
-            </div>
-            <button onClick={() => setAlertToast(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 h-fit">
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      )}
-
       <div className="max-w-[1400px] mx-auto space-y-6">
         
         {/* Header Section */}
@@ -457,7 +399,11 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                  </button>
                </div>
                <div className="p-2 md:p-6 overflow-y-auto no-scrollbar">
-                 <SmartDashboard patientName={selectedPatient.name} patientId={selectedPatient.id} />
+                 <SmartDashboard 
+                   patientName={selectedPatient.name} 
+                   patientId={selectedPatient.id} 
+                   highStressAlerts={false} 
+                 />
                </div>
             </div>
           </div>

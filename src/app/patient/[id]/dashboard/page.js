@@ -6,12 +6,13 @@ import { ClipboardList, FileText, Pill, Activity, Stethoscope, Calendar } from '
 export default async function PatientDashboard({ params }) {
   const { id } = await params;
 
-  // Fetch patient along with their latest intervention
+  // Fetch patient along with their latest intervention AND highStressAlerts setting
   const patient = await prisma.patient.findUnique({
     where: { id },
     select: { 
       id: true, 
       fullName: true,
+      highStressAlerts: true, // <-- ADDED THIS
       interventions: {
         orderBy: { createdAt: 'desc' },
         take: 1, 
@@ -44,7 +45,12 @@ export default async function PatientDashboard({ params }) {
         
         {/* LEFT/MAIN AREA: Smart Dashboard */}
         <div className="xl:col-span-8 2xl:col-span-9 w-full">
-          <SmartDashboard patientName={patient.fullName} patientId={patient.id} />
+          {/* <-- PASSED highStressAlerts PROP HERE --> */}
+          <SmartDashboard 
+            patientName={patient.fullName} 
+            patientId={patient.id} 
+            highStressAlerts={patient.highStressAlerts} 
+          />
         </div>
 
         {/* RIGHT AREA: Care Plan Sidebar */}
@@ -88,7 +94,7 @@ export default async function PatientDashboard({ params }) {
                   
                   {/* Doctor's Notes */}
                   <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                    {`"${patient.interventions[0].notes}"`}
+                    {`"${latestIntervention.notes}"`}
                   </p>
                   
                   {/* Footer Metadata - mt-auto pushes this to the very bottom! */}

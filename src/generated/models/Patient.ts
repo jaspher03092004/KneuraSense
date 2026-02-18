@@ -29,11 +29,13 @@ export type AggregatePatient = {
 export type PatientAvgAggregateOutputType = {
   age: number | null
   painSeverity: number | null
+  vibrationIntensity: number | null
 }
 
 export type PatientSumAggregateOutputType = {
   age: number | null
   painSeverity: number | null
+  vibrationIntensity: number | null
 }
 
 export type PatientMinAggregateOutputType = {
@@ -52,6 +54,10 @@ export type PatientMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   isVerified: boolean | null
+  highStressAlerts: boolean | null
+  vibrationEnabled: boolean | null
+  vibrationIntensity: number | null
+  ledEnabled: boolean | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -70,6 +76,10 @@ export type PatientMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   isVerified: boolean | null
+  highStressAlerts: boolean | null
+  vibrationEnabled: boolean | null
+  vibrationIntensity: number | null
+  ledEnabled: boolean | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -88,6 +98,10 @@ export type PatientCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   isVerified: number
+  highStressAlerts: number
+  vibrationEnabled: number
+  vibrationIntensity: number
+  ledEnabled: number
   _all: number
 }
 
@@ -95,11 +109,13 @@ export type PatientCountAggregateOutputType = {
 export type PatientAvgAggregateInputType = {
   age?: true
   painSeverity?: true
+  vibrationIntensity?: true
 }
 
 export type PatientSumAggregateInputType = {
   age?: true
   painSeverity?: true
+  vibrationIntensity?: true
 }
 
 export type PatientMinAggregateInputType = {
@@ -118,6 +134,10 @@ export type PatientMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   isVerified?: true
+  highStressAlerts?: true
+  vibrationEnabled?: true
+  vibrationIntensity?: true
+  ledEnabled?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -136,6 +156,10 @@ export type PatientMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   isVerified?: true
+  highStressAlerts?: true
+  vibrationEnabled?: true
+  vibrationIntensity?: true
+  ledEnabled?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -154,6 +178,10 @@ export type PatientCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   isVerified?: true
+  highStressAlerts?: true
+  vibrationEnabled?: true
+  vibrationIntensity?: true
+  ledEnabled?: true
   _all?: true
 }
 
@@ -259,6 +287,10 @@ export type PatientGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   isVerified: boolean
+  highStressAlerts: boolean
+  vibrationEnabled: boolean
+  vibrationIntensity: number
+  ledEnabled: boolean
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -300,6 +332,10 @@ export type PatientWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolFilter<"Patient"> | boolean
+  highStressAlerts?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }
@@ -320,6 +356,10 @@ export type PatientOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  highStressAlerts?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
 }
@@ -343,6 +383,10 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolFilter<"Patient"> | boolean
+  highStressAlerts?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }, "id" | "phoneNumber" | "email">
@@ -363,6 +407,10 @@ export type PatientOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  highStressAlerts?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -389,6 +437,10 @@ export type PatientScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  highStressAlerts?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  vibrationEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntWithAggregatesFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
 }
 
 export type PatientCreateInput = {
@@ -407,6 +459,10 @@ export type PatientCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
@@ -427,6 +483,10 @@ export type PatientUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -447,6 +507,10 @@ export type PatientUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
@@ -467,6 +531,10 @@ export type PatientUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -487,6 +555,10 @@ export type PatientCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -505,6 +577,10 @@ export type PatientUpdateManyMutationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientUncheckedUpdateManyInput = {
@@ -523,6 +599,10 @@ export type PatientUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type PatientCountOrderByAggregateInput = {
@@ -541,11 +621,16 @@ export type PatientCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  highStressAlerts?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
   age?: Prisma.SortOrder
   painSeverity?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
 }
 
 export type PatientMaxOrderByAggregateInput = {
@@ -564,6 +649,10 @@ export type PatientMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  highStressAlerts?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -582,11 +671,16 @@ export type PatientMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
+  highStressAlerts?: Prisma.SortOrder
+  vibrationEnabled?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
+  ledEnabled?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
   painSeverity?: Prisma.SortOrder
+  vibrationIntensity?: Prisma.SortOrder
 }
 
 export type PatientScalarRelationFilter = {
@@ -604,6 +698,14 @@ export type NullableIntFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type PatientCreateNestedOneWithoutSensorLogsInput = {
@@ -650,6 +752,10 @@ export type PatientCreateWithoutSensorLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
 
@@ -669,6 +775,10 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -704,6 +814,10 @@ export type PatientUpdateWithoutSensorLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
 
@@ -723,6 +837,10 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -742,6 +860,10 @@ export type PatientCreateWithoutInterventionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
 }
 
@@ -761,6 +883,10 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -796,6 +922,10 @@ export type PatientUpdateWithoutInterventionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
 }
 
@@ -815,6 +945,10 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -874,6 +1008,10 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
@@ -895,6 +1033,10 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -913,6 +1055,10 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectScalar = {
@@ -931,9 +1077,13 @@ export type PatientSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: boolean
+  ledEnabled?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
@@ -964,6 +1114,10 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     createdAt: Date
     updatedAt: Date
     isVerified: boolean
+    highStressAlerts: boolean
+    vibrationEnabled: boolean
+    vibrationIntensity: number
+    ledEnabled: boolean
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1404,6 +1558,10 @@ export interface PatientFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly isVerified: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly highStressAlerts: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly vibrationEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly vibrationIntensity: Prisma.FieldRef<"Patient", 'Int'>
+  readonly ledEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
 }
     
 

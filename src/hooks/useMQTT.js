@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import mqtt from 'mqtt';
 
 export function useMQTT() {
@@ -8,6 +8,9 @@ export function useMQTT() {
   });
   const [deviceStatus, setDeviceStatus] = useState("Offline"); 
   const [lastPacketTime, setLastPacketTime] = useState(0);
+
+  // NEW: A ref to track the last time we updated the UI
+  const lastUpdateTime = useRef(0);
 
   // --- MQTT CONNECTION ---
   useEffect(() => {
@@ -32,9 +35,16 @@ export function useMQTT() {
     client.on('message', (topic, message) => {
       try {
         const payload = JSON.parse(message.toString());
-        setData(prev => ({ ...prev, ...payload }));
-        setDeviceStatus("Online");
-        setLastPacketTime(Date.now()); 
+        const now = Date.now();
+        
+        // THROTTLE: Only update React state maximum once every 200ms
+        // This prevents the browser from freezing when ESP32 sends data too fast
+        if (now - lastUpdateTime.current > 200) {
+          setData(prev => ({ ...prev, ...payload }));
+          setDeviceStatus("Online");
+          setLastPacketTime(now);
+          lastUpdateTime.current = now;
+        }
       } catch (err) {
         console.error("MQTT Parse Error", err);
       }

@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import DashboardLayoutContent from '@/components/DashboardLayoutContent';
 import { redirect } from 'next/navigation';
+import GlobalClinicianAlerts from '@/components/GlobalClinicianAlerts';
 
 export default async function ClinicianLayout({ children, params }) {
   // 1. Get the ID from the URL
@@ -33,6 +34,7 @@ export default async function ClinicianLayout({ children, params }) {
   // 4. Render the Client Wrapper and pass the clinician data
   return (
     <DashboardLayoutContent user={clinicianData}>
+      <GlobalClinicianAlerts clinicianId={id} />
       {children}
     </DashboardLayoutContent>
   );

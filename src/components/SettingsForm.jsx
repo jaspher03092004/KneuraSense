@@ -11,6 +11,7 @@ import {
 
 export default function SettingsForm({ patient }) {
   // --- STATE: Device Settings (Initialize with DB values or defaults) ---
+  const [highStressAlerts, setHighStressAlerts] = useState(patient.highStressAlerts ?? true);
   const [vibrationEnabled, setVibrationEnabled] = useState(patient.vibrationEnabled ?? true);
   const [intensity, setIntensity] = useState(patient.vibrationIntensity ?? 2);
   const [ledEnabled, setLedEnabled] = useState(patient.ledEnabled ?? true);
@@ -51,6 +52,7 @@ export default function SettingsForm({ patient }) {
 
   // --- HANDLER: Reset to Defaults ---
   const handleResetDefaults = () => {
+    setHighStressAlerts(true);
     setVibrationEnabled(true);
     setIntensity(2); // Medium
     setLedEnabled(true);
@@ -62,6 +64,7 @@ export default function SettingsForm({ patient }) {
     setSaveStatus({ loading: true, success: false, error: null });
     
     const settings = {
+      highStressAlerts,
       vibrationEnabled,
       vibrationIntensity: intensity,
       ledEnabled
@@ -167,7 +170,12 @@ export default function SettingsForm({ patient }) {
                </div>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" defaultChecked />
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={highStressAlerts}
+                onChange={(e) => setHighStressAlerts(e.target.checked)}
+              />
               <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-200 after:border-gray-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#3A9D8C] dark:peer-checked:bg-teal-500 transition-colors duration-300"></div>
             </label>
           </div>
