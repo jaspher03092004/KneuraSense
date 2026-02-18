@@ -160,6 +160,7 @@ export const InterventionScalarFieldEnum = {
   title: 'title',
   type: 'type',
   notes: 'notes',
+  patientFriendlyNote: 'patientFriendlyNote',
   createdAt: 'createdAt',
   isAcknowledged: 'isAcknowledged',
   acknowledgedAt: 'acknowledgedAt'
