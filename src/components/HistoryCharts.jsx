@@ -6,10 +6,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis, ComposedChart
 } from 'recharts';
 
-// ==========================================
 // SHARED HELPER COMPONENTS
-// ==========================================
-
 const EmptyChart = () => (
   <div className="h-full flex items-center justify-center text-[10px] text-slate-300 dark:text-slate-600">Collecting Data...</div>
 );
@@ -25,10 +22,8 @@ const CriticalEventDot = (props) => {
   return null;
 };
 
-// ==========================================
-// TOOLTIPS
-// ==========================================
 
+// TOOLTIPS
 const CustomTooltip = ({ active, payload, unit }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
@@ -98,9 +93,7 @@ const CustomScatterTooltip = ({ active, payload }) => {
   return null;
 };
 
-// ==========================================
 // 1. ORIGINAL CHARTS (Kept for Patient Views)
-// ==========================================
 
 export default function HistoryCharts({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
@@ -183,10 +176,7 @@ export function MiniBarChart({ data, stroke, unit }) {
   );
 }
 
-// ==========================================
 // 2. NEW CLINICIAN CDSS CHARTS
-// ==========================================
-
 export function RiskDonutChart({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
   return (

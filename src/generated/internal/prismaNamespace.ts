@@ -976,6 +976,9 @@ export const ClinicianScalarFieldEnum = {
   specialization: 'specialization',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
+  criticalAlerts: 'criticalAlerts',
+  emailAlerts: 'emailAlerts',
+  compactView: 'compactView',
   isVerified: 'isVerified'
 } as const
 

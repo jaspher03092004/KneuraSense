@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { patientRegistrationSchema } from '@/lib/validations';
@@ -12,7 +13,9 @@ import {
   ChevronRight, X, Clock, AlertTriangle, CheckCircle, Download, Loader2, ArrowRight
 } from 'lucide-react';
 
-export default function DashboardClient({ clinicianId, initialPatients, stats }) {
+export default function DashboardClient({ clinician, initialPatients, stats }) {
+  const router = useRouter();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -21,11 +24,62 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
   const [showModal, setShowModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [registrationMessage, setRegistrationMessage] = useState({ type: '', text: '' });
+  
+  // State for Critical Alerts Toast
+  const [alertToast, setAlertToast] = useState(null);
+  
+  // USE REF: Keeps track of who we already alerted about without causing re-renders
+  const alertedPatientIds = useRef(new Set()); 
 
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(patientRegistrationSchema),
     defaultValues: { oaDiagnosis: 'No', gender: '', affectedKnee: '', activityLevel: '' }
   });
+
+  const isCompact = clinician?.compactView || false;
+  const criticalAlertsEnabled = clinician?.criticalAlerts ?? true;
+
+  // --- AUTO REFRESH DASHBOARD ---
+  // Silently fetches new data from the database every 10 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      router.refresh(); 
+    }, 10000); 
+    
+    return () => clearInterval(interval);
+  }, [router]);
+
+  // --- SMARTER TOAST NOTIFICATION ---
+  useEffect(() => {
+    if (!criticalAlertsEnabled) return;
+
+    // Look for patients currently in high-risk
+    const highRiskPatients = initialPatients.filter(p => p.status === 'high-risk');
+    
+    // Only alert for patients we haven't alerted for yet during this session
+    const newHighRisk = highRiskPatients.filter(p => !alertedPatientIds.current.has(p.id));
+
+    if (newHighRisk.length > 0) {
+      // Add these new high-risk patients to our tracked ref list
+      newHighRisk.forEach(p => alertedPatientIds.current.add(p.id));
+
+      // Show the popup (Wrapped in timeout to prevent React render warnings)
+      const showTimer = setTimeout(() => {
+        setAlertToast({
+          title: 'High Risk Alert',
+          message: `${newHighRisk.length} new patient(s) reached a critical risk score!`
+        });
+      }, 100);
+
+      const hideTimer = setTimeout(() => setAlertToast(null), 10100);
+      
+      return () => {
+        clearTimeout(showTimer);
+        clearTimeout(hideTimer);
+      };
+    }
+  }, [initialPatients, criticalAlertsEnabled]);
+
 
   const filters = [
     { id: 'all', label: 'All Patients', count: initialPatients.length },
@@ -68,7 +122,6 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
 
   if (currentPage > totalPages && totalPages > 0) setCurrentPage(1);
 
-  // --- EXPORT FUNCTIONALITY ---
   const handleExport = () => {
     if (filteredPatients.length === 0) {
       alert("No patient data to export.");
@@ -103,7 +156,6 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
         if (data[key] !== undefined && data[key] !== null) formDataObj.append(key, data[key]);
       });
 
-      // 2. Call the Server Action instead of fetch('/api/register')
       const result = await clinicianRegisterPatient(formDataObj);
 
       if (result.success) {
@@ -118,14 +170,32 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
         setRegistrationMessage({ type: 'error', text: `Error: ${result.error || 'Registration failed'}` });
       }
     } catch (error) {
-      // If it fails now, you know it's an actual code error, not a missing API route
       console.error(error); 
       setRegistrationMessage({ type: 'error', text: 'An error occurred during registration.' });
     }
   };
 
   return (
-    <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans antialiased overflow-x-hidden p-4 md:p-8">
+    <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans antialiased overflow-x-hidden p-4 md:p-8 relative">
+      
+      {/* Toast Notification for Critical Alerts */}
+      {alertToast && (
+        <div className="fixed top-6 right-6 z-50 animate-in slide-in-from-top-4 fade-in duration-300">
+          <div className="bg-rose-50 dark:bg-slate-800 border border-rose-200 dark:border-rose-900/50 shadow-lg rounded-2xl p-4 flex gap-4 max-w-sm">
+            <div className="bg-rose-100 dark:bg-rose-500/20 p-2 rounded-xl h-fit text-rose-600 dark:text-rose-400">
+              <AlertTriangle size={20} />
+            </div>
+            <div>
+              <h4 className="font-bold text-slate-900 dark:text-white text-sm">{alertToast.title}</h4>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">{alertToast.message}</p>
+            </div>
+            <button onClick={() => setAlertToast(null)} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 h-fit">
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-[1400px] mx-auto space-y-6">
         
         {/* Header Section */}
@@ -231,14 +301,14 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
                 {paginated.map((patient) => {
                   const statusConfig = getStatusConfig(patient.status);
                   return (
-                    <div key={patient.id} className="p-4 space-y-4 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                    <div key={patient.id} className={`${isCompact ? 'p-3 space-y-3' : 'p-4 space-y-4'} hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors`}>
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-sm shadow-sm shrink-0">
+                          <div className={`${isCompact ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm'} rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0`}>
                             {patient.initials}
                           </div>
                           <div className="min-w-0">
-                            <div className="font-bold text-slate-700 dark:text-slate-200 text-sm truncate">
+                            <div className={`font-bold text-slate-700 dark:text-slate-200 truncate ${isCompact ? 'text-xs' : 'text-sm'}`}>
                               <PrivacyMask defaultVisible={false}>{patient.name}</PrivacyMask>
                             </div>
                             <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
@@ -250,24 +320,24 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                        <div className={`flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded-lg ${isCompact ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Score</p>
-                          <p className={`font-mono font-bold text-sm ${getScoreColor(patient.score)}`}>
+                          <p className={`font-mono font-bold ${isCompact ? 'text-xs' : 'text-sm'} ${getScoreColor(patient.score)}`}>
                             {patient.score}
                           </p>
                         </div>
-                        <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                        <div className={`flex justify-between items-center bg-slate-50 dark:bg-slate-800 rounded-lg ${isCompact ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Sync</p>
-                          <p className="text-[10px] font-bold text-slate-600 dark:text-slate-300 truncate text-right">{patient.lastActive}</p>
+                          <p className={`font-bold text-slate-600 dark:text-slate-300 truncate text-right ${isCompact ? 'text-[9px]' : 'text-[10px]'}`}>{patient.lastActive}</p>
                         </div>
                       </div>
 
                       <button 
                         onClick={() => setSelectedPatient({ id: patient.id, name: patient.name })} 
-                        className="w-full flex items-center justify-center gap-1.5 px-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm"
+                        className={`w-full flex items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm ${isCompact ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2.5 text-xs'}`}
                       >
                         Live View
-                        <ArrowRight size={14} />
+                        <ArrowRight size={isCompact ? 12 : 14} />
                       </button>
                     </div>
                   );
@@ -279,11 +349,11 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
                 <table className="w-full text-left">
                   <thead className="bg-slate-50/50 dark:bg-slate-800/50 border-y border-slate-100 dark:border-slate-800">
                     <tr>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Patient</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Status</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Risk Score</th>
-                      <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Last Sync</th>
-                      <th className="px-6 py-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">Action</th>
+                      <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Patient</th>
+                      <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Status</th>
+                      <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Risk Score</th>
+                      <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Last Sync</th>
+                      <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} text-right font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
@@ -291,27 +361,27 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
                       const statusConfig = getStatusConfig(patient.status);
                       return (
                         <tr key={patient.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors group">
-                          <td className="px-6 py-4">
+                          <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} transition-all`}>
                             <div className="flex items-center gap-4">
-                              <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-sm shadow-sm shrink-0">
+                              <div className={`${isCompact ? 'w-8 h-8 text-xs rounded-lg' : 'w-10 h-10 text-sm rounded-xl'} bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0 transition-all`}>
                                 {patient.initials}
                               </div>
                               <div>
-                                <div className="font-bold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap">
+                                <div className={`font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap transition-all ${isCompact ? 'text-xs' : 'text-sm'}`}>
                                   <PrivacyMask defaultVisible={false}>{patient.name}</PrivacyMask>
                                 </div>
                                 <p className="text-[10px] font-medium text-slate-400 mt-0.5">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} transition-all`}>
                             <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${statusConfig.bg} ${statusConfig.text}`}>
                               {statusConfig.label}
                             </span>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} transition-all`}>
                             <div className="flex items-center gap-3 max-w-[140px]">
-                              <span className={`font-mono font-bold text-sm ${getScoreColor(patient.score)}`}>
+                              <span className={`font-mono font-bold ${isCompact ? 'text-xs' : 'text-sm'} ${getScoreColor(patient.score)} transition-all`}>
                                 {patient.score}
                               </span>
                               <div className="flex-1 h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -319,21 +389,21 @@ export default function DashboardClient({ clinicianId, initialPatients, stats })
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4">
+                          <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} transition-all`}>
                             <div className="flex flex-col">
-                              <span className="text-sm font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap">
+                              <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap transition-all`}>
                                 {patient.lastSensorSync ? new Date(patient.lastSensorSync).toLocaleDateString() : 'N/A'}
                               </span>
                               <span className="text-[10px] font-medium text-slate-400 mt-0.5">{patient.lastActive}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-right">
+                          <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} text-right transition-all`}>
                             <button 
                               onClick={() => setSelectedPatient({ id: patient.id, name: patient.name })} 
-                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm whitespace-nowrap"
+                              className={`inline-flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm whitespace-nowrap ${isCompact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs'}`}
                             >
                               Live View
-                              <ArrowRight size={14} />
+                              <ArrowRight size={isCompact ? 12 : 14} />
                             </button>
                           </td>
                         </tr>

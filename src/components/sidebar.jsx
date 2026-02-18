@@ -64,6 +64,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
   ];
 
   const clinicianManagementItems = [
+    { icon: User, label: 'My Profile', href: `/clinician/${user?.id}/myProfile` },
     { icon: FileText, label: 'Reports', href: `/clinician/${user?.id}/reports` },
     { icon: Settings, label: 'Settings', href: `/clinician/${user?.id}/settings` },
   ];
@@ -122,21 +123,21 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
             <X className="w-5 h-5" />
           </button>
 
-{/* LOGO SECTION */}
-<div className={`flex items-center mb-8 h-11 transition-all duration-300 group cursor-pointer ${isExpanded ? 'justify-start' : 'md:justify-center'}`}>
-  <Image 
-    src="/images/Logo.svg" 
-    alt="KneuraSense Logo" 
-    width={36} 
-    height={36} 
-    className="flex-shrink-0 scale-125 group-hover:scale-150 transition-transform duration-300 drop-shadow-md"
-  />
-  <span className={`text-[#2D5F8B] dark:text-white font-bold text-xl whitespace-nowrap overflow-hidden transition-all duration-300 ml-3 ${
-    isExpanded ? 'w-auto opacity-100' : 'md:w-0 md:opacity-0 md:ml-0 w-auto opacity-100'
-  }`}>
-    KneuraSense
-  </span>
-</div>
+          {/* LOGO SECTION */}
+          <div className={`flex items-center mb-8 h-11 transition-all duration-300 group cursor-pointer ${isExpanded ? 'justify-start' : 'md:justify-center'}`}>
+            <Image 
+              src="/images/Logo.svg" 
+              alt="KneuraSense Logo" 
+              width={36} 
+              height={36} 
+              className="flex-shrink-0 scale-125 group-hover:scale-150 transition-transform duration-300 drop-shadow-md"
+            />
+            <span className={`text-[#2D5F8B] dark:text-white font-bold text-xl whitespace-nowrap overflow-hidden transition-all duration-300 ml-3 ${
+              isExpanded ? 'w-auto opacity-100' : 'md:w-0 md:opacity-0 md:ml-0 w-auto opacity-100'
+            }`}>
+              KneuraSense
+            </span>
+          </div>
 
           {/* MAIN MENU */}
           <div className="mb-6">
