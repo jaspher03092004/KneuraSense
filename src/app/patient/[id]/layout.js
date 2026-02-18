@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import DashboardLayoutContent from '@/components/DashboardLayoutContent';
 import GlobalPatientAlerts from '@/components/GlobalPatientAlerts';
 import { redirect } from 'next/navigation';
+import KneuraBot from '@/components/KneuraBot';
 
 export default async function PatientLayout({ children, params }) {
   const { id } = await params;
@@ -27,8 +28,9 @@ export default async function PatientLayout({ children, params }) {
          highStressAlerts={patient.highStressAlerts} 
          patientId={patient.id} 
       />
-      
       {children}
+      <KneuraBot />
     </DashboardLayoutContent>
+    
   );
 }
