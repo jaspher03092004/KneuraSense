@@ -158,7 +158,6 @@ export default function SmartDashboard({ patientName, patientId }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-4 xl:col-span-4 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden transition-colors duration-300">
-           <div className={`absolute top-0 left-0 w-full h-2 transition-colors duration-500 ${riskConfig.bgBar}`}></div>
            
            <div className="w-full text-center mb-6">
               <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 transition-colors duration-300">Overuse Risk Score</h2>

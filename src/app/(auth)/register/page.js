@@ -438,14 +438,14 @@ export default function RegisterPage() {
               </div>
 
               <div className="mb-8">
-                <label className="block text-sm font-semibold text-slate-700 mb-2 text-center">Verification Code</label>
+                <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Verification Code</label>
                 <input 
                   type="text" 
                   maxLength={6}
                   value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} // Ensure only numbers
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
                   placeholder="000000"
-                  className="w-full text-center text-3xl tracking-[0.5em] px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 font-bold text-slate-900 transition-all"
+                  className="w-full text-center text-xl tracking-[0.5em] px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 font-bold text-slate-900 transition-all"
                 />
               </div>
 
