@@ -4,7 +4,17 @@ import DashboardClient from './DashboardClient';
 export default async function ClinicianDashboardPage({ params }) {
   const { id } = await params;
 
-  // 1. Fetch patients and their 10 most recent sensor logs
+  // 1. Fetch Clinician Preferences
+  const clinician = await prisma.clinician.findUnique({
+    where: { clinician_id: id },
+    select: {
+      clinician_id: true, 
+      criticalAlerts: true,
+      compactView: true,
+    }
+  });
+
+  // 2. Fetch patients and their 10 most recent sensor logs
   const patientsData = await prisma.patient.findMany({
     include: {
       sensorLogs: {
@@ -16,7 +26,7 @@ export default async function ClinicianDashboardPage({ params }) {
 
   const now = new Date();
 
-  // 2. Format the data to match the UI requirements
+  // 3. Format the data to match the UI requirements
   const formattedPatients = patientsData.map(patient => {
     const latestLog = patient.sensorLogs[0];
     const riskScore = latestLog?.riskScore || 0;
@@ -69,7 +79,7 @@ export default async function ClinicianDashboardPage({ params }) {
     };
   });
 
-  // 3. Calculate overview statistics dynamically
+  // 4. Calculate overview statistics dynamically
   const activeTodayCount = formattedPatients.filter(p => p.status !== 'offline' && p.lastActive !== 'Never').length;
   const highRiskCount = formattedPatients.filter(p => p.status === 'high-risk').length;
   const offlineCount = formattedPatients.filter(p => p.status === 'offline').length;
@@ -83,7 +93,7 @@ export default async function ClinicianDashboardPage({ params }) {
 
   return (
     <DashboardClient 
-      clinicianId={id} 
+      clinician={clinician} 
       initialPatients={formattedPatients} 
       stats={stats} 
     />
