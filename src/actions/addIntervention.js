@@ -30,7 +30,7 @@ export async function addIntervention(formData) {
     try {
       console.log("--- 4. CALLING GEMINI AI... ---");
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
       const prompt = `Explain this medical instruction to a patient at a 6th-grade reading level. Be encouraging and clear. Note: "${notes}"`;
       
       const result = await model.generateContent(prompt);
