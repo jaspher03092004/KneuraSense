@@ -54,7 +54,13 @@ export async function login(email, password, rememberMe = false) {
     }
 
     // 5. Safely encode JWT Secret
-    const secretKey = process.env.JWT_SECRET || 'your-fallback-super-secret-key-change-in-production';
+    const secretKey = process.env.JWT_SECRET;
+    
+    if (!secretKey) {
+      console.error("CRITICAL SECURITY ERROR: JWT_SECRET is missing.");
+      return { success: false, error: 'Server configuration error. Please contact admin.' };
+    }
+
     const encodedSecret = new TextEncoder().encode(secretKey);
 
     // 6. Create Secure Session (JWT)

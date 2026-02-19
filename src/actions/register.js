@@ -3,8 +3,9 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto';
 
-// PHASE 1: Send OTP (NO USER SAVED YET)
+// PHASE 1: Send OTP 
 export async function initiateRegistration(formData) {
   try {
     const email = formData.get('email')?.trim().toLowerCase();
@@ -15,28 +16,45 @@ export async function initiateRegistration(formData) {
       return { success: false, error: 'Missing required fields.' };
     }
 
-    // 1. Duplicate Checks (Ensure email/phone aren't already taken before sending OTP)
+    // 1. MITIGATE ENUMERATION & SPAM: Rate Limiting
+    const recentToken = await prisma.emailVerificationToken.findFirst({
+      where: { 
+        email, 
+        createdAt: { gte: new Date(Date.now() - 60 * 1000) } // 1 minute cooldown
+      }
+    });
+
+    if (recentToken) {
+       return { success: false, error: 'Please wait a minute before requesting another code.' };
+    }
+
+    // 2. Duplicate Checks
     const existingClinician = await prisma.clinician.findUnique({ where: { email } });
     const existingPatient = await prisma.patient.findUnique({ where: { email } });
+    
+    // ANTI-ENUMERATION: Pretend it succeeded even if they exist
     if (existingClinician || existingPatient) {
-      return { success: false, error: 'This email is already registered.' };
+      // Delay response slightly to simulate email sending time
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      return { success: true, message: 'If the email is not registered, an OTP was sent.', email };
     }
 
     const existingPatientPhone = await prisma.patient.findUnique({ where: { phoneNumber } });
     const existingClinicianPhone = await prisma.clinician.findUnique({ where: { phone_number: phoneNumber } });
     if (existingPatientPhone || existingClinicianPhone) {
-      return { success: false, error: 'This phone number is already registered.' };
+      // Generic failure for phone enumeration
+      return { success: false, error: 'Registration failed due to conflicting details.' }; 
     }
 
-    // 2. Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+    // 3. GENERATE SECURE 6-DIGIT OTP
+    const otp = crypto.randomInt(100000, 1000000).toString(); 
     const expires = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
 
-    // 3. Clear old tokens and save ONLY the OTP token to the database
+    // 4. Clear old tokens and save ONLY the OTP token to the database
     await prisma.emailVerificationToken.deleteMany({ where: { email } });
     await prisma.emailVerificationToken.create({ data: { email, token: otp, expires } });
 
-    // 4. Send the Email
+    // 5. Send the Email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
@@ -136,7 +154,7 @@ export async function finalizeRegistration(formData, otp) {
   } catch (error) {
     console.error('Finalize Registration Error:', error);
     
-    // Catch Prisma unique constraint errors (e.g. if someone registers the same email in the exact split second before them)
+    // Catch Prisma unique constraint errors
     if (error.code === 'P2002') {
       return { success: false, error: 'This account was already created or the credentials are taken.' };
     }

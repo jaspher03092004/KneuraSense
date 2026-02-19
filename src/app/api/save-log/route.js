@@ -7,7 +7,7 @@ async function sendCriticalAlertEmail(patient, riskScore, logData) {
     // 1. Fetch ALL clinicians who have email alerts enabled
     const clinicians = await prisma.clinician.findMany({
       where: { 
-        // isVerified: true, <--- Commented out for testing. Add back for production!
+        isVerified: true,
         emailAlerts: true 
       }
     });
