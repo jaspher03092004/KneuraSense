@@ -37,7 +37,7 @@ export async function GET(request, { params }) {
 
     // DEBUG STEP 3: Connect to Gemini
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
     
     const prompt = `You are a helpful medical AI. A patient has a current risk score of ${currentLog.riskScore}, average risk of ${avgRisk}, peak force of ${maxForce}N. Give a 2 sentence supportive summary.`;
 
