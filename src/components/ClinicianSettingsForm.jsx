@@ -4,29 +4,32 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { changePassword } from '@/actions/changePassword';
 import { updateClinicianPreferences } from '@/actions/updateClinicianPreferences';
+import { deleteAccount } from '@/actions/deleteAccount';
 import { 
   Bell, Lock, ChevronRight, Save, X, 
-  Loader2, CheckCircle, AlertCircle, Eye
+  Loader2, CheckCircle, AlertCircle, Eye, Trash2, AlertTriangle, Shield
 } from 'lucide-react';
 
 export default function ClinicianSettingsForm({ clinician }) {
   // --- STATE: Clinician Preferences ---
-  // Initialized with DB values, defaulting to true/false if undefined
   const [emailAlerts, setEmailAlerts] = useState(clinician.emailAlerts ?? true);
   const [criticalAlerts, setCriticalAlerts] = useState(clinician.criticalAlerts ?? true);
   const [compactView, setCompactView] = useState(clinician.compactView ?? false);
-  
   const [saveStatus, setSaveStatus] = useState({ loading: false, success: false, error: null });
 
-  // --- STATE: Password Modal ---
+  // --- STATE: Modals ---
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState({ loading: false, error: null, success: null });
+  
+  // Deletion States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
   const getTimeAgo = (dateInput) => {
     if (!dateInput) return 'Unknown';
     const date = new Date(dateInput);
     const seconds = Math.floor((new Date() - date) / 1000);
-    
     let interval = seconds / 31536000;
     if (interval > 1) return Math.floor(interval) + " years ago";
     interval = seconds / 2592000;
@@ -42,13 +45,11 @@ export default function ClinicianSettingsForm({ clinician }) {
 
   const handleSavePreferences = async () => {
     setSaveStatus({ loading: true, success: false, error: null });
-    
     const result = await updateClinicianPreferences(clinician.clinician_id, {
       criticalAlerts,
       emailAlerts,
       compactView
     });
-
     if (result.success) {
       setSaveStatus({ loading: false, success: true, error: null });
       setTimeout(() => setSaveStatus(prev => ({ ...prev, success: false })), 3000);
@@ -60,10 +61,8 @@ export default function ClinicianSettingsForm({ clinician }) {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordStatus({ loading: true, error: null, success: null });
-
     const formData = new FormData(e.target);
     const result = await changePassword(clinician.clinician_id, formData);
-
     if (result?.error) {
       setPasswordStatus({ loading: false, error: result.error, success: null });
     } else {
@@ -76,15 +75,32 @@ export default function ClinicianSettingsForm({ clinician }) {
     }
   };
 
+  // --- NEW: Handle Deletion with Password ---
+  const handleConfirmDeletion = async (e) => {
+    e.preventDefault();
+    setDeleteError(null);
+    setIsDeleting(true);
+
+    const formData = new FormData(e.target);
+    const password = formData.get('confirmPassword');
+
+    const result = await deleteAccount(password);
+
+    if (result?.error) {
+      setDeleteError(result.error);
+      setIsDeleting(false);
+    }
+    // If successful, the action redirects automatically
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-10 bg-transparent transition-colors duration-300 p-4 md:p-8">
-      
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors duration-300">Settings</h1>
         <p className="text-slate-500 dark:text-slate-400 transition-colors duration-300">Manage your clinician account and notification preferences</p>
       </div>
 
-      {/* 1. Account Security */}
+      {/* Account Security */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -125,7 +141,7 @@ export default function ClinicianSettingsForm({ clinician }) {
         </div>
       </section>
 
-      {/* 2. Notification Preferences */}
+      {/* Notification Preferences */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -159,7 +175,7 @@ export default function ClinicianSettingsForm({ clinician }) {
         </div>
       </section>
 
-      {/* 3. Display Preferences */}
+      {/* Display Preferences */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -205,6 +221,27 @@ export default function ClinicianSettingsForm({ clinician }) {
         </div>
       </section>
 
+      {/* Danger Zone Section */}
+      <section className="bg-rose-50 dark:bg-rose-950/20 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900/50 overflow-hidden transition-colors duration-300">
+        <div className="p-4 border-b border-rose-100 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-900/30 transition-colors duration-300">
+          <h3 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
+            <AlertTriangle size={16} /> Danger Zone
+          </h3>
+        </div>
+        <div className="p-6 space-y-4">
+          <p className="text-sm text-slate-600 dark:text-slate-400">
+            Deleting your account will permanently remove your profile and all clinical notes/interventions you have written for patients. This action is irreversible. Proceed?
+          </p>
+          <button 
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-800 text-rose-600 px-6 py-2.5 rounded-xl font-bold hover:bg-rose-600 hover:text-white transition flex items-center gap-2 disabled:opacity-50"
+          >
+            <Trash2 size={18} />
+            Terminate Clinician Account
+          </button>
+        </div>
+      </section>
+
       {/* Password Modal */}
       {isPasswordModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 dark:bg-slate-950/80 backdrop-blur-sm">
@@ -245,6 +282,66 @@ export default function ClinicianSettingsForm({ clinician }) {
                 <button type="button" onClick={() => setIsPasswordModalOpen(false)} className="flex-1 py-2.5 border border-gray-300 rounded-lg text-gray-600 font-semibold hover:bg-gray-50">Cancel</button>
                 <button type="submit" disabled={passwordStatus.loading} className="flex-1 py-2.5 bg-cyan-600 text-white rounded-lg font-semibold hover:bg-cyan-700 flex justify-center items-center gap-2 disabled:opacity-70">
                   {passwordStatus.loading ? <Loader2 size={18} className="animate-spin"/> : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- DELETE ACCOUNT MODAL --- */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-slate-950/90 backdrop-blur-sm transition-opacity">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-rose-100 dark:border-rose-900/30">
+            <div className="px-6 py-4 border-b border-rose-50 dark:border-rose-900/20 flex justify-between items-center bg-rose-50/30 dark:bg-rose-950/30">
+              <h3 className="font-bold text-rose-800 dark:text-rose-400 flex items-center gap-2">
+                <AlertTriangle size={18} /> Confirm Termination
+              </h3>
+              <button 
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmDeletion} className="p-6 space-y-4">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                To confirm deletion of your clinician account and all clinical records, please enter your password.
+              </p>
+
+              {deleteError && (
+                <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20 text-sm flex items-center gap-2">
+                  <AlertCircle size={16} /> {deleteError}
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Verify Password</label>
+                <input 
+                  type="password" 
+                  name="confirmPassword"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-transparent dark:bg-slate-950 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-rose-500 outline-none transition-colors"
+                  placeholder="Enter password to confirm"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="flex-1 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isDeleting}
+                  className="flex-1 py-2.5 bg-rose-600 text-white rounded-lg font-bold hover:bg-rose-700 transition flex justify-center items-center gap-2 disabled:opacity-70"
+                >
+                  {isDeleting ? <Loader2 size={18} className="animate-spin"/> : <Trash2 size={18} />}
+                  {isDeleting ? 'Terminating...' : 'Confirm Termination'}
                 </button>
               </div>
             </form>

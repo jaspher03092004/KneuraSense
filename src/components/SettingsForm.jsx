@@ -4,26 +4,29 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { changePassword } from '@/actions/changePassword';
 import { updateDeviceSettings } from '@/actions/updateDeviceSettings';
+import { deleteAccount } from '@/actions/deleteAccount';
 import { 
   Bell, Lock, ChevronRight, Smartphone, RotateCcw, Save, X, 
-  Loader2, CheckCircle, AlertCircle 
+  Loader2, CheckCircle, AlertCircle, Trash2, AlertTriangle, Shield 
 } from 'lucide-react';
 
 export default function SettingsForm({ patient }) {
-  // --- STATE: Device Settings (Initialize with DB values or defaults) ---
+  // --- STATE: Device Settings ---
   const [highStressAlerts, setHighStressAlerts] = useState(patient.highStressAlerts ?? true);
   const [vibrationEnabled, setVibrationEnabled] = useState(patient.vibrationEnabled ?? true);
   const [intensity, setIntensity] = useState(patient.vibrationIntensity ?? 2);
   const [ledEnabled, setLedEnabled] = useState(patient.ledEnabled ?? true);
-  
-  // State for Saving Device Settings
   const [saveStatus, setSaveStatus] = useState({ loading: false, success: false, error: null });
 
-  // --- STATE: Password Modal ---
+  // --- STATE: Modals & Actions ---
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordStatus, setPasswordStatus] = useState({ loading: false, error: null, success: null });
+  
+  // Account Deletion States
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
 
-  // --- HELPER: Intensity Label ---
   const getIntensityLabel = (val) => {
     if (val === 1) return 'Low';
     if (val === 2) return 'Medium';
@@ -31,12 +34,10 @@ export default function SettingsForm({ patient }) {
     return 'Medium';
   };
 
-  // --- HELPER: Format Relative Time ---
   const getTimeAgo = (dateInput) => {
     if (!dateInput) return 'Unknown';
     const date = new Date(dateInput);
     const seconds = Math.floor((new Date() - date) / 1000);
-    
     let interval = seconds / 31536000;
     if (interval > 1) return Math.floor(interval) + " years ago";
     interval = seconds / 2592000;
@@ -50,45 +51,35 @@ export default function SettingsForm({ patient }) {
     return "Just now";
   };
 
-  // --- HANDLER: Reset to Defaults ---
   const handleResetDefaults = () => {
     setHighStressAlerts(true);
     setVibrationEnabled(true);
-    setIntensity(2); // Medium
+    setIntensity(2);
     setLedEnabled(true);
     setSaveStatus({ loading: false, success: false, error: null });
   };
 
-  // --- HANDLER: Save Device Settings ---
   const handleSaveSettings = async () => {
     setSaveStatus({ loading: true, success: false, error: null });
-    
-    const settings = {
+    const result = await updateDeviceSettings(patient.id, {
       highStressAlerts,
       vibrationEnabled,
       vibrationIntensity: intensity,
       ledEnabled
-    };
-
-    const result = await updateDeviceSettings(patient.id, settings);
-
+    });
     if (result.success) {
       setSaveStatus({ loading: false, success: true, error: null });
-      // Hide success message after 3 seconds
       setTimeout(() => setSaveStatus(prev => ({ ...prev, success: false })), 3000);
     } else {
       setSaveStatus({ loading: false, success: false, error: result.error });
     }
   };
 
-  // --- HANDLER: Change Password ---
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setPasswordStatus({ loading: true, error: null, success: null });
-
     const formData = new FormData(e.target);
     const result = await changePassword(patient.id, formData);
-
     if (result.error) {
       setPasswordStatus({ loading: false, error: result.error, success: null });
     } else {
@@ -101,20 +92,36 @@ export default function SettingsForm({ patient }) {
     }
   };
 
+  // --- NEW: Handle Deletion with Password ---
+  const handleConfirmDeletion = async (e) => {
+    e.preventDefault();
+    setDeleteError(null);
+    setIsDeleting(true);
+
+    const formData = new FormData(e.target);
+    const password = formData.get('confirmPassword');
+
+    const result = await deleteAccount(password);
+
+    if (result?.error) {
+      setDeleteError(result.error);
+      setIsDeleting(false);
+    }
+    // If successful, the action redirects automatically
+  };
+
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-10 bg-transparent transition-colors duration-300">
-      
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors duration-300">Settings</h1>
         <p className="text-slate-500 dark:text-slate-400 transition-colors duration-300">Manage your account preferences and device configuration</p>
       </div>
 
-      {/* 1. Account Security Section */}
+      {/* Account Security Section */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-colors duration-300">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-            <Lock size={16} className="text-[#3A9D8C] dark:text-teal-400" /> Account Security
+            <Shield size={16} className="text-[#3A9D8C] dark:text-teal-400" /> Account Security
           </h3>
         </div>
         <div className="divide-y divide-slate-100 dark:divide-slate-800 transition-colors duration-300">
@@ -151,7 +158,7 @@ export default function SettingsForm({ patient }) {
         </div>
       </section>
 
-      {/* 2. Notification Preferences */}
+      {/* Notification Preferences */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-colors duration-300">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -182,7 +189,7 @@ export default function SettingsForm({ patient }) {
         </div>
       </section>
 
-      {/* 3. Device Alert Preferences */}
+      {/* Device Alert Preferences */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-colors duration-300">
           <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
@@ -191,8 +198,6 @@ export default function SettingsForm({ patient }) {
         </div>
         
         <div className="p-6 space-y-8">
-          
-          {/* Vibration Toggle */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h4 className="font-bold text-slate-900 dark:text-slate-200 transition-colors duration-300">Vibration Alerts</h4>
@@ -211,7 +216,6 @@ export default function SettingsForm({ patient }) {
 
           <div className="border-t border-slate-100 dark:border-slate-800 transition-colors duration-300"></div>
 
-          {/* Intensity Slider */}
           <div className="flex items-center justify-between gap-8">
              <div className="space-y-1 max-w-[50%]">
                <h4 className="font-bold text-slate-900 dark:text-slate-200 transition-colors duration-300">Vibration Intensity</h4>
@@ -236,7 +240,6 @@ export default function SettingsForm({ patient }) {
 
           <div className="border-t border-slate-100 dark:border-slate-800 transition-colors duration-300"></div>
 
-          {/* LED Toggle */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h4 className="font-bold text-slate-900 dark:text-slate-200 transition-colors duration-300">LED Visual Alerts</h4>
@@ -253,9 +256,7 @@ export default function SettingsForm({ patient }) {
             </label>
           </div>
 
-          {/* Action Buttons & Status */}
           <div className="pt-4 flex flex-col gap-4">
-             {/* Success/Error Message */}
              {saveStatus.success && (
                 <div className="p-3 bg-green-50 dark:bg-emerald-500/10 text-green-700 dark:text-emerald-400 border border-green-100 dark:border-emerald-500/20 rounded-lg text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-1 transition-colors duration-300">
                   <CheckCircle size={16}/> Settings saved successfully.
@@ -284,6 +285,27 @@ export default function SettingsForm({ patient }) {
                 </button>
              </div>
           </div>
+        </div>
+      </section>
+
+      {/* Danger Zone Section */}
+      <section className="bg-red-50 dark:bg-red-950/20 rounded-2xl shadow-sm border border-red-200 dark:border-red-900/50 overflow-hidden transition-colors duration-300">
+        <div className="p-4 border-b border-red-100 dark:border-red-900/50 bg-red-50/50 dark:bg-red-900/30 transition-colors duration-300">
+          <h3 className="font-bold text-red-800 dark:text-red-400 flex items-center gap-2">
+            <AlertTriangle size={16} /> Danger Zone
+          </h3>
+        </div>
+        <div className="p-6 space-y-4">
+          <p className="text-sm text-red-700/70 dark:text-red-400/70">
+            Deleting your account will permanently remove all medical records, historical sensor data, and clinical interventions. You will lose access to the KneuraSense platform immediately.
+          </p>
+          <button 
+            onClick={() => setIsDeleteModalOpen(true)}
+            className="flex items-center gap-2 bg-white dark:bg-slate-900 border border-red-200 dark:border-red-800 text-red-600 px-6 py-2.5 rounded-xl font-bold hover:bg-red-600 hover:text-white transition flex items-center gap-2 disabled:opacity-50"
+          >
+            <Trash2 size={18} />
+            Delete Account Permanently
+          </button>
         </div>
       </section>
 
@@ -362,6 +384,66 @@ export default function SettingsForm({ patient }) {
                   className="flex-1 py-2.5 bg-[#2D5F8B] dark:bg-blue-600 text-white rounded-lg font-semibold hover:bg-[#244a6d] dark:hover:bg-blue-700 transition flex justify-center items-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                   {passwordStatus.loading ? <><Loader2 size={18} className="animate-spin"/> Updating...</> : 'Update Password'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- DELETE ACCOUNT MODAL --- */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-slate-950/90 backdrop-blur-sm transition-opacity">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden border border-red-100 dark:border-red-900/30">
+            <div className="px-6 py-4 border-b border-red-50 dark:border-red-900/20 flex justify-between items-center bg-red-50/30 dark:bg-red-950/30">
+              <h3 className="font-bold text-red-800 dark:text-red-400 flex items-center gap-2">
+                <AlertTriangle size={18} /> Confirm Deletion
+              </h3>
+              <button 
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <form onSubmit={handleConfirmDeletion} className="p-6 space-y-4">
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                To confirm, please enter your account password. This action is <strong>permanent</strong>.
+              </p>
+
+              {deleteError && (
+                <div className="p-3 rounded-lg bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-500/20 text-sm flex items-center gap-2">
+                  <AlertCircle size={16} /> {deleteError}
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-sm font-semibold text-slate-700 dark:text-slate-300">Verify Password</label>
+                <input 
+                  type="password" 
+                  name="confirmPassword"
+                  required
+                  className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 bg-transparent dark:bg-slate-950 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-colors"
+                  placeholder="Enter password to confirm"
+                />
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button 
+                  type="button" 
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="flex-1 py-2.5 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-600 dark:text-slate-300 font-semibold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isDeleting}
+                  className="flex-1 py-2.5 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition flex justify-center items-center gap-2 disabled:opacity-70"
+                >
+                  {isDeleting ? <Loader2 size={18} className="animate-spin"/> : <Trash2 size={18} />}
+                  {isDeleting ? 'Deleting...' : 'Permanently Delete'}
                 </button>
               </div>
             </form>
