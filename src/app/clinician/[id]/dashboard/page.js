@@ -71,6 +71,7 @@ export default async function ClinicianDashboardPage({ params }) {
     return {
       id: patient.id,
       name: patient.fullName,
+      deviceMac: patient.deviceMac || null,
       initials,
       age: patient.age || 'N/A',
       score: riskScore,

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
@@ -75,9 +75,53 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline, pulsing = false }) =>
   </div>
 );
 
-export default function SmartDashboard({ patientName, patientId }) {
-  const { data, deviceStatus, lastPacketTime } = useMQTT();
+// Added enableAutoSave prop (defaults to false so clinicians don't save duplicate data)
+export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false }) {
+  const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
   const [weather, setWeather] = useState(null);
+
+  // --- DATABASE AUTO-SAVE LOGIC ---
+  const dataRef = useRef(data); 
+  const weatherRef = useRef(weather); 
+
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { weatherRef.current = weather; }, [weather]);
+
+  useEffect(() => {
+    // If this prop is false (like in the Clinician portal), don't run the interval at all
+    if (!enableAutoSave) return;
+
+    const saveInterval = setInterval(async () => {
+      const currentData = dataRef.current;
+      const currentWeather = weatherRef.current; 
+      
+      if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
+        try {
+           await fetch('/api/save-log', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ 
+               patientId: patientId,
+               risk_score: currentData.risk_score,
+               bat: currentData.bat,
+               angle: currentData.angle,
+               skin_temp: currentData.skin_temp,
+               fsr: currentData.fsr,
+               lat: currentData.lat, 
+               lng: currentData.lng,
+               weatherTemp: currentWeather ? currentWeather.main.temp : null,
+               bpm: currentData.bpm,
+               ambient_temp: currentData.ambient_temp,
+               pressure: currentData.pressure
+             }),
+           });
+        } catch (err) { console.error("Auto-save failed:", err); }
+      }
+    }, 10000); 
+    
+    return () => clearInterval(saveInterval);
+  }, [deviceStatus, patientId, enableAutoSave]);
+  // --------------------------------
 
   const riskConfig = useMemo(() => {
     if (data.risk_score > 70) return { 

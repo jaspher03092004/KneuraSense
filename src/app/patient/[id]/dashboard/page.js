@@ -4,7 +4,6 @@ import SmartDashboard from '@/components/SmartDashboard';
 import CarePlanCard from '@/components/CarePlanCard'; 
 import { ClipboardList } from 'lucide-react';
 
-// THIS IS THE MAGIC FIX: It tells Next.js to never cache this page!
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -16,6 +15,7 @@ export default async function PatientDashboard({ params }) {
     select: { 
       id: true, 
       fullName: true,
+      deviceMac: true,
       interventions: {
         orderBy: { createdAt: 'desc' },
         take: 1, 
@@ -33,7 +33,12 @@ export default async function PatientDashboard({ params }) {
     <main className="min-h-screen p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6">
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
         <div className="xl:col-span-8 2xl:col-span-9">
-          <SmartDashboard patientName={patient.fullName} patientId={patient.id} />
+          <SmartDashboard 
+            patientName={patient.fullName} 
+            patientId={patient.id}  
+            deviceMac={patient.deviceMac}
+            enableAutoSave={true} // <--- THIS IS THE NEW PROP
+          />
         </div>
 
         <aside className="xl:col-span-4 2xl:col-span-3">

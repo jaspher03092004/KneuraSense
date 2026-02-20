@@ -7,7 +7,7 @@ import { updateDeviceSettings } from '@/actions/updateDeviceSettings';
 import { deleteAccount } from '@/actions/deleteAccount';
 import { 
   Bell, Lock, ChevronRight, Smartphone, RotateCcw, Save, X, 
-  Loader2, CheckCircle, AlertCircle, Trash2, AlertTriangle, Shield 
+  Loader2, CheckCircle, AlertCircle, Trash2, AlertTriangle, Shield, Link as LinkIcon 
 } from 'lucide-react';
 
 export default function SettingsForm({ patient }) {
@@ -16,6 +16,10 @@ export default function SettingsForm({ patient }) {
   const [vibrationEnabled, setVibrationEnabled] = useState(patient.vibrationEnabled ?? true);
   const [intensity, setIntensity] = useState(patient.vibrationIntensity ?? 2);
   const [ledEnabled, setLedEnabled] = useState(patient.ledEnabled ?? true);
+  
+  // NEW: State for the device MAC address
+  const [deviceMac, setDeviceMac] = useState(patient.deviceMac || '');
+  
   const [saveStatus, setSaveStatus] = useState({ loading: false, success: false, error: null });
 
   // --- STATE: Modals & Actions ---
@@ -56,6 +60,7 @@ export default function SettingsForm({ patient }) {
     setVibrationEnabled(true);
     setIntensity(2);
     setLedEnabled(true);
+    setDeviceMac(''); // Clear the MAC address on reset
     setSaveStatus({ loading: false, success: false, error: null });
   };
 
@@ -65,7 +70,8 @@ export default function SettingsForm({ patient }) {
       highStressAlerts,
       vibrationEnabled,
       vibrationIntensity: intensity,
-      ledEnabled
+      ledEnabled,
+      deviceMac // Send the MAC address to the backend
     });
     if (result.success) {
       setSaveStatus({ loading: false, success: true, error: null });
@@ -92,7 +98,6 @@ export default function SettingsForm({ patient }) {
     }
   };
 
-  // --- NEW: Handle Deletion with Password ---
   const handleConfirmDeletion = async (e) => {
     e.preventDefault();
     setDeleteError(null);
@@ -189,6 +194,56 @@ export default function SettingsForm({ patient }) {
         </div>
       </section>
 
+      {/* Linked Device Section */}
+      <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-colors duration-300">
+          <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+            <LinkIcon size={16} className="text-[#3A9D8C] dark:text-teal-400" /> Linked Device
+          </h3>
+        </div>
+        <div className="p-6">
+          <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
+            <div className="space-y-1 md:max-w-[55%]">
+              <h4 className="font-bold text-slate-900 dark:text-slate-200 transition-colors duration-300">Device MAC Address</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors duration-300">
+                Enter the 12-character MAC address found on your KneuraSense device to link it to your account and receive live data.
+              </p>
+            </div>
+            <div className="w-full md:w-auto flex-1 space-y-3">
+              <div className="flex gap-2">
+                <input 
+                  type="text" 
+                  value={deviceMac}
+                  onChange={(e) => setDeviceMac(e.target.value.toUpperCase())}
+                  placeholder="e.g. A1B2C3D4E5F6"
+                  maxLength={17} 
+                  className="w-full px-4 py-2 border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#3A9D8C] focus:border-transparent transition-colors duration-300 font-mono tracking-widest placeholder:tracking-normal uppercase"
+                />
+                <button 
+                  onClick={handleSaveSettings}
+                  disabled={saveStatus.loading || deviceMac === patient.deviceMac}
+                  className="px-6 py-2 bg-[#3A9D8C] dark:bg-teal-600 text-white font-bold rounded-lg hover:bg-[#2c8a7b] dark:hover:bg-teal-700 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[100px] shadow-sm"
+                >
+                  {saveStatus.loading ? <Loader2 size={18} className="animate-spin" /> : 'Link'}
+                </button>
+              </div>
+              
+              {/* Optional: Show localized success/error messages right under the input */}
+              {saveStatus.success && (
+                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 animate-in fade-in">
+                  <CheckCircle size={14} /> Device linked successfully.
+                </p>
+              )}
+              {saveStatus.error && (
+                <p className="text-xs font-bold text-rose-600 dark:text-rose-400 flex items-center gap-1.5">
+                  <AlertCircle size={14} /> {saveStatus.error}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Device Alert Preferences */}
       <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden transition-colors duration-300">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50 transition-colors duration-300">
@@ -281,7 +336,7 @@ export default function SettingsForm({ patient }) {
                   className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-[#3A9D8C] dark:bg-teal-600 text-white font-bold hover:bg-[#2c8a7b] dark:hover:bg-teal-700 shadow-sm transition-colors duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {saveStatus.loading ? <Loader2 size={18} className="animate-spin"/> : <Save size={18} />}
-                    {saveStatus.loading ? 'Saving...' : 'Save Alert Settings'}
+                    {saveStatus.loading ? 'Saving...' : 'Save All Settings'}
                 </button>
              </div>
           </div>

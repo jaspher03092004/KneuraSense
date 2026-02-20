@@ -12,7 +12,6 @@ export async function GET(request, { params }) {
     }
 
     // 1. AUTHORIZATION CHECK
-    // 1. AUTHORIZATION CHECK
     const cookieStore = await cookies();
     const token = cookieStore.get('auth_token')?.value;
 
@@ -44,7 +43,7 @@ export async function GET(request, { params }) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Fetch patient data from database (Fixed `prisma.user` to `prisma.patient`)
+    // Fetch patient data from database
     const patient = await prisma.patient.findUnique({
       where: { id },
       select: {
@@ -60,6 +59,7 @@ export async function GET(request, { params }) {
         occupation: true,
         activityLevel: true,
         createdAt: true,
+        deviceMac: true,
       },
     });
 

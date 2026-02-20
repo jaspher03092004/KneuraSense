@@ -5,9 +5,18 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateDeviceSettings(patientId, settings) {
   try {
-    // Validate intensity range (1=Low, 2=Medium, 3=High)
     if (settings.vibrationIntensity < 1 || settings.vibrationIntensity > 3) {
       return { success: false, error: 'Invalid intensity value.' };
+    }
+
+    // Format the MAC address: strip non-alphanumeric chars and uppercase it
+    let formattedMac = null;
+    if (settings.deviceMac && settings.deviceMac.trim() !== '') {
+      formattedMac = settings.deviceMac.replace(/[^a-fA-F0-9]/g, '').toUpperCase();
+      
+      if (formattedMac.length !== 12) {
+        return { success: false, error: 'MAC address must be exactly 12 characters.' };
+      }
     }
 
     await prisma.patient.update({
@@ -17,15 +26,19 @@ export async function updateDeviceSettings(patientId, settings) {
         vibrationEnabled: settings.vibrationEnabled,
         vibrationIntensity: settings.vibrationIntensity,
         ledEnabled: settings.ledEnabled,
+        deviceMac: formattedMac, // Save the MAC address
       },
     });
 
-    // Refresh the settings page data to reflect the "Last changed" time
     revalidatePath(`/patient/${patientId}/settings`);
-    
     return { success: true };
   } catch (error) {
     console.error('Error updating device settings:', error);
+    
+    // Handle uniqueness constraint violation (e.g., MAC already claimed)
+    if (error.code === 'P2002') {
+      return { success: false, error: 'This device is already linked to another account.' };
+    }
     return { success: false, error: 'Failed to update settings.' };
   }
 }

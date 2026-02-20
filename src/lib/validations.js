@@ -12,4 +12,5 @@ export const patientRegistrationSchema = z.object({
   painSeverity: z.coerce.number().min(1, "Must be between 1 and 10").max(10, "Must be between 1 and 10").optional(),
   occupation: z.string().optional(),
   activityLevel: z.string().min(1, "Please select an activity level"),
+  deviceMac: z.string().max(17).optional().or(z.literal('')),
 });

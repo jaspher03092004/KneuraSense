@@ -27,17 +27,18 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
   
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
     resolver: zodResolver(patientRegistrationSchema),
-    defaultValues: { oaDiagnosis: 'No', gender: '', affectedKnee: '', activityLevel: '' }
+    // Added deviceMac to defaultValues
+    defaultValues: { oaDiagnosis: 'No', gender: '', affectedKnee: '', activityLevel: '', deviceMac: '' }
   });
 
   const isCompact = clinician?.compactView || false;
 
   // --- AUTO REFRESH DASHBOARD ---
-  // Silently fetches new data from the database every 10 seconds
+  // Silently fetches new data from the database every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       router.refresh(); 
-    }, 10000); 
+    }, 5000); 
     
     return () => clearInterval(interval);
   }, [router]);
@@ -275,7 +276,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                       </div>
 
                       <button 
-                        onClick={() => setSelectedPatient({ id: patient.id, name: patient.name })} 
+                        onClick={() => setSelectedPatient({ id: patient.id, name: patient.name, deviceMac: patient.deviceMac })} 
                         className={`w-full flex items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm ${isCompact ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2.5 text-xs'}`}
                       >
                         Live View
@@ -341,7 +342,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                           </td>
                           <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} text-right transition-all`}>
                             <button 
-                              onClick={() => setSelectedPatient({ id: patient.id, name: patient.name })} 
+                              onClick={() => setSelectedPatient({ id: patient.id, name: patient.name, deviceMac: patient.deviceMac })} 
                               className={`inline-flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm whitespace-nowrap ${isCompact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs'}`}
                             >
                               Live View
@@ -401,7 +402,8 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                <div className="p-2 md:p-6 overflow-y-auto no-scrollbar">
                  <SmartDashboard 
                    patientName={selectedPatient.name} 
-                   patientId={selectedPatient.id} 
+                   patientId={selectedPatient.id}
+                   deviceMac={selectedPatient.deviceMac} 
                    highStressAlerts={false} 
                  />
                </div>
@@ -489,6 +491,22 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                     </select>
                   </div>
                 </div>
+
+                {/* ========================================= */}
+                {/* NEW SECTION FOR THE MAC ADDRESS */}
+                {/* ========================================= */}
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
+                  <label className="block text-[10px] font-black text-[#3A9D8C] dark:text-teal-500 uppercase tracking-widest mb-1.5">Assign Device MAC Address (Optional)</label>
+                  <input 
+                    type="text" 
+                    {...register("deviceMac")} 
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-mono uppercase tracking-widest text-slate-700 dark:text-slate-200 shadow-sm placeholder:tracking-normal" 
+                    placeholder="e.g. A1B2C3D4E5F6" 
+                    maxLength={17}
+                  />
+                  <p className="text-[10px] text-slate-400 mt-1">If you are handing the patient a device now, enter the 12-character MAC address found on the hardware.</p>
+                </div>
+                {/* ========================================= */}
 
                 <div className="flex flex-col md:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
                   <button type="button" onClick={() => { setShowModal(false); reset(); }} className="w-full md:flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors order-2 md:order-1 text-sm">
