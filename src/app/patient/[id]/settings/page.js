@@ -15,7 +15,8 @@ export default async function SettingsPage({ params }) {
       highStressAlerts: true,
       vibrationEnabled: true,
       vibrationIntensity: true,
-      ledEnabled: true 
+      ledEnabled: true,
+      deviceMac: true 
     }
   });
 

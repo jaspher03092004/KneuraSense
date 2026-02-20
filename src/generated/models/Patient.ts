@@ -58,6 +58,7 @@ export type PatientMinAggregateOutputType = {
   vibrationEnabled: boolean | null
   vibrationIntensity: number | null
   ledEnabled: boolean | null
+  deviceMac: string | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -80,6 +81,7 @@ export type PatientMaxAggregateOutputType = {
   vibrationEnabled: boolean | null
   vibrationIntensity: number | null
   ledEnabled: boolean | null
+  deviceMac: string | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -102,6 +104,7 @@ export type PatientCountAggregateOutputType = {
   vibrationEnabled: number
   vibrationIntensity: number
   ledEnabled: number
+  deviceMac: number
   _all: number
 }
 
@@ -138,6 +141,7 @@ export type PatientMinAggregateInputType = {
   vibrationEnabled?: true
   vibrationIntensity?: true
   ledEnabled?: true
+  deviceMac?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -160,6 +164,7 @@ export type PatientMaxAggregateInputType = {
   vibrationEnabled?: true
   vibrationIntensity?: true
   ledEnabled?: true
+  deviceMac?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -182,6 +187,7 @@ export type PatientCountAggregateInputType = {
   vibrationEnabled?: true
   vibrationIntensity?: true
   ledEnabled?: true
+  deviceMac?: true
   _all?: true
 }
 
@@ -291,6 +297,7 @@ export type PatientGroupByOutputType = {
   vibrationEnabled: boolean
   vibrationIntensity: number
   ledEnabled: boolean
+  deviceMac: string | null
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -336,6 +343,7 @@ export type PatientWhereInput = {
   vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
   ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
 }
@@ -360,6 +368,7 @@ export type PatientOrderByWithRelationInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
 }
@@ -368,6 +377,7 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   phoneNumber?: string
   email?: string
+  deviceMac?: string
   AND?: Prisma.PatientWhereInput | Prisma.PatientWhereInput[]
   OR?: Prisma.PatientWhereInput[]
   NOT?: Prisma.PatientWhereInput | Prisma.PatientWhereInput[]
@@ -389,7 +399,7 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
-}, "id" | "phoneNumber" | "email">
+}, "id" | "phoneNumber" | "email" | "deviceMac">
 
 export type PatientOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -411,6 +421,7 @@ export type PatientOrderByWithAggregationInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -441,6 +452,7 @@ export type PatientScalarWhereWithAggregatesInput = {
   vibrationEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
   vibrationIntensity?: Prisma.IntWithAggregatesFilter<"Patient"> | number
   ledEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  deviceMac?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
 }
 
 export type PatientCreateInput = {
@@ -463,6 +475,7 @@ export type PatientCreateInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
@@ -487,6 +500,7 @@ export type PatientUncheckedCreateInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -511,6 +525,7 @@ export type PatientUpdateInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
@@ -535,6 +550,7 @@ export type PatientUncheckedUpdateInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -559,6 +575,7 @@ export type PatientCreateManyInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -581,6 +598,7 @@ export type PatientUpdateManyMutationInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PatientUncheckedUpdateManyInput = {
@@ -603,6 +621,7 @@ export type PatientUncheckedUpdateManyInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PatientCountOrderByAggregateInput = {
@@ -625,6 +644,7 @@ export type PatientCountOrderByAggregateInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  deviceMac?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
@@ -653,6 +673,7 @@ export type PatientMaxOrderByAggregateInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  deviceMac?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -675,6 +696,7 @@ export type PatientMinOrderByAggregateInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  deviceMac?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
@@ -756,6 +778,7 @@ export type PatientCreateWithoutSensorLogsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
 
@@ -779,6 +802,7 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -818,6 +842,7 @@ export type PatientUpdateWithoutSensorLogsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
 
@@ -841,6 +866,7 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -864,6 +890,7 @@ export type PatientCreateWithoutInterventionsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
 }
 
@@ -887,6 +914,7 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  deviceMac?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -926,6 +954,7 @@ export type PatientUpdateWithoutInterventionsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
 }
 
@@ -949,6 +978,7 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -1012,6 +1042,7 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  deviceMac?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
@@ -1037,6 +1068,7 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  deviceMac?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1059,6 +1091,7 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  deviceMac?: boolean
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectScalar = {
@@ -1081,9 +1114,10 @@ export type PatientSelectScalar = {
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  deviceMac?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "deviceMac", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
@@ -1118,6 +1152,7 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     vibrationEnabled: boolean
     vibrationIntensity: number
     ledEnabled: boolean
+    deviceMac: string | null
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1562,6 +1597,7 @@ export interface PatientFieldRefs {
   readonly vibrationEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
   readonly vibrationIntensity: Prisma.FieldRef<"Patient", 'Int'>
   readonly ledEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly deviceMac: Prisma.FieldRef<"Patient", 'String'>
 }
     
 

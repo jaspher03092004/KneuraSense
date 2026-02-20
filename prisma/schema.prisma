@@ -49,6 +49,7 @@ model Patient {
   vibrationEnabled   Boolean  @default(true)
   vibrationIntensity Int      @default(2)
   ledEnabled         Boolean  @default(true)
+  deviceMac   String?  @unique
 }
 
 model SensorLog {

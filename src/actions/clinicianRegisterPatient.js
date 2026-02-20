@@ -30,7 +30,8 @@ export async function clinicianRegisterPatient(formData) {
         gender: data.gender,
         oaDiagnosis: data.oaDiagnosis === 'Yes',
         activityLevel: data.activityLevel,
-        isVerified: true // Instantly verified because clinician created it
+        isVerified: true,
+        deviceMac: formattedMac,
       }
     });
 

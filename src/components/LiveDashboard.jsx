@@ -57,8 +57,8 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
 );
 
 // --- Main Component (Saves to DB) ---
-export default function SmartDashboard({ patientName, patientId }) {
-  const { data, deviceStatus, lastPacketTime } = useMQTT();
+export default function SmartDashboard({ patientName, patientId, deviceMac }) {
+  const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
   
   const [weather, setWeather] = useState(null);
   const dataRef = useRef(data); 
