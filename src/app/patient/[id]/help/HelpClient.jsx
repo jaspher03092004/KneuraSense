@@ -84,32 +84,6 @@ export default function HelpClient({ patient, latestLog }) {
 
       <div className="max-w-6xl mx-auto px-6 space-y-8">
         
-        {/* Personalized Device Status */}
-        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-6 flex flex-col md:flex-row items-center justify-between gap-4">
-           <div className="flex items-center gap-4">
-              <div className={`p-3 rounded-full ${latestLog ? 'bg-blue-50 text-[#2D5F8B] dark:bg-blue-500/10 dark:text-blue-400' : 'bg-slate-100 text-slate-400 dark:bg-slate-800'}`}>
-                 <Activity size={24} />
-              </div>
-              <div>
-                 <h3 className="font-bold text-slate-900 dark:text-white">KneuraSense Wearable</h3>
-                 <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    <Clock size={14} /> 
-                    {latestLog ? `Last synced via Wi-Fi: ${new Date(latestLog.timestamp).toLocaleString()}` : "No data synced yet"}
-                 </div>
-              </div>
-           </div>
-           <div className="flex flex-col items-end">
-              <span className={`px-3 py-1 text-xs font-bold rounded-full border uppercase tracking-wider ${statusColor}`}>
-                 {deviceStatus}
-              </span>
-              {latestLog && (
-                <span className="text-sm font-medium text-slate-500 mt-2">
-                  Battery: {latestLog.battery}%
-                </span>
-              )}
-           </div>
-        </div>
-
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
            

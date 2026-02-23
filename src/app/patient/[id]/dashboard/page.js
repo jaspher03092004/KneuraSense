@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation';
 import SmartDashboard from '@/components/SmartDashboard';
 import CarePlanCard from '@/components/CarePlanCard'; 
 import { ClipboardList } from 'lucide-react';
+// 1. Import the new modal component
+import InterventionAcknowledgmentModal from '@/components/InterventionAcknowledgmentModal'; 
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -26,25 +28,38 @@ export default async function PatientDashboard({ params }) {
 
   if (!patient) redirect('/login');
 
+  // 2. Fetch unacknowledged interventions directly using your schema's boolean field
+  const pendingInterventions = await prisma.intervention.findMany({
+    where: { 
+      patientId: id,
+      isAcknowledged: false 
+    },
+    orderBy: { createdAt: 'asc' } // Show the oldest pending one first
+  });
+
   const latestIntervention = patient.interventions[0];
   const aiSummary = latestIntervention?.patientFriendlyNote || null; 
 
   return (
-    <main className="min-h-screen p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6">
+    <main className="min-h-screen p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6 relative">
+      
+      {/* 3. Drop the modal at the top level of the dashboard */}
+      <InterventionAcknowledgmentModal pendingInterventions={pendingInterventions} />
+
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 items-stretch">
         <div className="xl:col-span-8 2xl:col-span-9">
           <SmartDashboard 
             patientName={patient.fullName} 
             patientId={patient.id}  
             deviceMac={patient.deviceMac}
-            enableAutoSave={true} // <--- THIS IS THE NEW PROP
+            enableAutoSave={true} 
           />
         </div>
 
         <aside className="xl:col-span-4 2xl:col-span-3">
           <div className="h-full flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-sm overflow-hidden">
             <header className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 p-5 shrink-0 flex items-center gap-3">
-               <div className="bg-blue-600 text-white p-2 rounded-lg">
+               <div className="bg-blue-100 text-blue-500 p-2 rounded-lg">
                  <ClipboardList size={18} strokeWidth={2.5} />
                </div>
                <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Care Plan</h2>
