@@ -67,6 +67,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     { icon: User, label: 'My Profile', href: `/clinician/${user?.id}/myProfile` },
     { icon: FileText, label: 'Reports', href: `/clinician/${user?.id}/reports` },
     { icon: Settings, label: 'Settings', href: `/clinician/${user?.id}/settings` },
+    { icon: HelpCircle, label: 'Help & Support', href: `/clinician/${user?.id}/help` },
   ];
 
   const mainMenuItems = isClinic ? clinicianMainMenuItems : patientMainMenuItems;
