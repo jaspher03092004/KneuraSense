@@ -1,0 +1,257 @@
+'use client';
+
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useMQTT } from '@/hooks/useMQTT';
+import { 
+  Activity, Thermometer, MoveDiagonal, 
+  Battery, Wifi, RefreshCw, Database, 
+  Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2
+} from 'lucide-react';
+
+const THEMES = {
+  blue: "bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800/30",
+  rose: "bg-rose-50/80 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-800/30",
+  emerald: "bg-emerald-50/80 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-800/30",
+  amber: "bg-amber-50/80 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-800/30",
+  slate: "bg-slate-50/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50"
+};
+
+const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue", isLive = true }) => {
+  const isAlert = status?.includes('High');
+
+  return (
+    <article className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col justify-between h-full min-h-[160px] border border-slate-200 dark:border-slate-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-md transition-all duration-300 group">
+      <header className="flex justify-between items-start mb-4">
+        <div className={`p-2.5 rounded-xl border transition-colors duration-300 ${THEMES[colorTheme]}`}>
+          <Icon size={20} strokeWidth={2.5} aria-hidden="true" />
+        </div>
+        <div className="text-right">
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</h3>
+          <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mt-0.5">{subTitle}</p>
+        </div>
+      </header>
+      
+      <div className="mt-auto">
+        <div className="flex items-baseline gap-1">
+          <span className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight">{value}</span>
+          <span className="text-sm font-semibold text-slate-500 dark:text-slate-400">{unit}</span>
+        </div>
+        
+        <div className="flex items-center gap-2 mt-3">
+          {isLive && (
+            <span className="relative flex h-2 w-2">
+              <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isAlert ? 'bg-rose-400' : 'bg-emerald-400'}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isAlert ? 'bg-rose-500' : 'bg-emerald-500'}`}></span>
+            </span>
+          )}
+          <span className={`text-[11px] font-bold px-2 py-0.5 rounded-md transition-colors duration-300 ${
+              isAlert 
+                ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400' 
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+          }`}>
+            {status || 'Live Data'}
+          </span>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const StatusBadge = ({ icon: Icon, label, value, isOnline, pulsing = false }) => (
+  <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+    <div className="relative">
+      <Icon size={16} aria-hidden="true" className={isOnline ? "text-emerald-500" : "text-slate-400"} />
+      {pulsing && isOnline && (
+        <span className="absolute -top-1 -right-1 flex h-2 w-2">
+           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+      )}
+    </div>
+    <div className="flex flex-col">
+      <span className="text-[9px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider">{label}</span>
+      <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{value}</span>
+    </div>
+  </div>
+);
+
+// Added enableAutoSave prop (defaults to false so clinicians don't save duplicate data)
+export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false }) {
+  const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
+  const [weather, setWeather] = useState(null);
+
+  // --- DATABASE AUTO-SAVE LOGIC ---
+  const dataRef = useRef(data); 
+  const weatherRef = useRef(weather); 
+
+  useEffect(() => { dataRef.current = data; }, [data]);
+  useEffect(() => { weatherRef.current = weather; }, [weather]);
+
+  useEffect(() => {
+    // If this prop is false (like in the Clinician portal), don't run the interval at all
+    if (!enableAutoSave) return;
+
+    const saveInterval = setInterval(async () => {
+      const currentData = dataRef.current;
+      const currentWeather = weatherRef.current; 
+      
+      if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
+        try {
+           await fetch('/api/save-log', {
+             method: 'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body: JSON.stringify({ 
+               patientId: patientId,
+               risk_score: currentData.risk_score,
+               bat: currentData.bat,
+               angle: currentData.angle,
+               skin_temp: currentData.skin_temp,
+               fsr: currentData.fsr,
+               lat: currentData.lat, 
+               lng: currentData.lng,
+               weatherTemp: currentWeather ? currentWeather.main.temp : null,
+               bpm: currentData.bpm,
+               ambient_temp: currentData.ambient_temp,
+               pressure: currentData.pressure
+             }),
+           });
+        } catch (err) { console.error("Auto-save failed:", err); }
+      }
+    }, 10000); 
+    
+    return () => clearInterval(saveInterval);
+  }, [deviceStatus, patientId, enableAutoSave]);
+  // --------------------------------
+
+  const riskConfig = useMemo(() => {
+    if (data.risk_score > 70) return { 
+      isCritical: true, label: 'CRITICAL STRESS', textMain: 'text-rose-500 dark:text-rose-400',
+      stroke: 'stroke-rose-500 dark:stroke-rose-400',
+      badgeStyles: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
+    };
+    if (data.risk_score > 40) return { 
+      isCritical: false, label: 'MODERATE LOAD', textMain: 'text-amber-500 dark:text-amber-400',
+      stroke: 'stroke-amber-500 dark:stroke-amber-400',
+      badgeStyles: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
+    };
+    return { 
+      isCritical: false, label: 'SAFE ZONE', textMain: 'text-emerald-500 dark:text-emerald-400',
+      stroke: 'stroke-emerald-500 dark:stroke-emerald-400',
+      badgeStyles: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
+    };
+  }, [data.risk_score]);
+
+  useEffect(() => {
+    const lat = Number(data.lat);
+    const lng = Number(data.lng);
+    if (lat && lng && lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)) {
+      const fetchWeather = async () => {
+        try {
+          const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat.toFixed(2)}&lon=${lng.toFixed(2)}&units=metric&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`);
+          if (res.ok) setWeather(await res.json());
+        } catch (error) { console.error("Weather fetch failed", error); }
+      };
+      fetchWeather();
+    }
+  }, [data.lat, data.lng]);
+
+  const isOnline = deviceStatus === 'Online';
+
+  return (
+    <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
+      {/* Header */}
+      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Live Telemetry</h1>
+          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3">
+           <StatusBadge icon={Wifi} label="KneuraSense POD" value={deviceStatus} isOnline={isOnline} pulsing={isOnline} />
+           <StatusBadge icon={RefreshCw} label="Last Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />
+        </div>
+      </header>
+
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Risk Score Widget */}
+        <article className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+           <div className="w-full text-center mb-8">
+              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Overuse Risk Index</h2>
+              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-1">Real-time Joint Stress</p>
+           </div>
+           
+           <div className="relative w-full max-w-[260px] aspect-[2/1] mx-auto flex justify-center items-end">
+              <svg className="w-full h-full overflow-visible drop-shadow-sm" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="20" strokeLinecap="round" />
+                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
+                  className={`transition-all duration-1000 ease-out ${riskConfig.stroke}`}
+                  strokeWidth="20" strokeLinecap="round" strokeDasharray="251.2"
+                  strokeDashoffset={251.2 - (data.risk_score / 100) * 251.2}
+                />
+              </svg>
+              <div className="absolute bottom-0 left-0 right-0 text-center translate-y-2">
+                <span className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">{data.risk_score}</span>
+              </div>
+           </div>
+           
+           <div className="mt-8">
+              <span className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border ${riskConfig.badgeStyles}`}>
+                {riskConfig.isCritical ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
+                {riskConfig.label}
+              </span>
+           </div>
+        </article>
+
+        {/* Telemetry Cards */}
+        <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+           <section>
+             <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Joint Kinematics</h3>
+             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Current Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" isLive={isOnline} />
+                <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 1000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
+             </div>
+           </section>
+
+           <section>
+             <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Vitals & Environment</h3>
+             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="BPM" value={data.bpm || "--"} unit="" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" isLive={isOnline && data.bpm > 0} />
+                <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"} unit="°C" colorTheme="emerald" isLive={isOnline} />
+                <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" colorTheme="slate" isLive={isOnline} />
+                <SensorCard icon={Wind} title="Pressure" subTitle="Atmos" value={data.pressure ? Math.round(data.pressure) : "--"} unit=" hPa" colorTheme="slate" isLive={isOnline} />
+             </div>
+           </section>
+        </div>
+      </div>
+
+      {/* Footer Status Bar */}
+      <footer className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+         <div className="flex items-center gap-4 w-full sm:w-1/2">
+            <div className={`p-2.5 rounded-xl ${data.bat < 20 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+               <Battery size={20} strokeWidth={2.5}/>
+            </div>
+            <div className="flex-1 max-w-xs">
+               <div className="flex justify-between items-end mb-1.5">
+                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battery Level</span>
+                 <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">{data.bat}%</span>
+               </div>
+               <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                 <div className={`h-full rounded-full transition-all duration-700 ease-out ${data.bat < 20 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${Math.max(0, Math.min(100, data.bat))}%` }}></div>
+               </div>
+            </div>
+         </div>
+         
+         <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
+            <Cloud size={18} className="text-slate-400 dark:text-slate-500" />
+            <div>
+               <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Environment Context</p>
+               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                 {weather ? `${weather.name} • ${Math.round(weather.main.temp)}°C` : (Number(data.lat) !== 0 ? "Acquiring GPS..." : "Indoor Mode Active")}
+               </p>
+            </div>
+         </div>
+      </footer>
+    </section>
+  );
+}

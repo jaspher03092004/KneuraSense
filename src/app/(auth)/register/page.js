@@ -1,837 +1,477 @@
 'use client';
-
+import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { registerUser } from '@/actions/register';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { initiateRegistration, finalizeRegistration } from '@/actions/register';
+
+const registerFormSchema = z.object({
+  role: z.enum(['Patient', 'Clinician']),
+  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
+  age: z.coerce.number().min(1, 'Valid age is required (1-120)').max(120, 'Invalid age'),
+  gender: z.string().min(1, 'Please select a gender'),
+  phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string(),
+  specialization: z.string().optional(),
+  oaDiagnosis: z.enum(['Yes', 'No']).optional(),
+  affectedKnee: z.string().optional(),
+  painSeverity: z.coerce.number().optional(),
+  occupation: z.string().optional(),
+  activityLevel: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+}).refine((data) => {
+  if (data.role === 'Clinician' && (!data.specialization || data.specialization.trim() === '')) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Specialization is required for clinicians",
+  path: ["specialization"]
+});
 
 export default function RegisterPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({
-    role: 'Patient',
-    fullName: '',
-    age: '',
-    gender: 'Male',
-    phoneNumber: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    oaDiagnosis: 'Yes',
-    affectedKnee: 'Both',
-    painSeverity: 5,
-    occupation: 'Retired',
-    activityLevel: 'Moderate',
-    specialization: '',
-  });
-
-  const [errors, setErrors] = useState({});
+  
+  const [currentStep, setCurrentStep] = useState(1);
+  const [serverError, setServerError] = useState('');
   const [loading, setLoading] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [currentStep, setCurrentStep] = useState(1);
+  
+  // OTP Verification States
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [otp, setOtp] = useState('');
 
-  const validateStep1 = () => {
-    const newErrors = {};
+  const { register, handleSubmit, watch, setValue, trigger, getValues, formState: { errors } } = useForm({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: {
+      role: 'Patient',
+      gender: 'Male',
+      oaDiagnosis: 'Yes',
+      affectedKnee: 'Both',
+      painSeverity: 5,
+      occupation: 'Retired',
+      activityLevel: 'Moderate',
+      specialization: '',
+    },
+    mode: 'onTouched'
+  });
 
-    if (!formData.fullName.trim()) {
-      newErrors.fullName = 'Full name is required';
-    }
+  const role = watch('role');
+  const gender = watch('gender');
+  const oaDiagnosis = watch('oaDiagnosis');
+  const painSeverity = watch('painSeverity');
 
-    if (!formData.age || formData.age < 1 || formData.age > 120) {
-      newErrors.age = 'Valid age is required (1-120)';
-    }
+  const handleNextStep = async () => {
+    const fieldsToValidate = ['role', 'fullName', 'age', 'gender', 'phoneNumber', 'email', 'password', 'confirmPassword'];
+    if (role === 'Clinician') fieldsToValidate.push('specialization');
 
-    // --- NEW VALIDATION: Phone Number is now required ---
-    if (!formData.phoneNumber || !formData.phoneNumber.trim()) {
-      newErrors.phoneNumber = 'Phone number is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateForm = () => {
-    if (currentStep === 1) {
-      if (!validateStep1()) return false;
-      if (formData.role === 'Clinician') {
-        if (!formData.specialization || !formData.specialization.trim()) {
-          setErrors({ ...errors, specialization: 'Specialization is required for clinicians' });
-          return false;
-        }
-      }
-      return true;
-    }
-    return true;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const nextStep = () => {
-    if (validateStep1()) {
-      if (formData.role === 'Clinician') {
-        handleSubmit();
+    const isStep1Valid = await trigger(fieldsToValidate);
+    if (isStep1Valid) {
+      if (role === 'Clinician') {
+        // Clinicians don't have Step 2, go straight to sending OTP
+        handleSubmit(onSubmit)();
       } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
         setCurrentStep(2);
       }
     }
   };
 
-  const prevStep = () => {
-    setCurrentStep(1);
-  };
-
-  const handleSubmit = async (e) => {
-    if (e) e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
+  // PHASE 1: Send OTP (Do not save to Database yet)
+  const onSubmit = async (data) => {
+    setServerError('');
     setLoading(true);
 
     try {
       const formDataObj = new FormData();
-      Object.keys(formData).forEach((key) => {
-        formDataObj.append(key, formData[key]);
+      Object.keys(data).forEach((key) => {
+        if (data[key] !== undefined && data[key] !== null) formDataObj.append(key, data[key]);
       });
 
-      const result = await registerUser(formDataObj);
+      // Call initiateRegistration instead of registerUser
+      const result = await initiateRegistration(formDataObj);
 
       if (result?.success) {
-        router.push('/login');
-      } else if (result?.error) {
-        setErrors({ general: result.error });
+        setRegisteredEmail(result.email);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        setCurrentStep(3); // Go to OTP verification step
       } else {
-        setErrors({ general: 'An unexpected error occurred.' });
+        setServerError(result?.error || 'Failed to initiate registration.');
       }
     } catch (error) {
-      console.error('Registration error:', error);
-      setErrors({ general: 'An error occurred. Please try again.' });
+      setServerError('An error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // PHASE 2: Verify OTP and Finalize Database Save
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setServerError('');
+    setLoading(true);
+
+    try {
+      // Get all the data the user typed in Step 1 & 2
+      const allData = getValues(); 
+      const formDataObj = new FormData();
+      Object.keys(allData).forEach((key) => {
+        if (allData[key] !== undefined && allData[key] !== null) formDataObj.append(key, allData[key]);
+      });
+
+      // Send the full form data AND the OTP to be finalized
+      const result = await finalizeRegistration(formDataObj, otp);
+      
+      if (result.success) {
+        router.push('/login?verified=true');
+      } else {
+        setServerError(result.error);
+      }
+    } catch (error) {
+      setServerError('An error occurred during verification.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl flex bg-white rounded-2xl shadow-2xl overflow-hidden">
-        {/* Left Panel - Brand & Visual */}
-        <div className="hidden lg:flex lg:w-2/5 bg-gradient-to-br from-blue-900 to-teal-800 p-10 flex-col justify-between">
-          <div>
-            <Link href="/" className="inline-block">
-              <h1 className="text-2xl font-bold text-white mb-2">KneuraSense</h1>
-              <p className="text-blue-200 text-sm">Edge AI Knee Monitoring</p>
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8 font-sans flex justify-center items-center">
+      <div className="w-full max-w-[1100px] flex flex-col lg:flex-row bg-white rounded-[2rem] shadow-xl overflow-hidden border border-slate-200">
+        
+        {/* Left Side Panel (Image Background) */}
+        <div className="hidden lg:flex lg:w-5/12 relative p-12 flex-col justify-between overflow-hidden">
+          {/* Background Image */}
+          <div 
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+            style={{ backgroundImage: "url('/images/auth-bg.svg')" }} 
+          />
+          {/* Dark Overlay for Text Readability */}
+          <div className="absolute inset-0 bg-slate-900/85 z-0"></div>
+
+          <div className="relative z-10">
+            <Link href="/" className="inline-block group">
+              <div className="flex items-center gap-3">
+                <Image 
+                  src="/images/Logo.svg" 
+                  alt="KneuraSense Logo" 
+                  width={40} 
+                  height={40} 
+                  className="group-hover:scale-105 transition-transform drop-shadow-md"
+                />
+                <div>
+                  <h1 className="text-2xl font-bold text-white tracking-tight">KneuraSense</h1>
+                  {/* Only include this paragraph if you are on the Login page */}
+                  <p className="text-blue-300 text-xs font-medium tracking-wide uppercase">Knee osteoarthritis Monitoring</p>
+                </div>
+              </div>
             </Link>
-            
-            <div className="mt-16">
-              <div className="w-16 h-1 bg-teal-400 mb-6"></div>
-              <h2 className="text-3xl font-bold text-white mb-6 leading-tight">
-                Join the Future of Knee Health Management
-              </h2>
-              <p className="text-blue-100 text-lg">
-                AI-powered monitoring tailored to your unique needs and lifestyle.
-              </p>
-            </div>
-
-            <div className="mt-16 space-y-6">
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                    <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold">Personalized AI Monitoring</h3>
-                  <p className="text-blue-200 text-sm">Tailored to your specific needs</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center">
-                <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mr-4">
-                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold">Real-time Risk Prediction</h3>
-                  <p className="text-blue-200 text-sm">Advanced AI algorithms at work</p>
-                </div>
-              </div>
-            </div>
           </div>
 
-          <div className="pt-8 border-t border-white/20">
-            <p className="text-blue-200 text-sm">
-              © 2025 KneuraSense IoT System. Designed for Filipinos at risk of knee osteoarthritis.
-            </p>
+          <div className="relative z-10 my-16">
+            <h2 className="text-3xl font-bold text-white mb-4 leading-tight">Join the future of knee health management.</h2>
+            <div className="w-12 h-1 bg-blue-500 rounded-full mb-6"></div>
+            <ul className="space-y-5 text-slate-300">
+              <li className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm border border-slate-700 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+                </div>
+                <span>Personalized Monitoring</span>
+              </li>
+              <li className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm border border-slate-700 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                </div>
+                <span>Real-time Risk Alerts</span>
+              </li>
+              <li className="flex items-center gap-4">
+                <div className="w-8 h-8 rounded-full bg-slate-800/80 backdrop-blur-sm border border-slate-700 flex items-center justify-center shrink-0">
+                  <svg className="w-4 h-4 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                </div>
+                <span>Comprehensive Analytics</span>
+              </li>
+            </ul>
           </div>
+          <div className="relative z-10 text-xs text-slate-400">© 2025 KneuraSense IoT System.</div>
         </div>
 
-        {/* Right Panel - Registration Form */}
-        <div className="w-full lg:w-3/5 p-8 lg:p-12">
-          {/* Progress Indicator */}
-          <div className="mb-10">
-            <div className="flex justify-between items-center relative max-w-md mx-auto">
-              <div className="absolute top-4 left-0 right-0 h-0.5 bg-gray-200 -z-10"></div>
-              
-              {['Personal Info', 'Knee History', 'Complete'].map((step, index) => (
-                <div key={index} className="flex flex-col items-center relative z-10">
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-2 ${
-                    currentStep === index + 1 
-                      ? 'bg-blue-600 text-white border-2 border-blue-600' 
-                      : currentStep > index + 1 || (formData.role === 'Clinician' && index === 1)
-                      ? 'bg-green-500 text-white border-2 border-green-500'
-                      : 'bg-white text-gray-400 border-2 border-gray-300'
-                  }`}>
-                    {currentStep > index + 1 || (formData.role === 'Clinician' && index === 1) ? (
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    ) : (
-                      index + 1
-                    )}
-                  </div>
-                  <span className={`text-xs font-medium ${currentStep >= index + 1 ? 'text-gray-800' : 'text-gray-400'}`}>
-                    {step}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Header */}
-          <div className="mb-8 text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Create Your Account</h1>
-            <p className="text-gray-500">Join KneuraSense for smart knee health monitoring</p>
-          </div>
-
-          {/* Back Link */}
-          <div className="mb-8">
-            <Link 
-              href="/login" 
-              className="inline-flex items-center text-gray-600 hover:text-blue-600 transition-colors group"
-            >
-              <svg className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
-              </svg>
-              Back to Login
-            </Link>
-          </div>
-
-          {/* Error Message */}
-          {errors.general && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-100 rounded-xl">
-              <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
-                  <svg className="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="font-medium text-red-800">Registration Error</h3>
-                  <p className="text-red-600 text-sm">{errors.general}</p>
-                </div>
+        {/* Right Side Form */}
+        <div className="w-full lg:w-7/12 p-8 sm:p-12">
+          
+          {/* Header & Back Link */}
+          {currentStep !== 3 && (
+            <div className="flex items-center justify-between mb-8">
+              <Link href="/login" className="flex items-center text-sm font-semibold text-slate-500 hover:text-slate-900 group transition-colors">
+                <svg className="w-4 h-4 mr-1 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+                Back to login
+              </Link>
+              <div className="text-sm font-semibold text-slate-400">
+                Step {currentStep} of {role === 'Clinician' ? '1' : '2'}
               </div>
             </div>
           )}
 
-          {/* Step 1: Personal Information */}
-          {currentStep === 1 && (
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">Personal Information</h2>
-                <p className="text-gray-500 text-sm">We need this information to calibrate the AI model for personalized monitoring.</p>
+          {currentStep !== 3 && (
+            <div>
+              <h2 className="text-3xl font-bold text-slate-900 tracking-tight">Create your account</h2>
+              <p className="text-slate-500 mt-2 mb-8 text-sm">Fill in the information below to get started.</p>
+            </div>
+          )}
+
+          {serverError && (
+             <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start">
+               <svg className="w-5 h-5 text-red-500 mr-3 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" /></svg>
+               <p className="text-red-700 text-sm font-medium">{serverError}</p>
+             </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)}>
+            
+            {/* --- STEP 1: PERSONAL INFO --- */}
+            <div className={currentStep === 1 ? 'block' : 'hidden'}>
+              
+              {/* Segmented Control for Role */}
+              <div className="p-1 bg-slate-100 border border-slate-200 rounded-xl flex mb-8">
+                <button
+                  type="button"
+                  onClick={() => setValue('role', 'Patient', { shouldValidate: true })}
+                  className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${role === 'Patient' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  Patient
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setValue('role', 'Clinician', { shouldValidate: true })}
+                  className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${role === 'Clinician' ? 'bg-white text-slate-900 shadow-sm border border-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                >
+                  Clinician
+                </button>
               </div>
 
-              <form onSubmit={(e) => { e.preventDefault(); nextStep(); }}>
-                {/* Account Type */}
-                <div className="mb-8">
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Account Type</label>
-                  <div className="flex space-x-4">
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, role: 'Patient' }))}
-                      className={`flex-1 py-3 px-4 rounded-xl border transition-all duration-200 ${
-                        formData.role === 'Patient' 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
-                          formData.role === 'Patient' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
-                        }`}>
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                        <span className={`font-medium ${formData.role === 'Patient' ? 'text-blue-600' : 'text-gray-600'}`}>
-                          Patient
-                        </span>
-                      </div>
-                    </button>
-                    
-                    <button
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, role: 'Clinician' }))}
-                      className={`flex-1 py-3 px-4 rounded-xl border transition-all duration-200 ${
-                        formData.role === 'Clinician' 
-                          ? 'border-blue-500 bg-blue-50' 
-                          : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center">
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
-                          formData.role === 'Clinician' ? 'bg-blue-100 text-blue-600' : 'bg-gray-100 text-gray-400'
-                        }`}>
-                          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                          </svg>
-                        </div>
-                        <span className={`font-medium ${formData.role === 'Clinician' ? 'text-blue-600' : 'text-gray-600'}`}>
-                          Clinician
-                        </span>
-                      </div>
-                    </button>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Full Name</label>
+                  <input type="text" {...register('fullName')} placeholder="e.g. Juan Dela Cruz" 
+                         className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all ${errors.fullName ? 'border-red-400' : 'border-slate-200'}`} />
+                  {errors.fullName && <p className="text-red-600 text-xs mt-1.5">{errors.fullName.message}</p>}
                 </div>
 
-                {/* Full Name */}
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleChange}
-                      placeholder="Enter your full name"
-                      className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                        errors.fullName ? 'border-red-300' : 'border-gray-300'
-                      }`}
-                    />
-                    <div className="absolute left-3 top-3.5 text-gray-400">
-                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                  </div>
-                  {errors.fullName && <p className="text-red-500 text-xs mt-2">{errors.fullName}</p>}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Age</label>
+                  <input type="number" {...register('age')} placeholder="Years" min="1" max="120"
+                         className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all ${errors.age ? 'border-red-400' : 'border-slate-200'}`} />
+                  {errors.age && <p className="text-red-600 text-xs mt-1.5">{errors.age.message}</p>}
                 </div>
 
-                {/* Age and Gender */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Age <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="number"
-                        name="age"
-                        value={formData.age}
-                        onChange={handleChange}
-                        placeholder="Years"
-                        min="1"
-                        max="120"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                          errors.age ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                      />
-                      <div className="absolute left-3 top-3.5 text-gray-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
-                    {errors.age && <p className="text-red-500 text-xs mt-2">{errors.age}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Gender
-                    </label>
-                    <div className="flex gap-4">
-                      {['Male', 'Female'].map((gender) => (
-                        <button
-                          key={gender}
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, gender }))}
-                          className={`flex-1 py-3 rounded-xl border transition-colors ${
-                            formData.gender === gender 
-                              ? 'border-blue-500 bg-blue-50 text-blue-600' 
-                              : 'border-gray-300 text-gray-600 hover:border-gray-400'
-                          }`}
-                        >
-                          {gender}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Contact Information */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  {/* Phone Number Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="tel"
-                        name="phoneNumber"
-                        value={formData.phoneNumber}
-                        onChange={handleChange}
-                        placeholder="0917-XXX-XXXX"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                          errors.phoneNumber ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                      />
-                      <div className="absolute left-3 top-3.5 text-gray-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                        </svg>
-                      </div>
-                    </div>
-                    {/* Error message for phone number */}
-                    {errors.phoneNumber && <p className="text-red-500 text-xs mt-2">{errors.phoneNumber}</p>}
-                  </div>
-
-                  {/* Email Field */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Email Address <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="email@example.com"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                          errors.email ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                      />
-                      <div className="absolute left-3 top-3.5 text-gray-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                      </div>
-                    </div>
-                    {errors.email && <p className="text-red-500 text-xs mt-2">{errors.email}</p>}
-                  </div>
-                </div>
-
-                {/* Passwords */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? 'text' : 'password'}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        placeholder="Create password"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                          errors.password ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                      />
-                      <div className="absolute left-3 top-3.5 text-gray-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showPassword ? (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        )}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Gender</label>
+                  <div className="flex gap-3">
+                    {['Male', 'Female'].map(g => (
+                      <button key={g} type="button" onClick={() => setValue('gender', g, { shouldValidate: true })}
+                              className={`flex-1 py-3 text-sm font-medium rounded-xl border transition-all ${gender === g ? 'bg-blue-50 border-blue-600 text-blue-700' : 'bg-white border-slate-200 text-slate-600 hover:border-slate-300'}`}>
+                        {g}
                       </button>
-                    </div>
-                    {errors.password && <p className="text-red-500 text-xs mt-2">{errors.password}</p>}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm Password <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? 'text' : 'password'}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        placeholder="Confirm password"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                          errors.confirmPassword ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                      />
-                      <div className="absolute left-3 top-3.5 text-gray-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showConfirmPassword ? (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" />
-                          </svg>
-                        ) : (
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                    {errors.confirmPassword && (
-                      <p className="text-red-500 text-xs mt-2">{errors.confirmPassword}</p>
-                    )}
+                    ))}
                   </div>
                 </div>
 
-                {/* Clinician Specialization */}
-                {formData.role === 'Clinician' && (
-                  <div className="mb-8">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Specialization <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        name="specialization"
-                        value={formData.specialization}
-                        onChange={handleChange}
-                        placeholder="e.g., Orthopedic Specialist, Physical Therapist"
-                        className={`w-full px-4 py-3 pl-11 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 transition-colors ${
-                          errors.specialization ? 'border-red-300' : 'border-gray-300'
-                        }`}
-                      />
-                      <div className="absolute left-3 top-3.5 text-gray-400">
-                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" />
-                        </svg>
-                      </div>
-                    </div>
-                    {errors.specialization && <p className="text-red-500 text-xs mt-2">{errors.specialization}</p>}
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Phone Number</label>
+                  <input type="tel" {...register('phoneNumber')} placeholder="e.g. 0917-XXX-XXXX"
+                         className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all ${errors.phoneNumber ? 'border-red-400' : 'border-slate-200'}`} />
+                  {errors.phoneNumber && <p className="text-red-600 text-xs mt-1.5">{errors.phoneNumber.message}</p>}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Email</label>
+                  <input type="email" {...register('email')} placeholder="name@example.com"
+                         className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all ${errors.email ? 'border-red-400' : 'border-slate-200'}`} />
+                  {errors.email && <p className="text-red-600 text-xs mt-1.5">{errors.email.message}</p>}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+                  <input type={showPassword ? 'text' : 'password'} {...register('password')} placeholder="Create a password"
+                         className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all pr-10 ${errors.password ? 'border-red-400' : 'border-slate-200'}`} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-[34px] p-1 text-slate-400 hover:text-slate-600 rounded-md">
+                     {showPassword ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>}
+                  </button>
+                  {errors.password && <p className="text-red-600 text-xs mt-1.5">{errors.password.message}</p>}
+                </div>
+
+                <div className="relative">
+                  <label className="block text-sm font-semibold text-slate-700 mb-1.5">Confirm Password</label>
+                  <input type={showConfirmPassword ? 'text' : 'password'} {...register('confirmPassword')} placeholder="Repeat password"
+                         className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all pr-10 ${errors.confirmPassword ? 'border-red-400' : 'border-slate-200'}`} />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-[34px] p-1 text-slate-400 hover:text-slate-600 rounded-md">
+                     {showConfirmPassword ? <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg> : <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-4.803m5.596-3.856a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18" /></svg>}
+                  </button>
+                  {errors.confirmPassword && <p className="text-red-600 text-xs mt-1.5">{errors.confirmPassword.message}</p>}
+                </div>
+
+                {role === 'Clinician' && (
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-slate-700 mb-1.5">Specialization</label>
+                    <input type="text" {...register('specialization')} placeholder="e.g. Orthopedics, Physical Therapy"
+                           className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 transition-all ${errors.specialization ? 'border-red-400' : 'border-slate-200'}`} />
+                    {errors.specialization && <p className="text-red-600 text-xs mt-1.5">{errors.specialization.message}</p>}
                   </div>
                 )}
-
-                {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => router.push('/login')}
-                    className="px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 hover:border-gray-400"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center"
-                  >
-                    {formData.role === 'Clinician' ? 'Create Account' : 'Continue'}
-                    <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-
-          {/* Step 2: Knee Health History */}
-          {currentStep === 2 && (
-            <div className="space-y-8">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">Knee Health History</h2>
-                <p className="text-gray-500 text-sm">Help us personalize your monitoring parameters for optimal results.</p>
               </div>
 
-              <form onSubmit={handleSubmit}>
-                {/* OA Diagnosis and Affected Knee */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Step 1 Submit / Next */}
+              <div className="mt-8">
+                {role === 'Clinician' ? (
+                  <button type="submit" disabled={loading} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 px-4 rounded-xl transition-all disabled:opacity-70 flex items-center justify-center">
+                    {loading ? 'Sending Code...' : 'Create Clinician Account'}
+                  </button>
+                ) : (
+                  <button type="button" onClick={handleNextStep} className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 px-4 rounded-xl transition-all flex items-center justify-center gap-2 group">
+                    Continue to Medical History
+                    <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* --- STEP 2: KNEE HISTORY (Patient Only) --- */}
+            <div className={currentStep === 2 ? 'block' : 'hidden'}>
+              <div className="space-y-6 mb-8">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      OA Diagnosis <span className="text-red-500">*</span>
-                    </label>
-                    <div className="flex gap-4">
-                      {['Yes', 'No'].map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, oaDiagnosis: option }))}
-                          className={`flex-1 py-3 rounded-xl border transition-colors ${
-                            formData.oaDiagnosis === option 
-                              ? 'border-blue-500 bg-blue-50 text-blue-600' 
-                              : 'border-gray-300 text-gray-600 hover:border-gray-400'
-                          }`}
-                        >
-                          {option}
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">OA Diagnosis</label>
+                    <div className="flex gap-3">
+                      {['Yes', 'No'].map(o => (
+                        <button key={o} type="button" onClick={() => setValue('oaDiagnosis', o)}
+                                className={`flex-1 py-3 text-sm font-medium rounded-xl border transition-all ${oaDiagnosis === o ? 'bg-blue-50 border-blue-600 text-blue-700' : 'bg-white border-slate-200 text-slate-600'}`}>
+                          {o}
                         </button>
                       ))}
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Affected Knee <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="affectedKnee"
-                        value={formData.affectedKnee}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                      >
-                        <option value="Left">Left Knee</option>
-                        <option value="Right">Right Knee</option>
-                        <option value="Both">Both Knees</option>
-                      </select>
-                      <div className="absolute right-3 top-3.5 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Affected Knee</label>
+                    <select {...register('affectedKnee')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 font-medium text-slate-700 cursor-pointer">
+                      <option value="Left">Left Knee</option>
+                      <option value="Right">Right Knee</option>
+                      <option value="Both">Both Knees</option>
+                    </select>
                   </div>
                 </div>
 
-                {/* Pain Severity */}
-                <div className="mb-8">
-                  <label className="block text-sm font-medium text-gray-700 mb-6">
-                    Average Pain Severity (1-10)
-                  </label>
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <input
-                        type="range"
-                        name="painSeverity"
-                        min="1"
-                        max="10"
-                        value={formData.painSeverity}
-                        onChange={handleChange}
-                        className="w-full h-2 bg-gradient-to-r from-green-400 via-yellow-400 to-red-500 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-6 [&::-webkit-slider-thumb]:w-6 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-4 [&::-webkit-slider-thumb]:border-blue-500 [&::-webkit-slider-thumb]:shadow-lg"
-                      />
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="text-center">
-                        <div className="text-xs text-gray-500 mb-1">Mild</div>
-                        <div className="text-2xl font-bold text-gray-900">{formData.painSeverity}</div>
-                        <div className="text-xs text-gray-500 mt-1">Current Level</div>
-                      </div>
-                      <div className="text-xs text-gray-500">Severe</div>
-                    </div>
-                    <div className="flex justify-between text-xs text-gray-400">
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
-                        <span key={num} className={`${num === 5 || num === 10 ? 'font-medium text-gray-600' : ''}`}>
-                          {num}
-                        </span>
-                      ))}
-                    </div>
+                <div className="p-5 bg-slate-50 border border-slate-200 rounded-xl">
+                  <div className="flex justify-between items-center mb-4">
+                    <label className="text-sm font-semibold text-slate-700">Average Pain Severity</label>
+                    <span className="inline-flex items-center justify-center bg-white border border-slate-200 rounded-lg w-10 h-10 font-bold text-lg text-slate-900">{painSeverity}</span>
+                  </div>
+                  <input type="range" {...register('painSeverity', { valueAsNumber: true })} min="1" max="10" 
+                         className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
+                  <div className="flex justify-between text-xs font-medium text-slate-400 mt-2">
+                     <span>Mild (1)</span><span>Severe (10)</span>
                   </div>
                 </div>
 
-                {/* Occupation and Activity Level */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Occupation
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="occupation"
-                        value={formData.occupation}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                      >
-                        <option value="Retired">Retired</option>
-                        <option value="Sedentary">Sedentary</option>
-                        <option value="Light Duty">Light Duty</option>
-                        <option value="Moderate">Moderate</option>
-                        <option value="Heavy Duty">Heavy Duty</option>
-                      </select>
-                      <div className="absolute right-3 top-3.5 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Occupation</label>
+                    <select {...register('occupation')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 font-medium text-slate-700">
+                      <option value="Retired">Retired</option>
+                      <option value="Sedentary">Sedentary (Desk Job)</option>
+                      <option value="Light Duty">Light Duty</option>
+                      <option value="Heavy Duty">Heavy Duty (Physical)</option>
+                    </select>
                   </div>
-
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-3">
-                      Activity Level
-                    </label>
-                    <div className="relative">
-                      <select
-                        name="activityLevel"
-                        value={formData.activityLevel}
-                        onChange={handleChange}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                      >
-                        <option value="Sedentary">Sedentary</option>
-                        <option value="Light">Light</option>
-                        <option value="Moderate">Moderate</option>
-                        <option value="Active">Active</option>
-                        <option value="Very Active">Very Active</option>
-                      </select>
-                      <div className="absolute right-3 top-3.5 pointer-events-none">
-                        <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    </div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">Activity Level</label>
+                    <select {...register('activityLevel')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 font-medium text-slate-700">
+                      <option value="Sedentary">Sedentary</option>
+                      <option value="Light">Light Exercise</option>
+                      <option value="Moderate">Moderate Exercise</option>
+                      <option value="Active">Highly Active</option>
+                    </select>
                   </div>
                 </div>
+              </div>
 
-                {/* Terms and Conditions */}
-                <div className="mb-8">
-                  <label className="flex items-start cursor-pointer gap-4 p-4 border border-gray-200 rounded-xl hover:border-blue-300 transition-colors">
-                    <input
-                      type="checkbox"
-                      checked={agreeToTerms}
-                      onChange={(e) => setAgreeToTerms(e.target.checked)}
-                      className="w-5 h-5 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500 mt-0.5 cursor-pointer flex-shrink-0"
-                    />
-                    <div>
-                      <span className="text-gray-700 text-sm font-medium block mb-1">
-                        Terms & Conditions Agreement
-                      </span>
-                      <span className="text-gray-500 text-sm">
-                        I agree to the{' '}
-                        <Link href="/terms" className="text-blue-600 hover:text-blue-700 font-medium">
-                          Terms of Service
-                        </Link>{' '}
-                        and{' '}
-                        <Link href="/privacy" className="text-blue-600 hover:text-blue-700 font-medium">
-                          Privacy Policy
-                        </Link>
-                        . I understand that KneuraSense is a monitoring tool and not a substitute for professional medical advice.
-                      </span>
-                      {errors.terms && <p className="text-red-500 text-xs mt-2">{errors.terms}</p>}
-                    </div>
-                  </label>
+              {/* Terms Checkbox */}
+              <label className="flex items-start gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors mb-8 group">
+                <div className="relative flex items-center justify-center w-5 h-5 border-2 border-slate-300 bg-white rounded mt-0.5 group-hover:border-blue-500 transition-colors">
+                  <input type="checkbox" checked={agreeToTerms} onChange={(e) => setAgreeToTerms(e.target.checked)} className="peer sr-only" />
+                  <svg className="w-3 h-3 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
                 </div>
+                <div className="text-sm">
+                  <span className="font-semibold text-slate-800 block mb-0.5">I agree to the Terms &amp; Conditions</span>
+                  <span className="text-slate-500 leading-relaxed">I understand KneuraSense is a predictive monitoring tool, not a substitute for professional medical diagnosis.</span>
+                </div>
+              </label>
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={prevStep}
-                    className="px-8 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-all duration-200 hover:border-gray-400 flex items-center"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M9.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L7.414 9H15a1 1 0 110 2H7.414l2.293 2.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                    </svg>
-                    Back
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={loading || !agreeToTerms}
-                    className="px-8 py-3 bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white font-medium rounded-xl transition-all duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                  >
-                    {loading ? (
-                      <>
-                        <svg
-                          className="animate-spin mr-2 h-4 w-4 text-white"
-                          xmlns="http://www.w3.org/2000/svg"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                        >
-                          <circle
-                            className="opacity-25"
-                            cx="12"
-                            cy="12"
-                            r="10"
-                            stroke="currentColor"
-                            strokeWidth="4"
-                          />
-                          <path
-                            className="opacity-75"
-                            fill="currentColor"
-                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                          />
-                        </svg>
-                        Creating Account...
-                      </>
-                    ) : (
-                      <>
-                        Create Account
-                        <svg className="w-5 h-5 ml-2" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                        </svg>
-                      </>
-                    )}
-                  </button>
+              {/* Step 2 Buttons */}
+              <div className="flex gap-4">
+                <button type="button" onClick={() => setCurrentStep(1)} className="px-6 py-3.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-colors">
+                  Back
+                </button>
+                <button type="submit" disabled={loading || !agreeToTerms} className="flex-1 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3.5 px-4 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                  {loading ? 'Sending Code...' : 'Create Account'}
+                  {!loading && <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>}
+                </button>
+              </div>
+            </div>
+
+            {/* --- STEP 3: OTP VERIFICATION --- */}
+            <div className={currentStep === 3 ? 'block animate-fade-in' : 'hidden'}>
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                 </div>
-              </form>
+                <h3 className="text-2xl font-bold text-slate-900 mb-2">Check your email</h3>
+                <p className="text-slate-500">We sent a 6-digit code to <span className="font-semibold text-slate-900">{registeredEmail}</span></p>
+              </div>
+
+              <div className="mb-8">
+                <label className="block text-sm font-bold text-slate-700 mb-2 text-center">Verification Code</label>
+                <input 
+                  type="text" 
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                  placeholder="000000"
+                  className="w-full text-center text-xl tracking-[0.5em] px-4 py-4 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-100 focus:border-blue-600 font-bold text-slate-900 transition-all"
+                />
+              </div>
+
+              <button 
+                type="button" 
+                onClick={handleVerifyOtp}
+                disabled={loading || otp.length !== 6} 
+                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-4 px-4 rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {loading ? 'Verifying...' : 'Verify & Continue'}
+              </button>
+            </div>
+
+          </form>
+
+          {/* Footer Link (Hidden on Step 3) */}
+          {currentStep !== 3 && (
+            <div className="mt-10 text-center">
+              <p className="text-slate-500 text-sm">
+                Already have an account?{' '}
+                <Link href="/login" className="font-semibold text-blue-600 hover:text-blue-700 hover:underline underline-offset-4 transition-all">
+                  Sign in
+                </Link>
+              </p>
             </div>
           )}
-
-          {/* Footer Links */}
-          <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-            <p className="text-gray-500 text-sm">
-              Already have an account?{' '}
-              <Link href="/login" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
-                Log in here
-              </Link>
-            </p>
-            <p className="text-gray-400 text-xs mt-2">
-              © 2025 KneuraSense IoT System. All rights reserved.
-            </p>
-          </div>
         </div>
       </div>
     </div>

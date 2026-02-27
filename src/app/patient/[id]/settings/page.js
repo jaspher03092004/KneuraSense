@@ -7,12 +7,16 @@ export default async function SettingsPage({ params }) {
   
   const patient = await prisma.patient.findUnique({
     where: { id },
-    // ADD updatedAt: true to the selection
     select: { 
       id: true, 
       fullName: true, 
       email: true, 
-      updatedAt: true 
+      updatedAt: true,
+      highStressAlerts: true,
+      vibrationEnabled: true,
+      vibrationIntensity: true,
+      ledEnabled: true,
+      deviceMac: true 
     }
   });
 

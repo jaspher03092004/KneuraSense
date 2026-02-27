@@ -1,238 +1,350 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
+import HistoryCharts, { MiniLineChart, MiniAreaChart, MiniBarChart } from '@/components/HistoryCharts';
 import RefreshButton from '@/components/RefreshButton';
+import ExportButton from '@/components/ExportButton';
+import Link from 'next/link';
 import { 
-  Calendar, 
-  Download, 
-  Bell, 
-  Activity, 
-  Mountain, 
-  Cloud, 
-  ChevronLeft, 
-  ChevronRight,
-  Footprints,
-  Layers,
-  Clock,
-  Zap,
-  Thermometer
+  Bell, Activity, Mountain, Footprints, 
+  SearchX, Thermometer, HeartPulse, Wind, 
+  ChevronLeft, ChevronRight, Calendar
 } from 'lucide-react';
 
-export default async function HistoryPage({ params }) {
+function downsamplePeaks(logs, maxPoints = 100) {
+  if (logs.length <= maxPoints) return logs;
+  const step = Math.ceil(logs.length / maxPoints);
+  const sampled = [];
+  
+  for (let i = 0; i < logs.length; i += step) {
+    const chunk = logs.slice(i, i + step);
+    const peakLog = chunk.reduce((prev, current) => 
+      (prev.riskScore > current.riskScore) ? prev : current
+    );
+    sampled.push(peakLog);
+  }
+  return sampled;
+}
+
+export default async function HistoryPage({ params, searchParams }) {
   const { id } = await params;
   
-  const patient = await prisma.patient.findUnique({
+  const { range, start, end, page = "1" } = await searchParams;
+  const currentPage = parseInt(page);
+  const itemsPerPage = 10; 
+
+  let startDate = new Date();
+  let endDate = new Date();
+  let rangeLabel = "Last 24 Hours";
+
+  if (start && end) {
+    startDate = new Date(start);
+    endDate = new Date(end);
+    endDate.setHours(23, 59, 59); 
+    rangeLabel = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+  } else if (range === '7d') {
+    startDate.setDate(startDate.getDate() - 7);
+    rangeLabel = "Last 7 Days";
+  } else if (range === '30d') {
+    startDate.setDate(startDate.getDate() - 30);
+    rangeLabel = "Last 30 Days";
+  } else {
+    startDate.setHours(startDate.getHours() - 24); 
+  }
+
+  const patientInfo = await prisma.patient.findUnique({
     where: { id },
-    select: { id: true, fullName: true }
+    select: { fullName: true }
+  });
+  if (!patientInfo) redirect('/login');
+
+  const totalLogsCount = await prisma.sensorLog.count({
+    where: { patientId: id, timestamp: { gte: startDate, lte: endDate } }
   });
 
-  if (!patient) redirect('/login');
+  const paginatedLogs = await prisma.sensorLog.findMany({
+    where: { patientId: id, timestamp: { gte: startDate, lte: endDate } },
+    orderBy: { timestamp: 'desc' },
+    skip: (currentPage - 1) * itemsPerPage,
+    take: itemsPerPage,
+  });
 
-  const recentData = [
-    { time: '14:30', score: 55, angle: '35°', force: '92 N', temp: '33.2°C', terrain: 'Stairs', weather: 'Warm', status: 'Medium' },
-    { time: '14:15', score: 28, angle: '12°', force: '45 N', temp: '32.6°C', terrain: 'Flat', weather: 'Warm', status: 'Low' },
-    { time: '14:00', score: 76, angle: '42°', force: '110 N', temp: '33.5°C', terrain: 'Incline', weather: 'Hot', status: 'High' },
-  ];
+  const rawChartLogs = await prisma.sensorLog.findMany({
+    where: { patientId: id, timestamp: { gte: startDate, lte: endDate } },
+    orderBy: { timestamp: 'asc' }, 
+  });
+
+  const hasData = totalLogsCount > 0;
+  const totalPages = Math.ceil(totalLogsCount / itemsPerPage);
+
+  const avgRisk = hasData ? Math.round(rawChartLogs.reduce((acc, log) => acc + log.riskScore, 0) / totalLogsCount) : 0;
+  const highRiskCount = rawChartLogs.filter(log => log.riskScore > 70).length;
+  const avgTemp = hasData ? (rawChartLogs.reduce((acc, log) => acc + log.skinTemp, 0) / totalLogsCount).toFixed(1) : 0;
+  
+  const validBPMLogs = rawChartLogs.filter(log => log.bpm && log.bpm > 0);
+  const avgBPM = validBPMLogs.length > 0 ? Math.round(validBPMLogs.reduce((acc, log) => acc + log.bpm, 0) / validBPMLogs.length) : 0;
+
+  const safeChartLogs = downsamplePeaks(rawChartLogs, 100);
+
+  const chartData = safeChartLogs.map(log => ({
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    score: log.riskScore,
+    angle: log.angle,
+    force: log.force,
+  }));
+
+  const terrainData = safeChartLogs.map(log => ({ 
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.angle 
+  }));
+  const envData = safeChartLogs.map(log => ({ 
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.skinTemp 
+  }));
+  const bpmData = safeChartLogs.map(log => ({ 
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.bpm || 0 
+  }));
+  const pressureData = safeChartLogs.map(log => ({ 
+    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.pressure || 0 
+  }));
+
+  const tableRows = paginatedLogs.map(log => ({
+    time: log.timestamp.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    score: log.riskScore,
+    angle: `${log.angle.toFixed(1)}°`,
+    bpm: log.bpm && log.bpm > 0 ? `${log.bpm} bpm` : '--',
+    temp: `${log.skinTemp.toFixed(1)}°C`,
+    status: log.riskScore > 70 ? 'High' : log.riskScore > 40 ? 'Medium' : 'Low'
+  }));
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-800 antialiased">
-      <div className="mx-auto w-full max-w-7xl px-3 py-4 sm:px-4 md:p-8">
+    <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-slate-800 antialiased overflow-x-hidden">
+      <div className="mx-auto w-full max-w-7xl px-4 py-6 md:p-8">
         
-        {/* Responsive Header */}
-        <header className="mb-6 flex flex-col gap-3 sm:gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="space-y-0.5 sm:space-y-1">
-            <h1 className="text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">History & Trends</h1>
-            <p className="text-xs sm:text-sm font-medium text-slate-500">Correlation analysis for {patient.fullName}</p>
+        {/* Header */}
+        <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">History & Trends</h1>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{patientInfo.fullName} • {rangeLabel}</p>
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <div className="flex-1 sm:flex-none">
-              <RefreshButton className="w-full justify-center h-10 sm:h-11" />
-            </div>
-            <button className="flex h-10 sm:h-11 flex-1 sm:flex-none items-center justify-center gap-2 rounded-xl bg-slate-900 px-3 sm:px-5 text-xs sm:text-sm font-bold text-white shadow-lg transition-transform active:scale-95 hover:bg-slate-800">
-              <Download size={16} className="sm:block hidden" />
-              <Download size={14} className="sm:hidden" />
-              <span>Export</span>
-            </button>
+          <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:items-center">
+             <div className="w-full"><RefreshButton className="w-full" /></div>
+             <div className="w-full"><ExportButton logs={rawChartLogs} patientName={patientInfo.fullName} className="w-full" /></div>
           </div>
         </header>
 
-        {/* Scrollable Filters - Prevents wrapping layout breaks on small screens */}
-        <nav className="mb-6 flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-2 no-scrollbar md:overflow-visible md:pb-0 -mx-3 sm:-mx-4 px-3 sm:px-4 md:mx-0 md:px-0">
-          <div className="flex h-9 sm:h-10 items-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl bg-white px-2 sm:px-3 shadow-sm border border-slate-100 shrink-0">
-            <Calendar size={14} className="sm:block hidden text-slate-400" />
-            <Calendar size={12} className="sm:hidden text-slate-400" />
-            <span className="text-[10px] sm:text-xs font-bold text-slate-700">Filter:</span>
-          </div>
-          {['Today', 'This Week', 'This Month', 'Custom'].map((label, i) => (
-            <button 
-              key={label}
-              className={`h-9 sm:h-10 rounded-lg sm:rounded-xl px-3 sm:px-5 text-[10px] sm:text-xs font-bold transition-all shrink-0 ${
-                i === 0 
-                ? 'bg-[#2D5F8B] text-white shadow-md' 
-                : 'bg-white text-slate-500 border border-slate-100 hover:bg-slate-50 shadow-sm'
-              }`}
-            >
-              {label}
+        {/* Navigation & Custom Date Form */}
+        <div className="mb-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <nav className="flex items-center gap-2 overflow-x-auto pb-2 xl:pb-0 snap-x touch-pan-x min-w-0">
+            <FilterLink label="24 Hours" active={!range && !start} href={`/patient/${id}/history`} />
+            <FilterLink label="7 Days" active={range === '7d'} href={`/patient/${id}/history?range=7d`} />
+            <FilterLink label="30 Days" active={range === '30d'} href={`/patient/${id}/history?range=30d`} />
+          </nav>
+
+          <form method="GET" action={`/patient/${id}/history`} className="flex flex-col sm:flex-row w-full xl:w-fit items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-slate-900 p-3 rounded-2xl md:rounded-full border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+            <div className="flex items-center justify-between sm:justify-start gap-2 px-1 w-full sm:w-auto">
+              <Calendar size={14} className="text-slate-400 dark:text-slate-500 shrink-0 hidden sm:block" />
+              <input type="date" name="start" required defaultValue={start || ''} className="text-[13px] text-slate-600 dark:text-slate-300 bg-transparent outline-none cursor-pointer w-full sm:w-auto dark:[color-scheme:dark]" />
+              <span className="text-slate-300 dark:text-slate-600 text-xs font-bold shrink-0">to</span>
+              <input type="date" name="end" required defaultValue={end || ''} className="text-[13px] text-slate-600 dark:text-slate-300 bg-transparent outline-none cursor-pointer w-full sm:w-auto dark:[color-scheme:dark]" />
+            </div>
+            <button type="submit" className="bg-slate-900 dark:bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider px-4 py-2.5 rounded-xl md:rounded-full hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors shrink-0 w-full sm:w-auto text-center">
+              Apply Filter
             </button>
-          ))}
-        </nav>
-
-        {/* Adaptive Metrics Grid - 2 cols on mobile, 4 on desktop */}
-        <section className="mb-6 grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-4 md:gap-6">
-          <StatCard icon={<Activity size={18} />} value="42" label="Risk Score" trend="↓ 12%" color="emerald" />
-          <StatCard icon={<Bell size={18} />} value="3" label="Alerts" trend="↓ 2" color="emerald" />
-          <StatCard icon={<Footprints size={18} />} value="4.2" label="Hrs/Day" trend="0%" color="slate" />
-          <StatCard icon={<Layers size={18} />} value="18" label="Stair Mins" trend="↑ 5m" color="rose" />
-        </section>
-
-        {/* Chart Section - Taller on mobile for better touch/detail */}
-        <section className="mb-6 rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 sm:p-5 md:p-8 shadow-sm">
-          <div className="mb-4 sm:mb-6 flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-slate-50 text-slate-600">
-                <Activity size={18} />
-              </div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-800">Risk Patterns</h3>
-            </div>
-            <div className="flex flex-wrap gap-2 sm:gap-4">
-              <LegendItem color="bg-rose-500" label="Risk" />
-              <LegendItem color="bg-orange-400" label="Threshold" />
-              <LegendItem color="bg-slate-200" label="Safe" />
-            </div>
-          </div>
-          <div className="aspect-[4/3] w-full rounded-xl sm:rounded-2xl border-2 border-dashed border-slate-100 bg-slate-50/50 flex items-center justify-center md:aspect-[21/9]">
-            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-widest text-slate-300">Trend Visualization</span>
-          </div>
-        </section>
-
-        <div className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-2">
-           <CorrelationCard title="Terrain Correlation" icon={<Mountain size={18} />} color="blue" />
-           <CorrelationCard title="Weather Correlation" icon={<Cloud size={18} />} color="sky" />
+          </form>
         </div>
 
-        {/* Data Points - Full Transformation for Mobile */}
-        <section className="mt-6 overflow-hidden rounded-2xl sm:rounded-3xl border border-slate-100 bg-white shadow-sm">
-          <div className="flex items-center justify-between border-b border-slate-50 p-3 sm:p-5">
-            <h3 className="text-sm sm:text-base font-bold text-slate-800">Recent Logs</h3>
-            <div className="flex gap-1.5 sm:gap-2">
-              <button className="flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl border border-slate-100 text-slate-400 active:bg-slate-50 hover:border-slate-200"><ChevronLeft size={16} /></button>
-              <button className="flex h-8 sm:h-9 w-8 sm:w-9 items-center justify-center rounded-lg sm:rounded-xl border border-slate-100 text-slate-400 active:bg-slate-50 hover:border-slate-200"><ChevronRight size={16} /></button>
-            </div>
+        {!hasData ? (
+          <div className="flex flex-col items-center justify-center py-24 bg-white dark:bg-slate-900 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+            <div className="p-5 bg-slate-50 dark:bg-slate-800 rounded-full text-slate-300 dark:text-slate-600 mb-4"><SearchX size={48} strokeWidth={1.5} /></div>
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-200 text-center">No History Available</h2>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2 font-medium text-center px-4">Try adjusting your date range.</p>
           </div>
+        ) : (
+          <div className="space-y-6">
+            
+            {/* Stats Grid */}
+            <section className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
+              <StatCard icon={<Activity size={18} />} value={avgRisk} label="Avg Risk" trend={avgRisk > 50 ? "High" : "Normal"} color={avgRisk > 50 ? "rose" : "emerald"} />
+              <StatCard icon={<Bell size={18} />} value={highRiskCount} label="High Risks" trend="Events" color={highRiskCount > 0 ? "rose" : "slate"} />
+              <StatCard icon={<HeartPulse size={18} />} value={avgBPM} label="Avg BPM" trend="Pulse" color="rose" />
+              <StatCard icon={<Thermometer size={18} />} value={avgTemp} label="Avg Temp" trend="°C" color="emerald" />
+              <StatCard icon={<Footprints size={18} />} value={totalLogsCount} label="Total Logs" trend="Readings" color="slate" className="col-span-2 sm:col-span-1" />
+            </section>
 
-          {/* Mobile Card Layout (Hidden on MD+) */}
-          <div className="md:hidden divide-y divide-slate-50">
-            {recentData.map((row, i) => (
-              <div key={i} className="p-4 sm:p-5">
-                <div className="mb-3 sm:mb-4 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5 sm:gap-2 font-bold text-slate-900 text-sm sm:text-base">
-                    <Clock size={13} className="sm:block hidden text-slate-400" />
-                    <Clock size={12} className="sm:hidden text-slate-400" />
-                    {row.time}
-                  </div>
-                  <span className={`rounded-lg px-2 py-1 text-[9px] sm:text-[10px] font-black uppercase tracking-tight ${
-                    row.score > 70 ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'
-                  }`}>
-                    Score: {row.score}
-                  </span>
+            {/* Main Trend Chart */}
+            <section className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 md:p-6 shadow-sm overflow-hidden transition-colors duration-300">
+              <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400"><Activity size={18} /></div>
+                  <h3 className="text-base md:text-lg font-bold text-slate-800 dark:text-slate-200">Risk Score Trend</h3>
                 </div>
-                <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-                  <MobileDataItem label="Angle" value={row.angle} />
-                  <MobileDataItem label="Force" value={row.force} />
-                  <MobileDataItem label="Terrain" value={row.terrain} />
-                  <MobileDataItem label="Temp" value={row.temp} />
+                <div className="flex gap-4">
+                  <LegendItem color="bg-rose-500 dark:bg-rose-400" label="Critical Event Marker" />
                 </div>
               </div>
-            ))}
-          </div>
+              <div className="aspect-[4/3] w-full min-w-0 rounded-2xl border-2 border-slate-50 dark:border-slate-800/50 bg-white dark:bg-slate-900 md:aspect-[4/1]">
+                 <HistoryCharts data={chartData} /> 
+              </div>
+            </section>
 
-          {/* Desktop Table Layout (Hidden on < MD) */}
-          <div className="hidden md:block overflow-x-auto">
-            <table className="w-full text-left">
-              <thead className="bg-slate-50/50">
-                <tr>
-                  {['Time', 'Score', 'Angle', 'Force', 'Temp', 'Terrain', 'Status'].map(h => (
-                    <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {recentData.map((row, i) => (
-                  <tr key={i} className="group hover:bg-slate-50/50 transition-colors">
-                    <td className="px-6 py-4 font-bold text-slate-700">{row.time}</td>
-                    <td className="px-6 py-4"><span className="font-mono font-bold text-slate-900">{row.score}</span></td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{row.angle}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{row.force}</td>
-                    <td className="px-6 py-4 text-sm text-slate-600">{row.temp}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-slate-800">{row.terrain}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-black uppercase tracking-wider ${row.status === 'High' ? 'text-rose-500' : 'text-slate-400'}`}>
+            {/* Specialized Correlation Mini-Charts */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+               <CorrelationCard title="Terrain (Angle)" icon={<Mountain size={18} />} color="blue" data={terrainData} unit="°" chartType="line" />
+               <CorrelationCard title="Heart Rate" icon={<HeartPulse size={18} />} color="rose" data={bpmData} unit=" bpm" chartType="area" />
+               <CorrelationCard title="Skin Temp" icon={<Thermometer size={18} />} color="sky" data={envData} unit="°C" chartType="line" />
+               <CorrelationCard title="Atmos Pressure" icon={<Wind size={18} />} color="slate" data={pressureData} unit=" hPa" chartType="bar" />
+            </div>
+
+            {/* Paginated Logs Table */}
+            <section className="overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm transition-colors duration-300">
+              <div className="border-b border-slate-50 dark:border-slate-800 p-4 md:p-5 flex justify-between items-center">
+                <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-200">Detailed Logs</h3>
+                <span className="text-[10px] md:text-xs font-medium text-slate-400 dark:text-slate-500">Showing {tableRows.length} of {totalLogsCount}</span>
+              </div>
+
+              {/* MOBILE TABLE VIEW */}
+              <div className="block md:hidden divide-y divide-slate-50 dark:divide-slate-800/50">
+                {tableRows.map((row, i) => (
+                  <div key={i} className="p-4 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{row.time}</span>
+                      <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md ${
+                          row.status === 'High' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-500 dark:text-rose-400' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 dark:text-emerald-400'
+                      }`}>
                         {row.status}
                       </span>
-                    </td>
-                  </tr>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Score</p>
+                        <p className="font-mono text-sm font-bold text-slate-900 dark:text-slate-200">{row.score}</p>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Angle</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{row.angle}</p>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">BPM</p>
+                        <p className="text-sm font-bold text-rose-600 dark:text-rose-400">{row.bpm}</p>
+                      </div>
+                      <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-lg">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Temp</p>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300">{row.temp}</p>
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+
+              {/* DESKTOP TABLE VIEW */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead className="bg-slate-50/50 dark:bg-slate-800/50">
+                    <tr>
+                      {['Time', 'Score', 'Angle', 'Heart Rate', 'Skin Temp', 'Status'].map(h => (
+                        <th key={h} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
+                    {tableRows.map((row, i) => (
+                      <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{row.time}</td>
+                        <td className="px-6 py-4 font-mono font-bold text-slate-900 dark:text-slate-100">{row.score}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{row.angle}</td>
+                        <td className="px-6 py-4 text-sm font-semibold text-rose-600 dark:text-rose-400">{row.bpm}</td>
+                        <td className="px-6 py-4 text-sm text-slate-600 dark:text-slate-400">{row.temp}</td>
+                        <td className="px-6 py-4">
+                          <span className={`text-[10px] font-black uppercase tracking-wider ${row.status === 'High' ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-500 dark:text-emerald-400'}`}>
+                            {row.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Table Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="bg-slate-50/50 dark:bg-slate-900/50 border-t border-slate-100 dark:border-slate-800 p-4 flex items-center justify-between">
+                  <Link 
+                    href={`/patient/${id}/history?page=${currentPage > 1 ? currentPage - 1 : 1}${start ? `&start=${start}&end=${end}` : ''}${range ? `&range=${range}` : ''}`}
+                    className={`flex items-center gap-1 text-xs md:text-sm font-bold px-3 md:px-4 py-2 rounded-lg border ${currentPage === 1 ? 'text-slate-300 dark:text-slate-700 border-slate-200 dark:border-slate-800 pointer-events-none' : 'text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm'}`}
+                  >
+                    <ChevronLeft size={16} /> <span className="hidden sm:inline">Previous</span>
+                  </Link>
+                  <span className="text-[10px] md:text-xs font-bold text-slate-500 dark:text-slate-400">Page {currentPage} of {totalPages}</span>
+                  <Link 
+                    href={`/patient/${id}/history?page=${currentPage < totalPages ? currentPage + 1 : totalPages}${start ? `&start=${start}&end=${end}` : ''}${range ? `&range=${range}` : ''}`}
+                    className={`flex items-center gap-1 text-xs md:text-sm font-bold px-3 md:px-4 py-2 rounded-lg border ${currentPage === totalPages ? 'text-slate-300 dark:text-slate-700 border-slate-200 dark:border-slate-800 pointer-events-none' : 'text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 shadow-sm'}`}
+                  >
+                    <span className="hidden sm:inline">Next</span> <ChevronRight size={16} />
+                  </Link>
+                </div>
+              )}
+            </section>
+
           </div>
-        </section>
+        )}
       </div>
     </div>
   );
 }
 
-// --- Specialized Responsive Components ---
+function FilterLink({ label, active, href }) {
+  return (
+    <Link href={href} className={`px-4 md:px-6 py-2 rounded-full text-[11px] md:text-xs font-bold transition-all border whitespace-nowrap shrink-0 ${
+      active ? 'bg-[#2D5F8B] dark:bg-blue-600 text-white border-[#2D5F8B] dark:border-blue-600 shadow-md' : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
+    }`}>
+      {label}
+    </Link>
+  );
+}
 
-function StatCard({ icon, value, label, trend, color }) {
-  const colorStyles = {
-    emerald: 'bg-emerald-50 text-emerald-600',
-    rose: 'bg-rose-50 text-rose-600',
-    slate: 'bg-slate-50 text-slate-500'
+function StatCard({ icon, value, label, trend, color, className = "" }) {
+  const colorStyles = { 
+    emerald: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400', 
+    rose: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400', 
+    slate: 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400' 
   };
   return (
-    <div className="relative overflow-hidden rounded-lg sm:rounded-2xl border border-slate-100 bg-white p-3 sm:p-4 md:p-6 shadow-sm">
-      <div className="mb-2 sm:mb-3 md:mb-4 flex h-8 sm:h-9 md:h-10 w-8 sm:w-9 md:w-10 items-center justify-center rounded-lg sm:rounded-xl bg-slate-50 text-slate-400">
-        <span className="text-base sm:text-lg md:text-xl">{icon.props.size === 18 ? icon : icon}</span>
+    <div className={`rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 md:p-6 shadow-sm transition-colors duration-300 ${className}`}>
+      <div className="mb-3 flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg md:rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 dark:text-slate-500 shrink-0">{icon}</div>
+      <div className="flex flex-col gap-1">
+        <span className="text-lg md:text-2xl font-black text-slate-900 dark:text-white">{value}</span>
+        <span className={`w-fit rounded-md px-1.5 py-0.5 text-[8px] md:text-[9px] font-bold ${colorStyles[color]}`}>{trend}</span>
       </div>
-      <div className="flex items-baseline gap-0.5 sm:gap-1 md:gap-2">
-        <span className="text-lg sm:text-2xl md:text-3xl font-black text-slate-900">{value}</span>
-        <span className={`rounded-md px-1.5 py-0.5 text-[8px] sm:text-[10px] font-bold ${colorStyles[color]}`}>{trend}</span>
-      </div>
-      <p className="mt-0.5 sm:mt-1 text-[8px] sm:text-[10px] font-black uppercase tracking-widest text-slate-400 truncate">{label}</p>
+      <p className="mt-1 text-[8px] md:text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 truncate">{label}</p>
     </div>
   );
 }
 
-function MobileDataItem({ label, value }) {
+function CorrelationCard({ title, icon, color, data, unit, chartType = 'line' }) {
+  const themes = { 
+    blue: { bg: 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400', stroke: '#3b82f6' }, 
+    sky: { bg: 'bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400', stroke: '#0ea5e9' }, 
+    rose: { bg: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400', stroke: '#f43f5e' }, 
+    slate: { bg: 'bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-400', stroke: '#64748b' }
+  };
+  const theme = themes[color] || themes.blue;
+
   return (
-    <div className="rounded-lg sm:rounded-xl bg-slate-50/80 p-2 sm:p-3">
-      <span className="block text-[8px] sm:text-[9px] font-black uppercase tracking-tighter text-slate-400 mb-0.5">{label}</span>
-      <span className="block text-xs sm:text-sm font-bold text-slate-700">{value}</span>
+    <div className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 md:p-5 shadow-sm min-w-0 transition-colors duration-300">
+      <div className="mb-4 flex items-center gap-3">
+        <div className={`flex h-8 w-8 md:h-10 md:w-10 shrink-0 items-center justify-center rounded-lg md:rounded-xl ${theme.bg}`}>{icon}</div>
+        <h4 className="font-bold text-slate-800 dark:text-slate-200 text-xs md:text-sm">{title}</h4>
+      </div>
+      <div className="h-28 md:h-32 w-full min-w-0 rounded-2xl bg-slate-50/50 dark:bg-slate-800/50 p-2">
+        {chartType === 'area' ? <MiniAreaChart data={data} stroke={theme.stroke} unit={unit} /> : chartType === 'bar' ? <MiniBarChart data={data} stroke={theme.stroke} unit={unit} /> : <MiniLineChart data={data} stroke={theme.stroke} unit={unit} />}
+      </div>
     </div>
   );
 }
 
 function LegendItem({ color, label }) {
   return (
-    <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-      <div className={`h-2 w-2 rounded-full ${color}`} />
-      <span className="text-[8px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500">{label}</span>
-    </div>
-  );
-}
-
-function CorrelationCard({ title, icon, color }) {
-  const theme = color === 'blue' ? 'bg-blue-50 text-blue-600' : 'bg-sky-50 text-sky-600';
-  return (
-    <div className="rounded-2xl sm:rounded-3xl border border-slate-100 bg-white p-4 sm:p-6 shadow-sm">
-      <div className="mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
-        <div className={`flex h-9 sm:h-10 w-9 sm:w-10 items-center justify-center rounded-lg sm:rounded-xl ${theme}`}>
-          {icon}
-        </div>
-        <h4 className="text-sm sm:text-base font-bold text-slate-800">{title}</h4>
-      </div>
-      <div className="aspect-video w-full rounded-lg sm:rounded-2xl border-2 border-dashed border-slate-50 bg-slate-50/30 flex items-center justify-center">
-        <span className="text-[8px] sm:text-[9px] font-black uppercase tracking-widest text-slate-300">Analysis Preview</span>
-      </div>
+    <div className="flex items-center gap-2">
+      <div className={`h-2 w-2 rounded-full shrink-0 ${color}`} />
+      <span className="text-[9px] md:text-[10px] font-black uppercase text-slate-500 dark:text-slate-400">{label}</span>
     </div>
   );
 }

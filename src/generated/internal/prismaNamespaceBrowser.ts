@@ -52,7 +52,12 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Clinician: 'Clinician',
-  Patient: 'Patient'
+  Patient: 'Patient',
+  SensorLog: 'SensorLog',
+  AuditLog: 'AuditLog',
+  Intervention: 'Intervention',
+  PasswordResetToken: 'PasswordResetToken',
+  EmailVerificationToken: 'EmailVerificationToken'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -79,7 +84,11 @@ export const ClinicianScalarFieldEnum = {
   password_hash: 'password_hash',
   specialization: 'specialization',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  criticalAlerts: 'criticalAlerts',
+  emailAlerts: 'emailAlerts',
+  compactView: 'compactView',
+  isVerified: 'isVerified'
 } as const
 
 export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]
@@ -99,10 +108,88 @@ export const PatientScalarFieldEnum = {
   occupation: 'occupation',
   activityLevel: 'activityLevel',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isVerified: 'isVerified',
+  highStressAlerts: 'highStressAlerts',
+  vibrationEnabled: 'vibrationEnabled',
+  vibrationIntensity: 'vibrationIntensity',
+  ledEnabled: 'ledEnabled',
+  deviceMac: 'deviceMac'
 } as const
 
 export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
+
+
+export const SensorLogScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  angle: 'angle',
+  force: 'force',
+  skinTemp: 'skinTemp',
+  battery: 'battery',
+  riskScore: 'riskScore',
+  lat: 'lat',
+  lng: 'lng',
+  weatherTemp: 'weatherTemp',
+  bpm: 'bpm',
+  ambientTemp: 'ambientTemp',
+  pressure: 'pressure',
+  timestamp: 'timestamp'
+} as const
+
+export type SensorLogScalarFieldEnum = (typeof SensorLogScalarFieldEnum)[keyof typeof SensorLogScalarFieldEnum]
+
+
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  clinicianId: 'clinicianId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  details: 'details',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const InterventionScalarFieldEnum = {
+  id: 'id',
+  patientId: 'patientId',
+  clinicianId: 'clinicianId',
+  title: 'title',
+  type: 'type',
+  notes: 'notes',
+  patientFriendlyNote: 'patientFriendlyNote',
+  createdAt: 'createdAt',
+  isAcknowledged: 'isAcknowledged',
+  acknowledgedAt: 'acknowledgedAt'
+} as const
+
+export type InterventionScalarFieldEnum = (typeof InterventionScalarFieldEnum)[keyof typeof InterventionScalarFieldEnum]
+
+
+export const PasswordResetTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires',
+  createdAt: 'createdAt'
+} as const
+
+export type PasswordResetTokenScalarFieldEnum = (typeof PasswordResetTokenScalarFieldEnum)[keyof typeof PasswordResetTokenScalarFieldEnum]
+
+
+export const EmailVerificationTokenScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  token: 'token',
+  expires: 'expires',
+  createdAt: 'createdAt'
+} as const
+
+export type EmailVerificationTokenScalarFieldEnum = (typeof EmailVerificationTokenScalarFieldEnum)[keyof typeof EmailVerificationTokenScalarFieldEnum]
 
 
 export const SortOrder = {

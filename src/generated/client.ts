@@ -49,3 +49,28 @@ export type Clinician = Prisma.ClinicianModel
  * 
  */
 export type Patient = Prisma.PatientModel
+/**
+ * Model SensorLog
+ * 
+ */
+export type SensorLog = Prisma.SensorLogModel
+/**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
+ * Model Intervention
+ * 
+ */
+export type Intervention = Prisma.InterventionModel
+/**
+ * Model PasswordResetToken
+ * 
+ */
+export type PasswordResetToken = Prisma.PasswordResetTokenModel
+/**
+ * Model EmailVerificationToken
+ * 
+ */
+export type EmailVerificationToken = Prisma.EmailVerificationTokenModel

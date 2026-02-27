@@ -10,4 +10,9 @@
  */
 export type * from './models/Clinician.ts'
 export type * from './models/Patient.ts'
+export type * from './models/SensorLog.ts'
+export type * from './models/AuditLog.ts'
+export type * from './models/Intervention.ts'
+export type * from './models/PasswordResetToken.ts'
+export type * from './models/EmailVerificationToken.ts'
 export type * from './commonInputTypes.ts'

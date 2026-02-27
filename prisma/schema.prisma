@@ -19,6 +19,12 @@ model Clinician {
   specialization String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+  criticalAlerts Boolean  @default(true)
+  emailAlerts    Boolean  @default(true)
+  compactView    Boolean  @default(false)
+  auditLogs AuditLog[]
+  interventions Intervention[]
+  isVerified    Boolean  @default(false)
 }
 
 model Patient {
@@ -36,4 +42,87 @@ model Patient {
   activityLevel String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  sensorLogs    SensorLog[]
+  interventions Intervention[]
+  isVerified    Boolean  @default(false)
+  highStressAlerts   Boolean  @default(true)
+  vibrationEnabled   Boolean  @default(true)
+  vibrationIntensity Int      @default(2)
+  ledEnabled         Boolean  @default(true)
+  deviceMac   String?  @unique
+}
+
+model SensorLog {
+  id          String   @id @default(uuid())
+  patientId   String
+  patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  angle       Float
+  force       Int
+  skinTemp    Float
+  battery     Int
+  riskScore   Int
+  lat         Float?   // Required for Weather API
+  lng         Float?   // Required for Weather API
+  weatherTemp Float?
+  bpm         Int?     // Heart Rate from MAX30102
+  ambientTemp Float?   // Ambient Temp from BMP280
+  pressure    Float?   // Atmospheric Pressure from BMP280
+  timestamp   DateTime @default(now())
+  @@index([patientId])
+}
+
+// Add this below your existing models in prisma/schema.prisma
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  clinicianId String
+  action      String   // e.g., "EXPORT_DATA", "UPDATE_SETTINGS", "VIEW_PATIENT"
+  targetType  String?  // e.g., "Patient", "System"
+  targetId    String?  // The ID of the patient or resource affected
+  details     String?  // Optional JSON string for extra context
+  ipAddress   String?  
+  createdAt   DateTime @default(now())
+  // Create a relation back to the Clinician
+  clinician   Clinician @relation(fields: [clinicianId], references: [clinician_id], onDelete: Cascade)
+}
+
+// NOTE: You will also need to add `auditLogs AuditLog[]` to your Clinician model:
+// model Clinician {
+//   ... existing fields ...
+//   auditLogs AuditLog[]
+// }
+
+model Intervention {
+  id          String   @id @default(uuid())
+  patientId   String
+  clinicianId String
+  title       String   // e.g., "Advised to reduce walking speed"
+  type        String   // e.g., "Advice", "Medication", "Exercise", "Other"
+  notes       String   @db.Text
+  patientFriendlyNote String?   @db.Text
+  createdAt   DateTime @default(now())
+  isAcknowledged Boolean   @default(false)
+  acknowledgedAt DateTime?
+  patient     Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  clinician   Clinician @relation(fields: [clinicianId], references: [clinician_id], onDelete: Cascade)
+  @@index([patientId])
+  @@index([clinicianId])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  email     String   @db.Citext
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+  @@unique([email, token])
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  email     String   @db.Citext
+  token     String   // This will be the 6-digit code
+  expires   DateTime
+  createdAt DateTime @default(now())
+  @@unique([email, token])
 }
