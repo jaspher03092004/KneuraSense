@@ -5,7 +5,8 @@ import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2
+  Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2,
+  Target, X
 } from 'lucide-react';
 
 const THEMES = {
@@ -75,20 +76,23 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline, pulsing = false }) =>
   </div>
 );
 
-// Added enableAutoSave prop (defaults to false so clinicians don't save duplicate data)
 export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false }) {
-  const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
+  const { data, deviceStatus, lastPacketTime, sendCommand } = useMQTT(deviceMac);
   const [weather, setWeather] = useState(null);
+  
+  // Modal State
+  const [showCalibrationModal, setShowCalibrationModal] = useState(false);
+  const [calibrationPhase, setCalibrationPhase] = useState('idle'); 
+  const [calibrationProgress, setCalibrationProgress] = useState(0);
 
-  // --- DATABASE AUTO-SAVE LOGIC ---
   const dataRef = useRef(data); 
   const weatherRef = useRef(weather); 
 
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { weatherRef.current = weather; }, [weather]);
 
+  // Database Auto-Save Interval
   useEffect(() => {
-    // If this prop is false (like in the Clinician portal), don't run the interval at all
     if (!enableAutoSave) return;
 
     const saveInterval = setInterval(async () => {
@@ -115,13 +119,14 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                pressure: currentData.pressure
              }),
            });
-        } catch (err) { console.error("Auto-save failed:", err); }
+        } catch (err) {
+            console.error("Auto-save failed", err);
+        }
       }
     }, 10000); 
     
     return () => clearInterval(saveInterval);
   }, [deviceStatus, patientId, enableAutoSave]);
-  // --------------------------------
 
   const riskConfig = useMemo(() => {
     if (data.risk_score > 70) return { 
@@ -141,6 +146,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
     };
   }, [data.risk_score]);
 
+  // Weather Fetch
   useEffect(() => {
     const lat = Number(data.lat);
     const lng = Number(data.lng);
@@ -149,7 +155,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
         try {
           const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat.toFixed(2)}&lon=${lng.toFixed(2)}&units=metric&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`);
           if (res.ok) setWeather(await res.json());
-        } catch (error) { console.error("Weather fetch failed", error); }
+        } catch (error) {}
       };
       fetchWeather();
     }
@@ -157,101 +163,242 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   const isOnline = deviceStatus === 'Online';
 
-  return (
-    <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
-      {/* Header */}
-      <header className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Live Telemetry</h1>
-          <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-           <StatusBadge icon={Wifi} label="KneuraSense POD" value={deviceStatus} isOnline={isOnline} pulsing={isOnline} />
-           <StatusBadge icon={RefreshCw} label="Last Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />
-        </div>
-      </header>
+  // Calibration Execution Logic
+  const executeCalibration = () => {
+    if (!isOnline) return;
+    
+    if (sendCommand("CALIBRATE")) {
+      setCalibrationPhase('calibrating');
+      setCalibrationProgress(0);
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        {/* Risk Score Widget */}
-        <article className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden">
-           <div className="w-full text-center mb-8">
-              <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Overuse Risk Index</h2>
-              <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-1">Real-time Joint Stress</p>
-           </div>
-           
-           <div className="relative w-full max-w-[260px] aspect-[2/1] mx-auto flex justify-center items-end">
-              <svg className="w-full h-full overflow-visible drop-shadow-sm" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
-                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="20" strokeLinecap="round" />
-                <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
-                  className={`transition-all duration-1000 ease-out ${riskConfig.stroke}`}
-                  strokeWidth="20" strokeLinecap="round" strokeDasharray="251.2"
-                  strokeDashoffset={251.2 - (data.risk_score / 100) * 251.2}
-                />
-              </svg>
-              <div className="absolute bottom-0 left-0 right-0 text-center translate-y-2">
-                <span className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">{data.risk_score}</span>
+      const duration = 4000;
+      const intervalTime = 50; 
+      const step = (intervalTime / duration) * 100;
+
+      const progressInterval = setInterval(() => {
+        setCalibrationProgress(prev => {
+          if (prev + step >= 100) {
+            clearInterval(progressInterval);
+            return 100;
+          }
+          return prev + step;
+        });
+      }, intervalTime);
+
+      setTimeout(() => {
+        clearInterval(progressInterval);
+        setCalibrationPhase('success');
+        setTimeout(() => closeCalibrationModal(), 2500);
+      }, duration);
+    }
+  };
+
+  const closeCalibrationModal = () => {
+    setShowCalibrationModal(false);
+    setTimeout(() => {
+      setCalibrationPhase('idle');
+      setCalibrationProgress(0);
+    }, 300);
+  };
+
+  return (
+    <>
+      <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
+        {/* Header */}
+        <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Live Telemetry</h1>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+             
+             {/* IMPROVED CALIBRATION BUTTON */}
+             <div className="relative group flex items-center">
+               <button 
+                 onClick={() => setShowCalibrationModal(true)}
+                 disabled={!isOnline}
+                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+               >
+                 <Target size={16} className={isOnline ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"} />
+                 Set Standing Baseline
+               </button>
+               
+               {/* Tooltip that appears on hover */}
+               <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 dark:bg-slate-700 text-white text-[10px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-center z-10 pointer-events-none shadow-lg">
+                 Click this while standing perfectly straight to zero your joint angle to 0°.
+                 <svg className="absolute text-slate-800 dark:text-slate-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
+               </div>
+             </div>
+
+             <StatusBadge icon={Wifi} label="KneuraSense POD" value={deviceStatus} isOnline={isOnline} pulsing={isOnline} />
+             <StatusBadge icon={RefreshCw} label="Last Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />
+          </div>
+        </header>
+
+        {/* Main Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <article className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+             <div className="w-full text-center mb-8">
+                <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Overuse Risk Index</h2>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-1">Real-time Joint Stress</p>
+             </div>
+             
+             <div className="relative w-full max-w-[260px] aspect-[2/1] mx-auto flex justify-center items-end">
+                <svg className="w-full h-full overflow-visible drop-shadow-sm" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="20" strokeLinecap="round" />
+                  <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
+                    className={`transition-all duration-1000 ease-out ${riskConfig.stroke}`}
+                    strokeWidth="20" strokeLinecap="round" strokeDasharray="251.2"
+                    strokeDashoffset={251.2 - (data.risk_score / 100) * 251.2}
+                  />
+                </svg>
+                <div className="absolute bottom-0 left-0 right-0 text-center translate-y-2">
+                  <span className="text-6xl font-black text-slate-900 dark:text-white tracking-tighter">{data.risk_score}</span>
+                </div>
+             </div>
+             
+             <div className="mt-8">
+                <span className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border ${riskConfig.badgeStyles}`}>
+                  {riskConfig.isCritical ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
+                  {riskConfig.label}
+                </span>
+             </div>
+          </article>
+
+          <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
+             <section>
+               <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Joint Kinematics</h3>
+               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Current Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" isLive={isOnline} />
+                  <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 1000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
+               </div>
+             </section>
+
+             <section>
+               <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Vitals & Environment</h3>
+               <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+                  <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="BPM" value={data.bpm || "--"} unit="" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" isLive={isOnline && data.bpm > 0} />
+                  <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"} unit="°C" colorTheme="emerald" isLive={isOnline} />
+                  <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" colorTheme="slate" isLive={isOnline} />
+                  <SensorCard icon={Wind} title="Pressure" subTitle="Atmos" value={data.pressure ? Math.round(data.pressure) : "--"} unit=" hPa" colorTheme="slate" isLive={isOnline} />
+               </div>
+             </section>
+          </div>
+        </div>
+
+        <footer className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+           <div className="flex items-center gap-4 w-full sm:w-1/2">
+              <div className={`p-2.5 rounded-xl ${data.bat < 20 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
+                 <Battery size={20} strokeWidth={2.5}/>
+              </div>
+              <div className="flex-1 max-w-xs">
+                 <div className="flex justify-between items-end mb-1.5">
+                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battery Level</span>
+                   <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">{data.bat}%</span>
+                 </div>
+                 <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                   <div className={`h-full rounded-full transition-all duration-700 ease-out ${data.bat < 20 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${Math.max(0, Math.min(100, data.bat))}%` }}></div>
+                 </div>
               </div>
            </div>
            
-           <div className="mt-8">
-              <span className={`inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-full border ${riskConfig.badgeStyles}`}>
-                {riskConfig.isCritical ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
-                {riskConfig.label}
-              </span>
+           <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
+              <Cloud size={18} className="text-slate-400 dark:text-slate-500" />
+              <div>
+                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Environment Context</p>
+                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                   {weather ? `${weather.name} • ${Math.round(weather.main.temp)}°C` : (Number(data.lat) !== 0 ? "Acquiring GPS..." : "Indoor Mode Active")}
+                 </p>
+              </div>
            </div>
-        </article>
+        </footer>
+      </section>
 
-        {/* Telemetry Cards */}
-        <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
-           <section>
-             <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Joint Kinematics</h3>
-             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Current Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" isLive={isOnline} />
-                <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 1000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
-             </div>
-           </section>
+      {/* Calibration Modal */}
+      {showCalibrationModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2">
+                <Target size={20} className="text-indigo-600 dark:text-indigo-400" />
+                <h3 className="font-bold text-slate-800 dark:text-slate-100">Set Standing Baseline</h3>
+              </div>
+              {calibrationPhase === 'idle' && (
+                <button onClick={closeCalibrationModal} className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors">
+                  <X size={20} />
+                </button>
+              )}
+            </div>
 
-           <section>
-             <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Vitals & Environment</h3>
-             <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
-                <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="BPM" value={data.bpm || "--"} unit="" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" isLive={isOnline && data.bpm > 0} />
-                <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"} unit="°C" colorTheme="emerald" isLive={isOnline} />
-                <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" colorTheme="slate" isLive={isOnline} />
-                <SensorCard icon={Wind} title="Pressure" subTitle="Atmos" value={data.pressure ? Math.round(data.pressure) : "--"} unit=" hPa" colorTheme="slate" isLive={isOnline} />
-             </div>
-           </section>
+            <div className="p-6">
+              {calibrationPhase === 'idle' && (
+                <div className="space-y-4">
+                  <p className="text-sm text-slate-600 dark:text-slate-300">
+                    To ensure accurate joint kinematics, both the thigh and shank sensors must be zeroed to establish a baseline.
+                  </p>
+                  
+                  <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4 flex gap-3">
+                    <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                      <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300">Patient Preparation</h4>
+                      <p className="text-sm text-amber-700 dark:text-amber-400/90 mt-1">
+                        Instruct the patient to stand perfectly straight with their weight evenly distributed. They must remain completely still for 5 seconds after initiating.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {calibrationPhase === 'calibrating' && (
+                <div className="py-6 text-center space-y-6">
+                  <div className="relative w-20 h-20 mx-auto">
+                    <svg className="animate-spin w-full h-full text-indigo-100 dark:text-indigo-900/30" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none"></circle>
+                      <path className="opacity-75 text-indigo-600 dark:text-indigo-400" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">{Math.round(calibrationProgress)}%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 className="text-base font-bold text-slate-800 dark:text-slate-100">Calibrating...</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Please ensure the patient remains still.</p>
+                  </div>
+                </div>
+              )}
+
+              {calibrationPhase === 'success' && (
+                <div className="py-6 text-center space-y-4 animate-in fade-in slide-in-from-bottom-2">
+                  <div className="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-2">
+                    <CheckCircle2 size={32} className="text-emerald-600 dark:text-emerald-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100">Baseline Established</h4>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Sensors have been successfully zeroed to 0°.</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {calibrationPhase === 'idle' && (
+              <div className="p-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
+                <button 
+                  onClick={closeCalibrationModal}
+                  className="px-4 py-2 rounded-lg font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={executeCalibration}
+                  className="px-6 py-2 rounded-lg font-bold text-sm bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors flex items-center gap-2"
+                >
+                  Start Calibration
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-
-      {/* Footer Status Bar */}
-      <footer className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
-         <div className="flex items-center gap-4 w-full sm:w-1/2">
-            <div className={`p-2.5 rounded-xl ${data.bat < 20 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
-               <Battery size={20} strokeWidth={2.5}/>
-            </div>
-            <div className="flex-1 max-w-xs">
-               <div className="flex justify-between items-end mb-1.5">
-                 <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battery Level</span>
-                 <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">{data.bat}%</span>
-               </div>
-               <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
-                 <div className={`h-full rounded-full transition-all duration-700 ease-out ${data.bat < 20 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${Math.max(0, Math.min(100, data.bat))}%` }}></div>
-               </div>
-            </div>
-         </div>
-         
-         <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
-            <Cloud size={18} className="text-slate-400 dark:text-slate-500" />
-            <div>
-               <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Environment Context</p>
-               <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                 {weather ? `${weather.name} • ${Math.round(weather.main.temp)}°C` : (Number(data.lat) !== 0 ? "Acquiring GPS..." : "Indoor Mode Active")}
-               </p>
-            </div>
-         </div>
-      </footer>
-    </section>
+      )}
+    </>
   );
 }

@@ -4,7 +4,8 @@ import Image from 'next/image';
 import EditProfileModal from '@/components/EditProfileModal';
 import { 
   User, Mail, Phone, Calendar, Activity, Briefcase, 
-  AlertCircle, Edit3, MapPin, CheckCircle2
+  AlertCircle, Edit3, MapPin, CheckCircle2, 
+  Target, ShieldAlert // NEW: Added missing icons
 } from 'lucide-react';
 
 export default async function PatientProfile({ params }) {
@@ -16,6 +17,7 @@ export default async function PatientProfile({ params }) {
   try {
     patient = await prisma.patient.findUnique({
       where: { id },
+      include: { clinician: true } // NEW: Include the clinician data
     });
     if (!patient) error = 'Patient not found';
   } catch (err) {
@@ -159,8 +161,10 @@ export default async function PatientProfile({ params }) {
               </section>
             </div>
 
-            {/* Right Column: Medical Context */}
-            <div className="space-y-6">
+            {/* Right Column: Medical Context & New Widgets */}
+            <div className="space-y-8">
+              
+              {/* Existing Medical Profile */}
               <section>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
                   <Activity size={16} className="text-[#3A9D8C]" /> Medical Profile
@@ -222,6 +226,55 @@ export default async function PatientProfile({ params }) {
                   </div>
                 </div>
               </section>
+
+              {/* NEW: Prescribed Baseline Widget */}
+              <section>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
+                  <Target size={16} className="text-indigo-500 dark:text-indigo-400" /> Prescribed Baseline
+                </h3>
+                
+                <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/20 dark:to-slate-900 rounded-xl border border-indigo-100 dark:border-indigo-900/30 p-5 shadow-sm relative overflow-hidden">
+                  <Target className="absolute -right-4 -bottom-4 text-indigo-100 dark:text-indigo-900/20 w-24 h-24 transform -rotate-12" strokeWidth={1} />
+                  
+                  <div className="relative z-10">
+                    <div className="flex items-end gap-2 mb-2">
+                      <span className="text-5xl font-black text-indigo-600 dark:text-indigo-400 tracking-tighter leading-none">
+                        {patient.riskThreshold ?? 75}
+                      </span>
+                      <span className="text-xs font-bold text-indigo-400 dark:text-indigo-500 mb-1.5 uppercase tracking-widest">Target</span>
+                    </div>
+                    
+                    <p className="text-xs text-indigo-800/80 dark:text-indigo-300/80 mt-3 font-medium leading-relaxed">
+                      Your clinician has set this as your maximum safe load limit.
+                    </p>
+                  </div>
+                </div>
+              </section>
+
+              {/* NEW: Managing Clinician Card */}
+              <section>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
+                  <ShieldAlert size={16} className="text-slate-400" /> Managing Clinician
+                </h3>
+                
+                <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+                  {patient.clinician ? (
+                    <div>
+                      <p className="font-bold text-slate-900 dark:text-white">Dr. {patient.clinician.full_name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{patient.clinician.specialization || 'Orthopedics'}</p>
+                      <a 
+                        href={`mailto:${patient.clinician.email}`} 
+                        className="mt-4 inline-flex items-center justify-center w-full py-2 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-slate-200 dark:border-slate-700 shadow-sm"
+                      >
+                        Contact Clinician
+                      </a>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-slate-500 italic">No clinician currently assigned.</p>
+                  )}
+                </div>
+              </section>
+
             </div>
 
           </div>

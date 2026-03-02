@@ -12,12 +12,13 @@ export default function ClinicianHelpClient({ clinician }) {
 
   const categories = [
     { title: "Clinical Validity", icon: Activity, desc: "Understanding the Overuse Risk Score and algorithms." },
-    { title: "Patient Management", icon: Users, desc: "Onboarding, assigning care plans, and alerts." },
+    { title: "Patient Management", icon: Users, desc: "Onboarding, sensor calibration, and alerts." },
     { title: "RPM Billing & Compliance", icon: FileText, desc: "Time tracking for CPT codes (99453, 99454, 99457)." },
     { title: "EHR Integration", icon: Database, desc: "Exporting CSVs and PDF reports for patient records." }
   ];
 
   const allFaqs = [
+    { q: "How and when should a patient's device be calibrated?", a: "Calibration (Zeroing) is crucial for accurate joint kinematics. It should be done whenever the patient puts the device on or repositions it. Instruct the patient to stand perfectly straight with weight evenly distributed. From their Live Telemetry dashboard, click 'SET STANDING BASELINE'. They must remain entirely still for 5 seconds to establish a true 0-degree anatomical baseline." },
     { q: "How is the Overuse Risk Score calculated?", a: "The score is derived from a proprietary Edge AI model that fuses joint kinematics (flexion/extension angles) with applied force (FSR data) and physiological stress indicators (heart rate, skin temperature). It compares real-time load against the patient's calibrated baseline." },
     { q: "How do I add a new patient to my dashboard?", a: "Navigate to the 'Patients' tab and click 'Register New Patient'. You will need their email address and the MAC address of their assigned KneuraSense device. An invitation will be sent to their email to complete setup." },
     { q: "Which CPT codes can I bill for using KneuraSense?", a: "KneuraSense supports Remote Patient Monitoring (RPM) workflows. You can typically bill CPT 99453 for initial setup, CPT 99454 for monthly device supply (requires 16 days of data transmission), and CPT 99457/99458 for clinical time spent reviewing the data. Please consult your billing department for compliance." },
@@ -48,7 +49,6 @@ export default function ClinicianHelpClient({ clinician }) {
 
   return (
     <div className="pb-16 pt-8">
-      {/* Hero Search Section */}
       <div className="px-6 text-center max-w-4xl mx-auto mb-16">
         <div className="w-16 h-16 bg-[#2D5F8B] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md">
           <Stethoscope size={32} />
@@ -68,7 +68,7 @@ export default function ClinicianHelpClient({ clinician }) {
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for 'Billing', 'Export', 'Risk Score'..." 
+            placeholder="Search for 'Calibrate', 'Billing', 'Export'..." 
             className="w-full pl-16 pr-6 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-lg text-slate-900 dark:text-white shadow-sm hover:shadow-md focus:outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-4 focus:ring-[#2D5F8B]/10 transition-all placeholder:text-slate-400"
           />
         </div>
@@ -76,11 +76,7 @@ export default function ClinicianHelpClient({ clinician }) {
 
       <div className="max-w-6xl mx-auto px-6 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           
-           {/* Main Content Area */}
            <div className="lg:col-span-2 space-y-10">
-              
-              {/* Category Grid */}
               {!searchQuery && (
                 <div>
                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Browse by Topic</h3>
@@ -98,7 +94,6 @@ export default function ClinicianHelpClient({ clinician }) {
                 </div>
               )}
 
-              {/* FAQs & Search Results */}
               <div>
                  <div className="flex items-center gap-3 mb-6">
                     <HelpCircle className="text-[#2D5F8B] dark:text-blue-400" size={24} />
@@ -139,14 +134,10 @@ export default function ClinicianHelpClient({ clinician }) {
               </div>
            </div>
 
-           {/* Sidebar */}
            <div className="space-y-6">
-              
-              {/* Premium B2B Contact Card */}
               <div className="bg-slate-900 dark:bg-slate-800 rounded-2xl p-6 shadow-md border border-slate-800 dark:border-slate-700">
                  <h3 className="font-bold text-white mb-2">Provider Support</h3>
                  <p className="text-sm text-slate-400 mb-6">Get priority assistance from our clinical success team.</p>
-                 
                  <div className="space-y-3">
                     <a href={`mailto:providers@kneurasense.com?subject=Provider Support - Dr. ${clinician?.full_name || ''}`} className="flex items-center justify-center gap-2 w-full py-3 bg-white text-slate-900 hover:bg-slate-100 rounded-xl font-semibold transition-colors shadow-sm">
                        <Mail size={18} /> Email Success Team
@@ -157,7 +148,6 @@ export default function ClinicianHelpClient({ clinician }) {
                  </div>
               </div>
 
-              {/* Clinical Resources Card */}
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
                  <h3 className="font-bold text-slate-900 dark:text-white mb-4">Clinical Resources</h3>
                  <div className="space-y-1">
@@ -181,7 +171,6 @@ export default function ClinicianHelpClient({ clinician }) {
                     </a>
                  </div>
               </div>
-
            </div>
         </div>
       </div>

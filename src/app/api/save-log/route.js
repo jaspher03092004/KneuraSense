@@ -4,16 +4,16 @@ import nodemailer from 'nodemailer';
 
 async function sendCriticalAlertEmail(patient, riskScore, logData) {
   try {
-    // 1. Fetch ALL clinicians who have email alerts enabled
-    const clinicians = await prisma.clinician.findMany({
+    // 1. Fetch ONLY the specific clinician assigned to this patient
+    const clinician = await prisma.clinician.findUnique({
       where: { 
-        isVerified: true,
-        emailAlerts: true 
+        clinician_id: patient.clinicianId, 
       }
     });
 
-    if (!clinicians || clinicians.length === 0) {
-      console.log("Email Alert Aborted: No clinicians found with emailAlerts enabled.");
+    // 2. Abort if no clinician is found, or if they haven't verified/enabled alerts
+    if (!clinician || !clinician.isVerified || !clinician.emailAlerts || !clinician.email) {
+      console.log("Email Alert Aborted: Clinician unverified, missing email, or alerts disabled.");
       return;
     }
 
@@ -25,43 +25,34 @@ async function sendCriticalAlertEmail(patient, riskScore, logData) {
       },
     });
 
-    // 2. Map over the array of clinicians to create an array of email promises
-    const emailPromises = clinicians.map(clinician => {
-      // Skip if this specific clinician lacks an email address
-      if (!clinician.email) return Promise.resolve(); 
-
-      const mailOptions = {
-        from: `"KneuraSense Alert" <${process.env.SMTP_USER}>`,
-        to: clinician.email,
-        subject: `CRITICAL ALERT: High Risk Score Detected for ${patient.fullName}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #fee2e2; border-radius: 10px; background-color: #fffafb;">
-            <h2 style="color: #e11d48; border-bottom: 2px solid #fecdd3; padding-bottom: 10px;">Critical Patient Alert</h2>
-            
-            <p style="color: #475569; font-size: 16px;">Hello Dr. ${clinician.full_name ? clinician.full_name.split(' ').pop() : 'Clinician'},</p>
-            <p style="color: #475569; font-size: 16px;">The KneuraSense system has detected a critical risk score for one of your patients. Immediate attention may be required.</p>
-            
-            <div style="background-color: #ffffff; border: 1px solid #fecdd3; border-radius: 8px; padding: 15px; margin: 20px 0;">
-              <p style="margin: 5px 0; font-size: 15px;"><strong>Patient Name:</strong> ${patient.fullName}</p>
-              <p style="margin: 5px 0; font-size: 15px;"><strong>Patient ID:</strong> ${patient.id}</p>
-              <p style="margin: 5px 0; font-size: 15px; color: #e11d48;"><strong>Risk Score:</strong> ${riskScore} / 100</p>
-              <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 15px 0;" />
-              <p style="margin: 5px 0; font-size: 14px; color: #64748b;"><strong>Recorded Angle:</strong> ${logData.angle}°</p>
-              <p style="margin: 5px 0; font-size: 14px; color: #64748b;"><strong>Recorded Force:</strong> ${logData.force}</p>
-              <p style="margin: 5px 0; font-size: 14px; color: #64748b;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
-            </div>
+    // 3. Construct the secure email payload
+    const mailOptions = {
+      from: `"KneuraSense Alert" <${process.env.SMTP_USER}>`,
+      to: clinician.email,
+      subject: `CRITICAL ALERT: High Risk Score Detected for ${patient.fullName}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #fee2e2; border-radius: 10px; background-color: #fffafb;">
+          <h2 style="color: #e11d48; border-bottom: 2px solid #fecdd3; padding-bottom: 10px;">Critical Patient Alert</h2>
+          
+          <p style="color: #475569; font-size: 16px;">Hello Dr. ${clinician.full_name ? clinician.full_name.split(' ').pop() : 'Clinician'},</p>
+          <p style="color: #475569; font-size: 16px;">The KneuraSense system has detected a critical risk score for your patient. Immediate attention may be required.</p>
+          
+          <div style="background-color: #ffffff; border: 1px solid #fecdd3; border-radius: 8px; padding: 15px; margin: 20px 0;">
+            <p style="margin: 5px 0; font-size: 15px;"><strong>Patient Name:</strong> ${patient.fullName}</p>
+            <p style="margin: 5px 0; font-size: 15px;"><strong>Patient ID:</strong> ${patient.id}</p>
+            <p style="margin: 5px 0; font-size: 15px; color: #e11d48;"><strong>Risk Score:</strong> ${riskScore} / 100</p>
+            <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 15px 0;" />
+            <p style="margin: 5px 0; font-size: 14px; color: #64748b;"><strong>Recorded Angle:</strong> ${logData.angle}°</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #64748b;"><strong>Recorded Force:</strong> ${logData.force}</p>
+            <p style="margin: 5px 0; font-size: 14px; color: #64748b;"><strong>Time:</strong> ${new Date().toLocaleString()}</p>
           </div>
-        `,
-      };
+        </div>
+      `,
+    };
 
-      // Send the email and log the result
-      return transporter.sendMail(mailOptions)
-        .then(() => console.log(`Critical alert email successfully sent to ${clinician.email}`))
-        .catch(err => console.error(`Failed to send alert email to ${clinician.email}:`, err));
-    });
-
-    // 3. Await all the emails to finish sending before closing the function
-    await Promise.all(emailPromises);
+    // 4. Send the email directly to the assigned clinician
+    await transporter.sendMail(mailOptions);
+    console.log(`Critical alert email successfully sent to ${clinician.email}`);
 
   } catch (err) {
     console.error("Failed to process alert emails:", err);
@@ -98,14 +89,17 @@ export async function POST(request) {
     if (riskScore >= 70) {
        console.log(`High risk score (${riskScore}) detected. Attempting to send email...`);
        
+       // Ensure clinicianId is selected alongside the patient record
        const patient = await prisma.patient.findUnique({
          where: { id: body.patientId },
-         select: { id: true, fullName: true }
+         select: { id: true, fullName: true, clinicianId: true }
        });
        
-       if (patient) {
-         // Added 'await' here to ensure it finishes before the API responds
+       // Only trigger the email if the patient exists AND has a designated clinician
+       if (patient && patient.clinicianId) {
          await sendCriticalAlertEmail(patient, riskScore, newLog);
+       } else {
+         console.log("No assigned clinician found for this patient. Alert skipped.");
        }
     }
 

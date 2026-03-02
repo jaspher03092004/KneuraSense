@@ -240,6 +240,7 @@ export type ClinicianWhereInput = {
   isVerified?: Prisma.BoolFilter<"Clinician"> | boolean
   auditLogs?: Prisma.AuditLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
+  patients?: Prisma.PatientListRelationFilter
 }
 
 export type ClinicianOrderByWithRelationInput = {
@@ -257,6 +258,7 @@ export type ClinicianOrderByWithRelationInput = {
   isVerified?: Prisma.SortOrder
   auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
+  patients?: Prisma.PatientOrderByRelationAggregateInput
 }
 
 export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
@@ -277,6 +279,7 @@ export type ClinicianWhereUniqueInput = Prisma.AtLeast<{
   isVerified?: Prisma.BoolFilter<"Clinician"> | boolean
   auditLogs?: Prisma.AuditLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
+  patients?: Prisma.PatientListRelationFilter
 }, "clinician_id" | "email" | "phone_number">
 
 export type ClinicianOrderByWithAggregationInput = {
@@ -330,6 +333,7 @@ export type ClinicianCreateInput = {
   isVerified?: boolean
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutClinicianInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutClinicianInput
+  patients?: Prisma.PatientCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianUncheckedCreateInput = {
@@ -347,6 +351,7 @@ export type ClinicianUncheckedCreateInput = {
   isVerified?: boolean
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutClinicianInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutClinicianInput
+  patients?: Prisma.PatientUncheckedCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianUpdateInput = {
@@ -364,6 +369,7 @@ export type ClinicianUpdateInput = {
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUpdateManyWithoutClinicianNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutClinicianNestedInput
+  patients?: Prisma.PatientUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianUncheckedUpdateInput = {
@@ -381,6 +387,7 @@ export type ClinicianUncheckedUpdateInput = {
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutClinicianNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutClinicianNestedInput
+  patients?: Prisma.PatientUncheckedUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianCreateManyInput = {
@@ -473,6 +480,11 @@ export type ClinicianMinOrderByAggregateInput = {
   isVerified?: Prisma.SortOrder
 }
 
+export type ClinicianNullableScalarRelationFilter = {
+  is?: Prisma.ClinicianWhereInput | null
+  isNot?: Prisma.ClinicianWhereInput | null
+}
+
 export type ClinicianScalarRelationFilter = {
   is?: Prisma.ClinicianWhereInput
   isNot?: Prisma.ClinicianWhereInput
@@ -488,6 +500,22 @@ export type DateTimeFieldUpdateOperationsInput = {
 
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
+}
+
+export type ClinicianCreateNestedOneWithoutPatientsInput = {
+  create?: Prisma.XOR<Prisma.ClinicianCreateWithoutPatientsInput, Prisma.ClinicianUncheckedCreateWithoutPatientsInput>
+  connectOrCreate?: Prisma.ClinicianCreateOrConnectWithoutPatientsInput
+  connect?: Prisma.ClinicianWhereUniqueInput
+}
+
+export type ClinicianUpdateOneWithoutPatientsNestedInput = {
+  create?: Prisma.XOR<Prisma.ClinicianCreateWithoutPatientsInput, Prisma.ClinicianUncheckedCreateWithoutPatientsInput>
+  connectOrCreate?: Prisma.ClinicianCreateOrConnectWithoutPatientsInput
+  upsert?: Prisma.ClinicianUpsertWithoutPatientsInput
+  disconnect?: Prisma.ClinicianWhereInput | boolean
+  delete?: Prisma.ClinicianWhereInput | boolean
+  connect?: Prisma.ClinicianWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ClinicianUpdateToOneWithWhereWithoutPatientsInput, Prisma.ClinicianUpdateWithoutPatientsInput>, Prisma.ClinicianUncheckedUpdateWithoutPatientsInput>
 }
 
 export type ClinicianCreateNestedOneWithoutAuditLogsInput = {
@@ -518,6 +546,90 @@ export type ClinicianUpdateOneRequiredWithoutInterventionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClinicianUpdateToOneWithWhereWithoutInterventionsInput, Prisma.ClinicianUpdateWithoutInterventionsInput>, Prisma.ClinicianUncheckedUpdateWithoutInterventionsInput>
 }
 
+export type ClinicianCreateWithoutPatientsInput = {
+  clinician_id?: string
+  full_name: string
+  email: string
+  phone_number: string
+  password_hash: string
+  specialization: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  criticalAlerts?: boolean
+  emailAlerts?: boolean
+  compactView?: boolean
+  isVerified?: boolean
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutClinicianInput
+  interventions?: Prisma.InterventionCreateNestedManyWithoutClinicianInput
+}
+
+export type ClinicianUncheckedCreateWithoutPatientsInput = {
+  clinician_id?: string
+  full_name: string
+  email: string
+  phone_number: string
+  password_hash: string
+  specialization: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  criticalAlerts?: boolean
+  emailAlerts?: boolean
+  compactView?: boolean
+  isVerified?: boolean
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutClinicianInput
+  interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutClinicianInput
+}
+
+export type ClinicianCreateOrConnectWithoutPatientsInput = {
+  where: Prisma.ClinicianWhereUniqueInput
+  create: Prisma.XOR<Prisma.ClinicianCreateWithoutPatientsInput, Prisma.ClinicianUncheckedCreateWithoutPatientsInput>
+}
+
+export type ClinicianUpsertWithoutPatientsInput = {
+  update: Prisma.XOR<Prisma.ClinicianUpdateWithoutPatientsInput, Prisma.ClinicianUncheckedUpdateWithoutPatientsInput>
+  create: Prisma.XOR<Prisma.ClinicianCreateWithoutPatientsInput, Prisma.ClinicianUncheckedCreateWithoutPatientsInput>
+  where?: Prisma.ClinicianWhereInput
+}
+
+export type ClinicianUpdateToOneWithWhereWithoutPatientsInput = {
+  where?: Prisma.ClinicianWhereInput
+  data: Prisma.XOR<Prisma.ClinicianUpdateWithoutPatientsInput, Prisma.ClinicianUncheckedUpdateWithoutPatientsInput>
+}
+
+export type ClinicianUpdateWithoutPatientsInput = {
+  clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  specialization?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  criticalAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compactView?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutClinicianNestedInput
+  interventions?: Prisma.InterventionUpdateManyWithoutClinicianNestedInput
+}
+
+export type ClinicianUncheckedUpdateWithoutPatientsInput = {
+  clinician_id?: Prisma.StringFieldUpdateOperationsInput | string
+  full_name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  phone_number?: Prisma.StringFieldUpdateOperationsInput | string
+  password_hash?: Prisma.StringFieldUpdateOperationsInput | string
+  specialization?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  criticalAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  emailAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  compactView?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutClinicianNestedInput
+  interventions?: Prisma.InterventionUncheckedUpdateManyWithoutClinicianNestedInput
+}
+
 export type ClinicianCreateWithoutAuditLogsInput = {
   clinician_id?: string
   full_name: string
@@ -532,6 +644,7 @@ export type ClinicianCreateWithoutAuditLogsInput = {
   compactView?: boolean
   isVerified?: boolean
   interventions?: Prisma.InterventionCreateNestedManyWithoutClinicianInput
+  patients?: Prisma.PatientCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianUncheckedCreateWithoutAuditLogsInput = {
@@ -548,6 +661,7 @@ export type ClinicianUncheckedCreateWithoutAuditLogsInput = {
   compactView?: boolean
   isVerified?: boolean
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutClinicianInput
+  patients?: Prisma.PatientUncheckedCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianCreateOrConnectWithoutAuditLogsInput = {
@@ -580,6 +694,7 @@ export type ClinicianUpdateWithoutAuditLogsInput = {
   compactView?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUpdateManyWithoutClinicianNestedInput
+  patients?: Prisma.PatientUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianUncheckedUpdateWithoutAuditLogsInput = {
@@ -596,6 +711,7 @@ export type ClinicianUncheckedUpdateWithoutAuditLogsInput = {
   compactView?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutClinicianNestedInput
+  patients?: Prisma.PatientUncheckedUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianCreateWithoutInterventionsInput = {
@@ -612,6 +728,7 @@ export type ClinicianCreateWithoutInterventionsInput = {
   compactView?: boolean
   isVerified?: boolean
   auditLogs?: Prisma.AuditLogCreateNestedManyWithoutClinicianInput
+  patients?: Prisma.PatientCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianUncheckedCreateWithoutInterventionsInput = {
@@ -628,6 +745,7 @@ export type ClinicianUncheckedCreateWithoutInterventionsInput = {
   compactView?: boolean
   isVerified?: boolean
   auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutClinicianInput
+  patients?: Prisma.PatientUncheckedCreateNestedManyWithoutClinicianInput
 }
 
 export type ClinicianCreateOrConnectWithoutInterventionsInput = {
@@ -660,6 +778,7 @@ export type ClinicianUpdateWithoutInterventionsInput = {
   compactView?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUpdateManyWithoutClinicianNestedInput
+  patients?: Prisma.PatientUpdateManyWithoutClinicianNestedInput
 }
 
 export type ClinicianUncheckedUpdateWithoutInterventionsInput = {
@@ -676,6 +795,7 @@ export type ClinicianUncheckedUpdateWithoutInterventionsInput = {
   compactView?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
   auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutClinicianNestedInput
+  patients?: Prisma.PatientUncheckedUpdateManyWithoutClinicianNestedInput
 }
 
 
@@ -686,11 +806,13 @@ export type ClinicianUncheckedUpdateWithoutInterventionsInput = {
 export type ClinicianCountOutputType = {
   auditLogs: number
   interventions: number
+  patients: number
 }
 
 export type ClinicianCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   auditLogs?: boolean | ClinicianCountOutputTypeCountAuditLogsArgs
   interventions?: boolean | ClinicianCountOutputTypeCountInterventionsArgs
+  patients?: boolean | ClinicianCountOutputTypeCountPatientsArgs
 }
 
 /**
@@ -717,6 +839,13 @@ export type ClinicianCountOutputTypeCountInterventionsArgs<ExtArgs extends runti
   where?: Prisma.InterventionWhereInput
 }
 
+/**
+ * ClinicianCountOutputType without action
+ */
+export type ClinicianCountOutputTypeCountPatientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PatientWhereInput
+}
+
 
 export type ClinicianSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   clinician_id?: boolean
@@ -733,6 +862,7 @@ export type ClinicianSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   isVerified?: boolean
   auditLogs?: boolean | Prisma.Clinician$auditLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Clinician$interventionsArgs<ExtArgs>
+  patients?: boolean | Prisma.Clinician$patientsArgs<ExtArgs>
   _count?: boolean | Prisma.ClinicianCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["clinician"]>
 
@@ -785,6 +915,7 @@ export type ClinicianOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type ClinicianInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   auditLogs?: boolean | Prisma.Clinician$auditLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Clinician$interventionsArgs<ExtArgs>
+  patients?: boolean | Prisma.Clinician$patientsArgs<ExtArgs>
   _count?: boolean | Prisma.ClinicianCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ClinicianIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -795,6 +926,7 @@ export type $ClinicianPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   objects: {
     auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
     interventions: Prisma.$InterventionPayload<ExtArgs>[]
+    patients: Prisma.$PatientPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     clinician_id: string
@@ -1205,6 +1337,7 @@ export interface Prisma__ClinicianClient<T, Null = never, ExtArgs extends runtim
   readonly [Symbol.toStringTag]: "PrismaPromise"
   auditLogs<T extends Prisma.Clinician$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Clinician$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   interventions<T extends Prisma.Clinician$interventionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Clinician$interventionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  patients<T extends Prisma.Clinician$patientsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Clinician$patientsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PatientPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1679,6 +1812,30 @@ export type Clinician$interventionsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.InterventionScalarFieldEnum | Prisma.InterventionScalarFieldEnum[]
+}
+
+/**
+ * Clinician.patients
+ */
+export type Clinician$patientsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Patient
+   */
+  select?: Prisma.PatientSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Patient
+   */
+  omit?: Prisma.PatientOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PatientInclude<ExtArgs> | null
+  where?: Prisma.PatientWhereInput
+  orderBy?: Prisma.PatientOrderByWithRelationInput | Prisma.PatientOrderByWithRelationInput[]
+  cursor?: Prisma.PatientWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PatientScalarFieldEnum | Prisma.PatientScalarFieldEnum[]
 }
 
 /**
