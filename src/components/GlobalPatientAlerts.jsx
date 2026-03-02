@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { AlertCircle, X, Activity } from 'lucide-react';
 
-export default function GlobalPatientAlerts({ highStressAlerts, patientId }) {
-  const { data, deviceStatus } = useMQTT();
+export default function GlobalPatientAlerts({ highStressAlerts, patientId, riskThreshold = 75, deviceMac }) {
+  const { data, deviceStatus } = useMQTT(deviceMac);
   
   const [showPopup, setShowPopup] = useState(false);
   const lastAlertTime = useRef(0);
@@ -57,7 +57,10 @@ export default function GlobalPatientAlerts({ highStressAlerts, patientId }) {
 
   // --- TRIGGER NOTIFICATIONS ---
   useEffect(() => {
-    if (highStressAlerts && data.risk_score > 70) {
+    const currentScore = Number(data.risk_score);
+    const threshold = Number(riskThreshold);
+
+    if (highStressAlerts && currentScore >= threshold) {
       const now = Date.now();
       
       if (now - lastAlertTime.current > ALERT_COOLDOWN) {
@@ -65,7 +68,7 @@ export default function GlobalPatientAlerts({ highStressAlerts, patientId }) {
         
         if ("Notification" in window && Notification.permission === "granted") {
           new Notification("KneuraSense Alert", {
-            body: `Critical knee stress detected (${data.risk_score}). Please rest immediately.`,
+            body: `Critical knee stress detected (${currentScore}). Please rest immediately.`,
             icon: "/favicon.ico"
           });
         }
@@ -74,7 +77,7 @@ export default function GlobalPatientAlerts({ highStressAlerts, patientId }) {
         setTimeout(() => setShowPopup(false), 15000);
       }
     }
-  }, [data.risk_score, highStressAlerts]);
+  }, [data.risk_score, highStressAlerts, riskThreshold]);
 
   if (!showPopup) return null;
 

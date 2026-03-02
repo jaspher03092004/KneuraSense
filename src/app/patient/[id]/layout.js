@@ -14,6 +14,8 @@ export default async function PatientLayout({ children, params }) {
       fullName: true,
       email: true,
       highStressAlerts: true, 
+      riskThreshold: true,
+      deviceMac: true,
     },
   });
   
@@ -27,6 +29,7 @@ export default async function PatientLayout({ children, params }) {
       <GlobalPatientAlerts 
          highStressAlerts={patient.highStressAlerts} 
          patientId={patient.id} 
+         riskThreshold={patient.riskThreshold}
       />
       {children}
       <KneuraBot />

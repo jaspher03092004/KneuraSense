@@ -16,9 +16,11 @@ export async function checkCriticalAlerts(clinicianId) {
 
     // 2. Fetch the latest sensor log for all patients
     const patients = await prisma.patient.findMany({
+      where: { clinicianId: clinicianId },
       select: {
         id: true,
         fullName: true,
+        riskThreshold: true, 
         sensorLogs: {
           orderBy: { timestamp: 'desc' },
           take: 1
@@ -29,14 +31,15 @@ export async function checkCriticalAlerts(clinicianId) {
     const now = new Date();
     const highRiskPatients = [];
 
-    // 3. Find patients who recently hit a score of 70+
     patients.forEach(patient => {
       const latestLog = patient.sensorLogs[0];
       if (latestLog) {
         const hoursSinceLastSync = (now - new Date(latestLog.timestamp)) / (1000 * 60 * 60);
         
-        // Only trigger if data is recent (within 24 hours) and score is critical
-        if (hoursSinceLastSync <= 24 && latestLog.riskScore >= 70) {
+        // 2. Compare against patient.riskThreshold INSTEAD OF 70
+        const threshold = patient.riskThreshold ?? 75;
+        
+        if (hoursSinceLastSync <= 24 && latestLog.riskScore >= threshold) {
           highRiskPatients.push({
             id: patient.id,
             name: patient.fullName,
@@ -46,7 +49,7 @@ export async function checkCriticalAlerts(clinicianId) {
       }
     });
 
-    return { alertsEnabled: true, patients: highRiskPatients };
+  return { alertsEnabled: true, patients: highRiskPatients };
   } catch (error) {
     console.error("Error checking critical alerts:", error);
     return { alertsEnabled: false, patients: [] };

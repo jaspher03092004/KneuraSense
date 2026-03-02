@@ -53,9 +53,11 @@ export default async function HistoryPage({ params, searchParams }) {
 
   const patientInfo = await prisma.patient.findUnique({
     where: { id },
-    select: { fullName: true }
+    select: { fullName: true, riskThreshold: true }
   });
   if (!patientInfo) redirect('/login');
+
+  const threshold = patientInfo.riskThreshold ?? 75;
 
   const totalLogsCount = await prisma.sensorLog.count({
     where: { patientId: id, timestamp: { gte: startDate, lte: endDate } }
@@ -77,7 +79,7 @@ export default async function HistoryPage({ params, searchParams }) {
   const totalPages = Math.ceil(totalLogsCount / itemsPerPage);
 
   const avgRisk = hasData ? Math.round(rawChartLogs.reduce((acc, log) => acc + log.riskScore, 0) / totalLogsCount) : 0;
-  const highRiskCount = rawChartLogs.filter(log => log.riskScore > 70).length;
+  const highRiskCount = rawChartLogs.filter(log => log.riskScore >= threshold).length;
   const avgTemp = hasData ? (rawChartLogs.reduce((acc, log) => acc + log.skinTemp, 0) / totalLogsCount).toFixed(1) : 0;
   
   const validBPMLogs = rawChartLogs.filter(log => log.bpm && log.bpm > 0);
@@ -111,7 +113,7 @@ export default async function HistoryPage({ params, searchParams }) {
     angle: `${log.angle.toFixed(1)}°`,
     bpm: log.bpm && log.bpm > 0 ? `${log.bpm} bpm` : '--',
     temp: `${log.skinTemp.toFixed(1)}°C`,
-    status: log.riskScore > 70 ? 'High' : log.riskScore > 40 ? 'Medium' : 'Low'
+    status: log.riskScore >= threshold ? 'High' : log.riskScore >= (threshold - 15) ? 'Medium' : 'Low'
   }));
 
   return (
@@ -181,7 +183,7 @@ export default async function HistoryPage({ params, searchParams }) {
                 </div>
               </div>
               <div className="aspect-[4/3] w-full min-w-0 rounded-2xl border-2 border-slate-50 dark:border-slate-800/50 bg-white dark:bg-slate-900 md:aspect-[4/1]">
-                 <HistoryCharts data={chartData} /> 
+                 <HistoryCharts data={chartData} riskThreshold={threshold} />
               </div>
             </section>
 

@@ -12,11 +12,10 @@ const EmptyChart = () => (
 );
 
 const CriticalEventDot = (props) => {
-  const { cx, cy, payload } = props;
-  // Support both 'score' and 'risk' depending on which chart calls it
+  const { cx, cy, payload, threshold = 75 } = props;
   const riskValue = payload.risk !== undefined ? payload.risk : payload.score;
   
-  if (riskValue >= 70) {
+  if (riskValue >= threshold) {
     return <circle cx={cx} cy={cy} r={4} stroke="white" strokeWidth={1.5} fill="#f43f5e" className="animate-pulse" />;
   }
   return null;
@@ -37,11 +36,11 @@ const CustomTooltip = ({ active, payload, unit }) => {
   return null;
 };
 
-const CustomRiskTooltip = ({ active, payload, label }) => {
+const CustomRiskTooltip = ({ active, payload, label, threshold = 75 }) => {
   if (active && payload && payload.length) {
     const data = payload[0].payload;
     const score = data.score !== undefined ? data.score : data.risk;
-    const isCritical = score >= 70;
+    const isCritical = score >= threshold;
 
     return (
       <div className="bg-white dark:bg-slate-900 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 dark:border-slate-800 min-w-[160px] transition-colors duration-300">
@@ -95,7 +94,7 @@ const CustomScatterTooltip = ({ active, payload }) => {
 
 // 1. ORIGINAL CHARTS (Kept for Patient Views)
 
-export default function HistoryCharts({ data }) {
+export default function HistoryCharts({ data, riskThreshold = 75 }) {
   if (!data || data.length === 0) return <EmptyChart />;
 
   return (
@@ -112,9 +111,9 @@ export default function HistoryCharts({ data }) {
           <XAxis dataKey="time" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
           <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} domain={[0, 100]} />
           
-          <Tooltip content={<CustomRiskTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
+          <Tooltip content={<CustomRiskTooltip threshold={riskThreshold} />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
           
-          <ReferenceLine y={70} stroke="orange" strokeDasharray="3 3" strokeOpacity={0.5} />
+          <ReferenceLine y={riskThreshold} stroke="orange" strokeDasharray="3 3" strokeOpacity={0.5} />
           <Area 
             type="monotone" 
             dataKey={data[0]?.score !== undefined ? "score" : "risk"} 
