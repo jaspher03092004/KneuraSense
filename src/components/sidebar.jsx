@@ -6,7 +6,7 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { 
   Activity, TrendingUp, ListTodo, BarChart3, ChevronDown, User, Settings,
-  HelpCircle, LogOut, Shield, FileText, Menu, X, Moon, Sun
+  HelpCircle, LogOut, Shield, FileText, Menu, X, Moon, Sun, Users
 } from 'lucide-react';
 
 const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
@@ -58,9 +58,10 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
 
   // Clinician menu items
   const clinicianMainMenuItems = [
-    { icon: Activity, label: 'Patient Dashboard', href: `/clinician/${user?.id}/dashboard` },
+    { icon: Activity, label: 'Dashboard', href: `/clinician/${user?.id}/dashboard` },
     { icon: BarChart3, label: 'Data Analytics', href: `/clinician/${user?.id}/analytics` },          
-    { icon: ListTodo, label: 'Interventions', href: `/clinician/${user?.id}/interventions` },    
+    { icon: ListTodo, label: 'Interventions', href: `/clinician/${user?.id}/interventions` },
+    { icon: Users, label: 'Patient Management', href: `/clinician/${user?.id}/patients` },
   ];
 
   const clinicianManagementItems = [

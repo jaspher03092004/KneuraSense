@@ -25,6 +25,7 @@ model Clinician {
   auditLogs AuditLog[]
   interventions Intervention[]
   isVerified    Boolean  @default(false)
+  patients       Patient[]
 }
 
 model Patient {
@@ -49,7 +50,10 @@ model Patient {
   vibrationEnabled   Boolean  @default(true)
   vibrationIntensity Int      @default(2)
   ledEnabled         Boolean  @default(true)
+  riskThreshold      Int      @default(75)
   deviceMac   String?  @unique
+  clinicianId        String?
+  clinician          Clinician? @relation(fields: [clinicianId], references: [clinician_id])
 }
 
 model SensorLog {

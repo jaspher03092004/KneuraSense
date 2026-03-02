@@ -9,9 +9,9 @@ export function useMQTT(deviceMac) {
   const [deviceStatus, setDeviceStatus] = useState("Offline"); 
   const [lastPacketTime, setLastPacketTime] = useState(0);
   const lastUpdateTime = useRef(0);
+  const clientRef = useRef(null); 
 
   useEffect(() => {
-    // 1. DEBUG: Check if the MAC address made it from the database to the hook
     console.log("[MQTT Setup] Received MAC Address:", deviceMac);
 
     if (!deviceMac) {
@@ -35,6 +35,8 @@ export function useMQTT(deviceMac) {
       reconnectPeriod: 2000,
     });
 
+    clientRef.current = client;
+
     client.on('connect', () => {
       console.log(`[MQTT Status] Successfully connected to HiveMQ Cloud!`);
       if (!client.disconnecting) {
@@ -50,9 +52,6 @@ export function useMQTT(deviceMac) {
     });
 
     client.on('message', (topic, message) => {
-      // 2. DEBUG: Print every single message that arrives
-      console.log(`[MQTT Data] Packet received on ${topic}:`, message.toString());
-      
       if (topic === TOPIC) {
         try {
           const payload = JSON.parse(message.toString());
@@ -87,5 +86,16 @@ export function useMQTT(deviceMac) {
     return () => clearInterval(watchdog);
   }, [lastPacketTime]);
 
-  return { data, deviceStatus, lastPacketTime };
+  const sendCommand = (commandString) => {
+    if (clientRef.current && clientRef.current.connected) {
+      const commandTopic = `esp32/${deviceMac}/command`;
+      clientRef.current.publish(commandTopic, commandString);
+      console.log(`[MQTT Command] Sent "${commandString}" to ${commandTopic}`);
+      return true;
+    }
+    console.warn("[MQTT Command] Cannot send command, client is disconnected.");
+    return false;
+  };
+
+  return { data, deviceStatus, lastPacketTime, sendCommand };
 }

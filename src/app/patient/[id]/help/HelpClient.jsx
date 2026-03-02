@@ -22,16 +22,17 @@ export default function HelpClient({ patient, latestLog }) {
 
   const categories = [
     { title: "Wi-Fi & Connection", icon: Wifi, desc: "Provisioning, offline mode, and network setup." },
-    { title: "Using the Dashboard", icon: Smartphone, desc: "Navigating your stress score and history." },
+    { title: "Using the Dashboard", icon: Smartphone, desc: "Navigating your stress score, calibration, and history." },
     { title: "Understanding Alerts", icon: ShieldAlert, desc: "Haptic feedback and LED statuses." },
     { title: "Account & Export", icon: BookOpen, desc: "Data export and profile settings." }
   ];
 
   const allFaqs = [
+    { q: "How do I calibrate or zero my sensors?", a: "To ensure your knee angle readings are completely accurate, you must calibrate the sensors while wearing the device. Go to your Live Telemetry Dashboard and click 'SET STANDING BASELINE'. Stand perfectly straight with your weight evenly distributed, and remain completely still for 5 seconds until you see the success message. This establishes your personal 0-degree baseline." },
     { q: "How do I connect my KneuraSense device to Wi-Fi?", a: "When the device is in Provisioning Mode (indicated by a blinking yellow LED), you can interact with it via the mobile app or captive portal to input your local Wi-Fi SSID and password." },
     { q: "What do the different LED light colors mean?", a: "Green indicates a 'safe' status. Yellow/Amber serves as a 'caution' warning or calibration mode. Red signifies a 'high stress' alert and triggers the vibration motor. Blue is used for system status, such as when the device is booting up." },
     { q: "How is my Overuse Risk Score calculated?", a: "The Edge AI model computes your score by combining biomechanical data (from the dual IMUs and FSR) and physiological data (from the PPG and temperature sensors), which is then dynamically adjusted based on environmental factors like terrain and weather." },
-    { q: "What happens if I lose my Wi-Fi connection?", a: "If the Wi-Fi connection fails, the device automatically activates an 'Offline Mode'. It will continue to monitor your knee stress and save the sensor logs to its internal memory (SPIFFS). The data will sync to the cloud once connectivity is restored." },
+    { q: "What happens if I lose my Wi-Fi connection?", a: "If the Wi-Fi connection fails, the device automatically activates an 'Offline Mode'. It will continue to monitor your knee stress and save the sensor logs to its internal memory. The data will sync to the cloud once connectivity is restored." },
     { q: "How does the vibration alert work?", a: "The vibration motor provides immediate haptic feedback (buzzing) whenever your overuse risk score exceeds the context-adjusted threshold, prompting you to reduce load immediately." },
     { q: "Can I export my data to show my doctor?", a: "Yes. The Web Dashboard features a 'History & Export' module where you can review your long-term data trends and export them for your clinician to review." }
   ];
@@ -41,7 +42,6 @@ export default function HelpClient({ patient, latestLog }) {
     faq.a.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Helper function to highlight search terms
   const highlightText = (text, highlight) => {
     if (!highlight.trim()) return text;
     const regex = new RegExp(`(${highlight})`, 'gi');
@@ -59,7 +59,6 @@ export default function HelpClient({ patient, latestLog }) {
 
   return (
     <div className="pb-16 pt-8">
-      {/* Clean, Minimalist Hero Search Section */}
       <div className="px-6 text-center max-w-4xl mx-auto mb-12">
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-5">
           Hi {patient?.fullName?.split(' ')[0] || 'User'}, how can we help?
@@ -76,19 +75,15 @@ export default function HelpClient({ patient, latestLog }) {
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for 'Wi-Fi', 'LED', 'Risk Score'..." 
+            placeholder="Search for 'Wi-Fi', 'Calibrate', 'Risk Score'..." 
             className="w-full pl-16 pr-24 py-5 bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-2xl text-lg text-slate-900 dark:text-white shadow-sm hover:border-slate-300 dark:hover:border-slate-700 focus:outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-4 focus:ring-[#2D5F8B]/10 dark:focus:ring-blue-500/10 transition-all placeholder:text-slate-400"
           />
         </div>
       </div>
 
       <div className="max-w-6xl mx-auto px-6 space-y-8">
-        
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           
            <div className="lg:col-span-2 space-y-8">
-              {/* Conditional Rendering: Show Categories if NOT searching */}
               {!searchQuery && (
                 <div>
                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4">Browse Topics</h3>
@@ -106,7 +101,6 @@ export default function HelpClient({ patient, latestLog }) {
                 </div>
               )}
 
-              {/* FAQs / Search Results WITH HIGHLIGHTING */}
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                  <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2">
                     <HelpCircle className="text-[#2D5F8B] dark:text-blue-400" size={20} />
@@ -138,10 +132,7 @@ export default function HelpClient({ patient, latestLog }) {
               </div>
            </div>
 
-           {/* Sidebar: Self Service & Contact */}
            <div className="space-y-6">
-              
-              {/* Resources Card */}
               <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
                  <h3 className="font-bold text-slate-900 dark:text-white mb-4">Resources</h3>
                  <div className="space-y-3">
@@ -162,11 +153,9 @@ export default function HelpClient({ patient, latestLog }) {
                  </div>
               </div>
 
-              {/* Escalation / Contact Card */}
               <div className="bg-[#E9F0F5] dark:bg-slate-800 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
                  <h3 className="font-bold text-slate-900 dark:text-white mb-2">Still need help?</h3>
                  <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">Our support team is available Monday to Friday, 9AM to 5PM PHT.</p>
-                 
                  <div className="space-y-3">
                     <a href={`mailto:support@kneurasense.com?subject=Support Request - ${patient?.fullName || 'User'}`} className="flex items-center justify-center gap-2 w-full py-3 bg-[#2D5F8B] hover:bg-[#1f4263] dark:bg-blue-600 dark:hover:bg-blue-700 text-white rounded-xl font-medium transition-colors shadow-sm">
                        <Mail size={18} /> Email Support
@@ -176,7 +165,6 @@ export default function HelpClient({ patient, latestLog }) {
                     </a>
                  </div>
               </div>
-
            </div>
         </div>
       </div>

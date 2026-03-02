@@ -30,12 +30,14 @@ export type PatientAvgAggregateOutputType = {
   age: number | null
   painSeverity: number | null
   vibrationIntensity: number | null
+  riskThreshold: number | null
 }
 
 export type PatientSumAggregateOutputType = {
   age: number | null
   painSeverity: number | null
   vibrationIntensity: number | null
+  riskThreshold: number | null
 }
 
 export type PatientMinAggregateOutputType = {
@@ -58,7 +60,9 @@ export type PatientMinAggregateOutputType = {
   vibrationEnabled: boolean | null
   vibrationIntensity: number | null
   ledEnabled: boolean | null
+  riskThreshold: number | null
   deviceMac: string | null
+  clinicianId: string | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -81,7 +85,9 @@ export type PatientMaxAggregateOutputType = {
   vibrationEnabled: boolean | null
   vibrationIntensity: number | null
   ledEnabled: boolean | null
+  riskThreshold: number | null
   deviceMac: string | null
+  clinicianId: string | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -104,7 +110,9 @@ export type PatientCountAggregateOutputType = {
   vibrationEnabled: number
   vibrationIntensity: number
   ledEnabled: number
+  riskThreshold: number
   deviceMac: number
+  clinicianId: number
   _all: number
 }
 
@@ -113,12 +121,14 @@ export type PatientAvgAggregateInputType = {
   age?: true
   painSeverity?: true
   vibrationIntensity?: true
+  riskThreshold?: true
 }
 
 export type PatientSumAggregateInputType = {
   age?: true
   painSeverity?: true
   vibrationIntensity?: true
+  riskThreshold?: true
 }
 
 export type PatientMinAggregateInputType = {
@@ -141,7 +151,9 @@ export type PatientMinAggregateInputType = {
   vibrationEnabled?: true
   vibrationIntensity?: true
   ledEnabled?: true
+  riskThreshold?: true
   deviceMac?: true
+  clinicianId?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -164,7 +176,9 @@ export type PatientMaxAggregateInputType = {
   vibrationEnabled?: true
   vibrationIntensity?: true
   ledEnabled?: true
+  riskThreshold?: true
   deviceMac?: true
+  clinicianId?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -187,7 +201,9 @@ export type PatientCountAggregateInputType = {
   vibrationEnabled?: true
   vibrationIntensity?: true
   ledEnabled?: true
+  riskThreshold?: true
   deviceMac?: true
+  clinicianId?: true
   _all?: true
 }
 
@@ -297,7 +313,9 @@ export type PatientGroupByOutputType = {
   vibrationEnabled: boolean
   vibrationIntensity: number
   ledEnabled: boolean
+  riskThreshold: number
   deviceMac: string | null
+  clinicianId: string | null
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -343,9 +361,12 @@ export type PatientWhereInput = {
   vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
   ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  riskThreshold?: Prisma.IntFilter<"Patient"> | number
   deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
+  clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
+  clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
 }
 
 export type PatientOrderByWithRelationInput = {
@@ -368,9 +389,12 @@ export type PatientOrderByWithRelationInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
+  clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
+  clinician?: Prisma.ClinicianOrderByWithRelationInput
 }
 
 export type PatientWhereUniqueInput = Prisma.AtLeast<{
@@ -397,8 +421,11 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
   ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  riskThreshold?: Prisma.IntFilter<"Patient"> | number
+  clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
+  clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
 }, "id" | "phoneNumber" | "email" | "deviceMac">
 
 export type PatientOrderByWithAggregationInput = {
@@ -421,7 +448,9 @@ export type PatientOrderByWithAggregationInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
+  clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -452,7 +481,9 @@ export type PatientScalarWhereWithAggregatesInput = {
   vibrationEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
   vibrationIntensity?: Prisma.IntWithAggregatesFilter<"Patient"> | number
   ledEnabled?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  riskThreshold?: Prisma.IntWithAggregatesFilter<"Patient"> | number
   deviceMac?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  clinicianId?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
 }
 
 export type PatientCreateInput = {
@@ -475,9 +506,11 @@ export type PatientCreateInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
+  clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
 
 export type PatientUncheckedCreateInput = {
@@ -500,7 +533,9 @@ export type PatientUncheckedCreateInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
+  clinicianId?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -525,9 +560,11 @@ export type PatientUpdateInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
+  clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
 
 export type PatientUncheckedUpdateInput = {
@@ -550,7 +587,9 @@ export type PatientUncheckedUpdateInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -575,7 +614,9 @@ export type PatientCreateManyInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
+  clinicianId?: string | null
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -598,6 +639,7 @@ export type PatientUpdateManyMutationInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -621,7 +663,19 @@ export type PatientUncheckedUpdateManyInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type PatientListRelationFilter = {
+  every?: Prisma.PatientWhereInput
+  some?: Prisma.PatientWhereInput
+  none?: Prisma.PatientWhereInput
+}
+
+export type PatientOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type PatientCountOrderByAggregateInput = {
@@ -644,13 +698,16 @@ export type PatientCountOrderByAggregateInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrder
+  clinicianId?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
   age?: Prisma.SortOrder
   painSeverity?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
 }
 
 export type PatientMaxOrderByAggregateInput = {
@@ -673,7 +730,9 @@ export type PatientMaxOrderByAggregateInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrder
+  clinicianId?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -696,18 +755,63 @@ export type PatientMinOrderByAggregateInput = {
   vibrationEnabled?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   ledEnabled?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrder
+  clinicianId?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
   painSeverity?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
+  riskThreshold?: Prisma.SortOrder
 }
 
 export type PatientScalarRelationFilter = {
   is?: Prisma.PatientWhereInput
   isNot?: Prisma.PatientWhereInput
+}
+
+export type PatientCreateNestedManyWithoutClinicianInput = {
+  create?: Prisma.XOR<Prisma.PatientCreateWithoutClinicianInput, Prisma.PatientUncheckedCreateWithoutClinicianInput> | Prisma.PatientCreateWithoutClinicianInput[] | Prisma.PatientUncheckedCreateWithoutClinicianInput[]
+  connectOrCreate?: Prisma.PatientCreateOrConnectWithoutClinicianInput | Prisma.PatientCreateOrConnectWithoutClinicianInput[]
+  createMany?: Prisma.PatientCreateManyClinicianInputEnvelope
+  connect?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+}
+
+export type PatientUncheckedCreateNestedManyWithoutClinicianInput = {
+  create?: Prisma.XOR<Prisma.PatientCreateWithoutClinicianInput, Prisma.PatientUncheckedCreateWithoutClinicianInput> | Prisma.PatientCreateWithoutClinicianInput[] | Prisma.PatientUncheckedCreateWithoutClinicianInput[]
+  connectOrCreate?: Prisma.PatientCreateOrConnectWithoutClinicianInput | Prisma.PatientCreateOrConnectWithoutClinicianInput[]
+  createMany?: Prisma.PatientCreateManyClinicianInputEnvelope
+  connect?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+}
+
+export type PatientUpdateManyWithoutClinicianNestedInput = {
+  create?: Prisma.XOR<Prisma.PatientCreateWithoutClinicianInput, Prisma.PatientUncheckedCreateWithoutClinicianInput> | Prisma.PatientCreateWithoutClinicianInput[] | Prisma.PatientUncheckedCreateWithoutClinicianInput[]
+  connectOrCreate?: Prisma.PatientCreateOrConnectWithoutClinicianInput | Prisma.PatientCreateOrConnectWithoutClinicianInput[]
+  upsert?: Prisma.PatientUpsertWithWhereUniqueWithoutClinicianInput | Prisma.PatientUpsertWithWhereUniqueWithoutClinicianInput[]
+  createMany?: Prisma.PatientCreateManyClinicianInputEnvelope
+  set?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  disconnect?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  delete?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  connect?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  update?: Prisma.PatientUpdateWithWhereUniqueWithoutClinicianInput | Prisma.PatientUpdateWithWhereUniqueWithoutClinicianInput[]
+  updateMany?: Prisma.PatientUpdateManyWithWhereWithoutClinicianInput | Prisma.PatientUpdateManyWithWhereWithoutClinicianInput[]
+  deleteMany?: Prisma.PatientScalarWhereInput | Prisma.PatientScalarWhereInput[]
+}
+
+export type PatientUncheckedUpdateManyWithoutClinicianNestedInput = {
+  create?: Prisma.XOR<Prisma.PatientCreateWithoutClinicianInput, Prisma.PatientUncheckedCreateWithoutClinicianInput> | Prisma.PatientCreateWithoutClinicianInput[] | Prisma.PatientUncheckedCreateWithoutClinicianInput[]
+  connectOrCreate?: Prisma.PatientCreateOrConnectWithoutClinicianInput | Prisma.PatientCreateOrConnectWithoutClinicianInput[]
+  upsert?: Prisma.PatientUpsertWithWhereUniqueWithoutClinicianInput | Prisma.PatientUpsertWithWhereUniqueWithoutClinicianInput[]
+  createMany?: Prisma.PatientCreateManyClinicianInputEnvelope
+  set?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  disconnect?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  delete?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  connect?: Prisma.PatientWhereUniqueInput | Prisma.PatientWhereUniqueInput[]
+  update?: Prisma.PatientUpdateWithWhereUniqueWithoutClinicianInput | Prisma.PatientUpdateWithWhereUniqueWithoutClinicianInput[]
+  updateMany?: Prisma.PatientUpdateManyWithWhereWithoutClinicianInput | Prisma.PatientUpdateManyWithWhereWithoutClinicianInput[]
+  deleteMany?: Prisma.PatientScalarWhereInput | Prisma.PatientScalarWhereInput[]
 }
 
 export type NullableIntFieldUpdateOperationsInput = {
@@ -758,6 +862,112 @@ export type PatientUpdateOneRequiredWithoutInterventionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PatientUpdateToOneWithWhereWithoutInterventionsInput, Prisma.PatientUpdateWithoutInterventionsInput>, Prisma.PatientUncheckedUpdateWithoutInterventionsInput>
 }
 
+export type PatientCreateWithoutClinicianInput = {
+  id?: string
+  fullName: string
+  age?: number | null
+  gender?: string | null
+  phoneNumber: string
+  email: string
+  passwordHash: string
+  oaDiagnosis?: boolean
+  affectedKnee?: string | null
+  painSeverity?: number | null
+  occupation?: string | null
+  activityLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
+  riskThreshold?: number
+  deviceMac?: string | null
+  sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
+  interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
+}
+
+export type PatientUncheckedCreateWithoutClinicianInput = {
+  id?: string
+  fullName: string
+  age?: number | null
+  gender?: string | null
+  phoneNumber: string
+  email: string
+  passwordHash: string
+  oaDiagnosis?: boolean
+  affectedKnee?: string | null
+  painSeverity?: number | null
+  occupation?: string | null
+  activityLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
+  riskThreshold?: number
+  deviceMac?: string | null
+  sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
+  interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
+}
+
+export type PatientCreateOrConnectWithoutClinicianInput = {
+  where: Prisma.PatientWhereUniqueInput
+  create: Prisma.XOR<Prisma.PatientCreateWithoutClinicianInput, Prisma.PatientUncheckedCreateWithoutClinicianInput>
+}
+
+export type PatientCreateManyClinicianInputEnvelope = {
+  data: Prisma.PatientCreateManyClinicianInput | Prisma.PatientCreateManyClinicianInput[]
+  skipDuplicates?: boolean
+}
+
+export type PatientUpsertWithWhereUniqueWithoutClinicianInput = {
+  where: Prisma.PatientWhereUniqueInput
+  update: Prisma.XOR<Prisma.PatientUpdateWithoutClinicianInput, Prisma.PatientUncheckedUpdateWithoutClinicianInput>
+  create: Prisma.XOR<Prisma.PatientCreateWithoutClinicianInput, Prisma.PatientUncheckedCreateWithoutClinicianInput>
+}
+
+export type PatientUpdateWithWhereUniqueWithoutClinicianInput = {
+  where: Prisma.PatientWhereUniqueInput
+  data: Prisma.XOR<Prisma.PatientUpdateWithoutClinicianInput, Prisma.PatientUncheckedUpdateWithoutClinicianInput>
+}
+
+export type PatientUpdateManyWithWhereWithoutClinicianInput = {
+  where: Prisma.PatientScalarWhereInput
+  data: Prisma.XOR<Prisma.PatientUpdateManyMutationInput, Prisma.PatientUncheckedUpdateManyWithoutClinicianInput>
+}
+
+export type PatientScalarWhereInput = {
+  AND?: Prisma.PatientScalarWhereInput | Prisma.PatientScalarWhereInput[]
+  OR?: Prisma.PatientScalarWhereInput[]
+  NOT?: Prisma.PatientScalarWhereInput | Prisma.PatientScalarWhereInput[]
+  id?: Prisma.StringFilter<"Patient"> | string
+  fullName?: Prisma.StringFilter<"Patient"> | string
+  age?: Prisma.IntNullableFilter<"Patient"> | number | null
+  gender?: Prisma.StringNullableFilter<"Patient"> | string | null
+  phoneNumber?: Prisma.StringFilter<"Patient"> | string
+  email?: Prisma.StringFilter<"Patient"> | string
+  passwordHash?: Prisma.StringFilter<"Patient"> | string
+  oaDiagnosis?: Prisma.BoolFilter<"Patient"> | boolean
+  affectedKnee?: Prisma.StringNullableFilter<"Patient"> | string | null
+  painSeverity?: Prisma.IntNullableFilter<"Patient"> | number | null
+  occupation?: Prisma.StringNullableFilter<"Patient"> | string | null
+  activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
+  isVerified?: Prisma.BoolFilter<"Patient"> | boolean
+  highStressAlerts?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  vibrationIntensity?: Prisma.IntFilter<"Patient"> | number
+  ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
+  riskThreshold?: Prisma.IntFilter<"Patient"> | number
+  deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
+  clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
+}
+
 export type PatientCreateWithoutSensorLogsInput = {
   id?: string
   fullName: string
@@ -778,8 +988,10 @@ export type PatientCreateWithoutSensorLogsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
+  clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
 
 export type PatientUncheckedCreateWithoutSensorLogsInput = {
@@ -802,7 +1014,9 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
+  clinicianId?: string | null
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -842,8 +1056,10 @@ export type PatientUpdateWithoutSensorLogsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
+  clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
 
 export type PatientUncheckedUpdateWithoutSensorLogsInput = {
@@ -866,7 +1082,9 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -890,8 +1108,10 @@ export type PatientCreateWithoutInterventionsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
+  clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
 
 export type PatientUncheckedCreateWithoutInterventionsInput = {
@@ -914,7 +1134,9 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   vibrationEnabled?: boolean
   vibrationIntensity?: number
   ledEnabled?: boolean
+  riskThreshold?: number
   deviceMac?: string | null
+  clinicianId?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -954,8 +1176,10 @@ export type PatientUpdateWithoutInterventionsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
+  clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
 
 export type PatientUncheckedUpdateWithoutInterventionsInput = {
@@ -978,8 +1202,110 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
+}
+
+export type PatientCreateManyClinicianInput = {
+  id?: string
+  fullName: string
+  age?: number | null
+  gender?: string | null
+  phoneNumber: string
+  email: string
+  passwordHash: string
+  oaDiagnosis?: boolean
+  affectedKnee?: string | null
+  painSeverity?: number | null
+  occupation?: string | null
+  activityLevel?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  isVerified?: boolean
+  highStressAlerts?: boolean
+  vibrationEnabled?: boolean
+  vibrationIntensity?: number
+  ledEnabled?: boolean
+  riskThreshold?: number
+  deviceMac?: string | null
+}
+
+export type PatientUpdateWithoutClinicianInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
+  interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
+}
+
+export type PatientUncheckedUpdateWithoutClinicianInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
+  interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
+}
+
+export type PatientUncheckedUpdateManyWithoutClinicianInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.StringFieldUpdateOperationsInput | string
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  highStressAlerts?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  vibrationIntensity?: Prisma.IntFieldUpdateOperationsInput | number
+  ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
+  deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1042,9 +1368,12 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  riskThreshold?: boolean
   deviceMac?: boolean
+  clinicianId?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
+  clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
@@ -1068,7 +1397,10 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  riskThreshold?: boolean
   deviceMac?: boolean
+  clinicianId?: boolean
+  clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1091,7 +1423,10 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  riskThreshold?: boolean
   deviceMac?: boolean
+  clinicianId?: boolean
+  clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
 export type PatientSelectScalar = {
@@ -1114,23 +1449,31 @@ export type PatientSelectScalar = {
   vibrationEnabled?: boolean
   vibrationIntensity?: boolean
   ledEnabled?: boolean
+  riskThreshold?: boolean
   deviceMac?: boolean
+  clinicianId?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "deviceMac", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
+  clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
   _count?: boolean | Prisma.PatientCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type PatientIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type PatientIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type PatientIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
+}
+export type PatientIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
+}
 
 export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Patient"
   objects: {
     sensorLogs: Prisma.$SensorLogPayload<ExtArgs>[]
     interventions: Prisma.$InterventionPayload<ExtArgs>[]
+    clinician: Prisma.$ClinicianPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1152,7 +1495,9 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     vibrationEnabled: boolean
     vibrationIntensity: number
     ledEnabled: boolean
+    riskThreshold: number
     deviceMac: string | null
+    clinicianId: string | null
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1549,6 +1894,7 @@ export interface Prisma__PatientClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   sensorLogs<T extends Prisma.Patient$sensorLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Patient$sensorLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SensorLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   interventions<T extends Prisma.Patient$interventionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Patient$interventionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InterventionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  clinician<T extends Prisma.Patient$clinicianArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Patient$clinicianArgs<ExtArgs>>): Prisma.Prisma__ClinicianClient<runtime.Types.Result.GetResult<Prisma.$ClinicianPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1597,7 +1943,9 @@ export interface PatientFieldRefs {
   readonly vibrationEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
   readonly vibrationIntensity: Prisma.FieldRef<"Patient", 'Int'>
   readonly ledEnabled: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly riskThreshold: Prisma.FieldRef<"Patient", 'Int'>
   readonly deviceMac: Prisma.FieldRef<"Patient", 'String'>
+  readonly clinicianId: Prisma.FieldRef<"Patient", 'String'>
 }
     
 
@@ -1847,6 +2195,10 @@ export type PatientCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    */
   data: Prisma.PatientCreateManyInput | Prisma.PatientCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PatientIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1917,6 +2269,10 @@ export type PatientUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * Limit how many Patients to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PatientIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -2031,6 +2387,25 @@ export type Patient$interventionsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.InterventionScalarFieldEnum | Prisma.InterventionScalarFieldEnum[]
+}
+
+/**
+ * Patient.clinician
+ */
+export type Patient$clinicianArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Clinician
+   */
+  select?: Prisma.ClinicianSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Clinician
+   */
+  omit?: Prisma.ClinicianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  where?: Prisma.ClinicianWhereInput
 }
 
 /**

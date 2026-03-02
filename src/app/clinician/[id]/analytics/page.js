@@ -12,6 +12,9 @@ export default async function AnalyticsPage({ params, searchParams }) {
   const end = resolvedSearchParams.end;
 
   const allPatients = await prisma.patient.findMany({
+    where: {
+      clinicianId: clinicianId
+    },
     select: { id: true, fullName: true, age: true, oaDiagnosis: true },
     orderBy: { fullName: 'asc' }
   });

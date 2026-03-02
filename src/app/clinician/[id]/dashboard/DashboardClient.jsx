@@ -1,40 +1,26 @@
 "use client";
 
 import { useMemo, useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { patientRegistrationSchema } from '@/lib/validations';
+import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 import PrivacyMask from '@/components/PrivacyMask';
-import SmartDashboard from '@/components/SmartDashboard';
-import { clinicianRegisterPatient } from '@/actions/clinicianRegisterPatient';
 import {
-  Search, Filter, Users, Activity, AlertCircle, WifiOff, Plus, ChevronLeft,
-  ChevronRight, X, Clock, AlertTriangle, CheckCircle, Download, Loader2, ArrowRight
+  Search, Users, Activity, WifiOff, ChevronLeft, ChevronRight, AlertTriangle, Eye
 } from 'lucide-react';
 
 export default function DashboardClient({ clinician, initialPatients, stats }) {
   const router = useRouter();
+  const params = useParams();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 6;
 
-  const [showModal, setShowModal] = useState(false);
-  const [selectedPatient, setSelectedPatient] = useState(null);
-  const [registrationMessage, setRegistrationMessage] = useState({ type: '', text: '' });
-  
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm({
-    resolver: zodResolver(patientRegistrationSchema),
-    // Added deviceMac to defaultValues
-    defaultValues: { oaDiagnosis: 'No', gender: '', affectedKnee: '', activityLevel: '', deviceMac: '' }
-  });
-
   const isCompact = clinician?.compactView || false;
 
   // --- AUTO REFRESH DASHBOARD ---
-  // Silently fetches new data from the database every 5 seconds
+  // Refreshes the server component data every 5 seconds to keep telemetry fresh
   useEffect(() => {
     const interval = setInterval(() => {
       router.refresh(); 
@@ -43,6 +29,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
     return () => clearInterval(interval);
   }, [router]);
 
+  // --- FILTERS & STATS CONFIG ---
   const filters = [
     { id: 'all', label: 'All Patients', count: initialPatients.length },
     { id: 'high-risk', label: 'High Risk', count: initialPatients.filter(p => p.status === 'high-risk').length },
@@ -67,6 +54,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
     return 'text-emerald-500 dark:text-emerald-400';
   };
 
+  // --- SEARCH, FILTER & PAGINATION LOGIC ---
   const filteredPatients = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     return initialPatients.filter((p) => {
@@ -77,65 +65,14 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
   }, [initialPatients, searchQuery, selectedFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredPatients.length / pageSize));
+  
   const paginated = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
     return filteredPatients.slice(start, start + pageSize);
   }, [filteredPatients, currentPage]);
 
+  // Prevent getting stuck on an empty page after filtering
   if (currentPage > totalPages && totalPages > 0) setCurrentPage(1);
-
-  const handleExport = () => {
-    if (filteredPatients.length === 0) {
-      alert("No patient data to export.");
-      return;
-    }
-
-    const headers = ['Patient ID', 'Name', 'Age', 'Status', 'Risk Score', 'Last Active', 'Last Sensor Sync'];
-    const rows = filteredPatients.map(p => [
-      p.id, `"${p.name}"`, p.age, `"${p.status}"`, p.score, `"${p.lastActive}"`,
-      `"${p.lastSensorSync ? new Date(p.lastSensorSync).toLocaleString() : 'N/A'}"`
-    ]);
-
-    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    
-    const dateStr = new Date().toISOString().split('T')[0];
-    link.setAttribute('href', url);
-    link.setAttribute('download', `patient_telemetry_export_${dateStr}.csv`);
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  const onSubmit = async (data) => {
-    setRegistrationMessage({ type: '', text: '' });
-    try {
-      const formDataObj = new FormData();
-      Object.keys(data).forEach((key) => {
-        if (data[key] !== undefined && data[key] !== null) formDataObj.append(key, data[key]);
-      });
-
-      const result = await clinicianRegisterPatient(formDataObj);
-
-      if (result.success) {
-        setRegistrationMessage({ type: 'success', text: 'Patient registered successfully!' });
-        setTimeout(() => {
-          setShowModal(false);
-          reset();
-          setRegistrationMessage({ type: '', text: '' });
-          window.location.reload(); 
-        }, 1500);
-      } else {
-        setRegistrationMessage({ type: 'error', text: `Error: ${result.error || 'Registration failed'}` });
-      }
-    } catch (error) {
-      console.error(error); 
-      setRegistrationMessage({ type: 'error', text: 'An error occurred during registration.' });
-    }
-  };
 
   return (
     <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans antialiased overflow-x-hidden p-4 md:p-8 relative">
@@ -145,17 +82,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
         <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">Clinician Portal</h1>
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Monitor knee health telemetry and manage your patients</p>
-          </div>
-          <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:items-center">
-            <button onClick={handleExport} className="flex w-full md:w-auto items-center justify-center gap-2 px-4 md:px-6 py-2.5 bg-white dark:bg-slate-900 rounded-xl md:rounded-full border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors shadow-sm text-xs md:text-sm whitespace-nowrap">
-              <Download size={16} />
-              Export Data
-            </button>
-            <button onClick={() => setShowModal(true)} className="flex w-full md:w-auto items-center justify-center gap-2 px-4 md:px-6 py-2.5 bg-slate-900 dark:bg-blue-600 rounded-xl md:rounded-full text-white font-bold hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors shadow-sm text-xs md:text-sm whitespace-nowrap">
-              <Plus size={16} strokeWidth={3} />
-              New Patient
-            </button>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Monitor knee health telemetry across your active roster</p>
           </div>
         </header>
 
@@ -223,8 +150,13 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
         {/* Patient Directory Table & Cards */}
         <section className="overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
           <div className="border-b border-slate-50 dark:border-slate-800 p-4 md:p-5 flex justify-between items-center">
-            <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">Patient Directory</h3>
-            <span className="text-[10px] md:text-xs font-medium text-slate-400 dark:text-slate-500">Showing {filteredPatients.length} records</span>
+            <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">Patient List</h3>
+            <div className="flex items-center gap-4">
+              <span className="text-[10px] md:text-xs font-medium text-slate-400 dark:text-slate-500">Showing {filteredPatients.length} records</span>
+              <Link href={`/clinician/${params.id}/dashboard/all-patients`} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-[10px] md:text-xs font-bold">
+                <Eye size={14} /> View All
+              </Link>
+            </div>
           </div>
 
           {paginated.length === 0 ? (
@@ -251,9 +183,12 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                             {patient.initials}
                           </div>
                           <div className="min-w-0">
-                            <div className={`font-bold text-slate-700 dark:text-slate-200 truncate ${isCompact ? 'text-xs' : 'text-sm'}`}>
-                              <PrivacyMask defaultVisible={false}>{patient.name}</PrivacyMask>
-                            </div>
+                            <PrivacyMask defaultVisible={false}>
+                              <div className={`font-bold text-slate-700 dark:text-slate-200 truncate ${isCompact ? 'text-xs' : 'text-sm'}`}>
+                                {patient.name}
+                              </div>
+                              <p className="text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-1 truncate">{patient.email}</p>
+                            </PrivacyMask>
                             <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
                           </div>
                         </div>
@@ -274,14 +209,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                           <p className={`font-bold text-slate-600 dark:text-slate-300 truncate text-right ${isCompact ? 'text-[9px]' : 'text-[10px]'}`}>{patient.lastActive}</p>
                         </div>
                       </div>
-
-                      <button 
-                        onClick={() => setSelectedPatient({ id: patient.id, name: patient.name, deviceMac: patient.deviceMac })} 
-                        className={`w-full flex items-center justify-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm ${isCompact ? 'px-3 py-1.5 text-[11px]' : 'px-4 py-2.5 text-xs'}`}
-                      >
-                        Live View
-                        <ArrowRight size={isCompact ? 12 : 14} />
-                      </button>
                     </div>
                   );
                 })}
@@ -296,7 +223,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                       <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Status</th>
                       <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Risk Score</th>
                       <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Last Sync</th>
-                      <th className={`${isCompact ? 'px-4 py-2 text-[9px]' : 'px-6 py-4 text-[10px]'} text-right font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 transition-all`}>Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
@@ -309,12 +235,15 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                               <div className={`${isCompact ? 'w-8 h-8 text-xs rounded-lg' : 'w-10 h-10 text-sm rounded-xl'} bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0 transition-all`}>
                                 {patient.initials}
                               </div>
-                              <div>
-                                <div className={`font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap transition-all ${isCompact ? 'text-xs' : 'text-sm'}`}>
-                                  <PrivacyMask defaultVisible={false}>{patient.name}</PrivacyMask>
+                              <PrivacyMask defaultVisible={false}>
+                                <div>
+                                  <div className={`font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap transition-all ${isCompact ? 'text-xs' : 'text-sm'}`}>
+                                    {patient.name}
+                                  </div>
+                                  <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-1">{patient.email}</p>
+                                  <p className="text-[10px] font-medium text-slate-400 mt-0.5">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
                                 </div>
-                                <p className="text-[10px] font-medium text-slate-400 mt-0.5">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
-                              </div>
+                              </PrivacyMask>
                             </div>
                           </td>
                           <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} transition-all`}>
@@ -339,15 +268,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                               </span>
                               <span className="text-[10px] font-medium text-slate-400 mt-0.5">{patient.lastActive}</span>
                             </div>
-                          </td>
-                          <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} text-right transition-all`}>
-                            <button 
-                              onClick={() => setSelectedPatient({ id: patient.id, name: patient.name, deviceMac: patient.deviceMac })} 
-                              className={`inline-flex items-center gap-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 font-bold rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-sm whitespace-nowrap ${isCompact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1.5 text-xs'}`}
-                            >
-                              Live View
-                              <ArrowRight size={isCompact ? 12 : 14} />
-                            </button>
                           </td>
                         </tr>
                       );
@@ -379,147 +299,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
             </div>
           )}
         </section>
-
-        {/* --- LIVE TELEMETRY MODAL --- */}
-        {selectedPatient && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6">
-            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm transition-opacity" onClick={() => setSelectedPatient(null)}></div>
-            <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl md:rounded-3xl shadow-2xl w-full max-w-7xl max-h-[95dvh] overflow-hidden relative flex flex-col border border-slate-200 dark:border-slate-800">
-               <div className="bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 px-4 md:px-6 py-4 flex justify-between items-center z-10 sticky top-0">
-                 <div className="flex items-center gap-3 md:gap-4 min-w-0">
-                   <div className="w-8 h-8 md:w-10 md:h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold text-xs md:text-sm shadow-sm shrink-0">
-                      {selectedPatient.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                   </div>
-                   <div className="min-w-0">
-                     <h2 className="text-sm md:text-lg font-extrabold text-slate-900 dark:text-white truncate tracking-tight">Live Telemetry</h2>
-                     <p className="text-[8px] md:text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mt-0.5 truncate">ID: {selectedPatient.id}</p>
-                   </div>
-                 </div>
-                 <button onClick={() => setSelectedPatient(null)} className="p-3 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 rounded-full transition-colors shrink-0">
-                   <X size={20} />
-                 </button>
-               </div>
-               <div className="p-2 md:p-6 overflow-y-auto no-scrollbar">
-                 <SmartDashboard 
-                   patientName={selectedPatient.name} 
-                   patientId={selectedPatient.id}
-                   deviceMac={selectedPatient.deviceMac} 
-                   highStressAlerts={false} 
-                 />
-               </div>
-            </div>
-          </div>
-        )}
-
-        {/* --- REGISTRATION MODAL --- */}
-        {showModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-6">
-            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowModal(false)}></div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl shadow-2xl p-6 md:p-8 max-w-2xl w-full max-h-[90dvh] overflow-y-auto relative border border-slate-100 dark:border-slate-800 no-scrollbar">
-               <div className="flex justify-between items-start mb-6">
-                 <div className="min-w-0 text-left">
-                    <h2 className="text-xl md:text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Register Patient</h2>
-                    <p className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Create a secure profile for telemetry tracking.</p>
-                 </div>
-                 <button onClick={() => setShowModal(false)} className="p-3 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-400 dark:hover:text-slate-200 shrink-0">
-                   <X size={20} />
-                 </button>
-               </div>
-               
-               {registrationMessage.text && (
-                <div className={`mb-6 p-4 rounded-xl text-xs md:text-sm font-bold flex items-center gap-3 ${registrationMessage.type === 'error' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20'}`}>
-                  {registrationMessage.type === 'error' ? <AlertTriangle size={16} className="shrink-0"/> : <CheckCircle size={16} className="shrink-0"/>}
-                  {registrationMessage.text}
-                </div>
-              )}
-
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Full Name <span className="text-rose-500">*</span></label>
-                    <input type="text" {...register("fullName")} className={`w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border focus:ring-4 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm ${errors.fullName ? 'border-rose-300 dark:border-rose-500/50 focus:ring-rose-100 dark:focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-slate-100 dark:focus:ring-slate-800'}`} placeholder="John Doe" />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Email Address <span className="text-rose-500">*</span></label>
-                    <input type="email" {...register("email")} className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm" placeholder="john@example.com" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Password <span className="text-rose-500">*</span></label>
-                    <input type="password" {...register("password")} className={`w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border focus:ring-4 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm ${errors.password ? 'border-rose-300 dark:border-rose-500/50 focus:ring-rose-100 dark:focus:ring-rose-500/20' : 'border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-slate-100 dark:focus:ring-slate-800'}`} placeholder="••••••••" />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Phone <span className="text-rose-500">*</span></label>
-                    <input type="tel" {...register("phoneNumber")} className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm" placeholder="+1 (555) 000-0000" />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Age <span className="text-rose-500">*</span></label>
-                    <input type="number" {...register("age")} className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm" />
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Gender <span className="text-rose-500">*</span></label>
-                    <select {...register("gender")} className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm">
-                      <option value="">Select</option>
-                      <option value="Male">Male</option>
-                      <option value="Female">Female</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">OA Diagnosis</label>
-                    <select {...register("oaDiagnosis")} className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm">
-                      <option value="No">No</option>
-                      <option value="Yes">Yes</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">Activity Level <span className="text-rose-500">*</span></label>
-                    <select {...register("activityLevel")} className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-medium text-slate-700 dark:text-slate-200 shadow-sm">
-                      <option value="">Select</option>
-                      <option value="Sedentary">Sedentary</option>
-                      <option value="Light">Light</option>
-                      <option value="Moderate">Moderate</option>
-                      <option value="High">High</option>
-                    </select>
-                  </div>
-                </div>
-
-                {/* ========================================= */}
-                {/* NEW SECTION FOR THE MAC ADDRESS */}
-                {/* ========================================= */}
-                <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <label className="block text-[10px] font-black text-[#3A9D8C] dark:text-teal-500 uppercase tracking-widest mb-1.5">Assign Device MAC Address (Optional)</label>
-                  <input 
-                    type="text" 
-                    {...register("deviceMac")} 
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-sm font-mono uppercase tracking-widest text-slate-700 dark:text-slate-200 shadow-sm placeholder:tracking-normal" 
-                    placeholder="e.g. A1B2C3D4E5F6" 
-                    maxLength={17}
-                  />
-                  <p className="text-[10px] text-slate-400 mt-1">If you are handing the patient a device now, enter the 12-character MAC address found on the hardware.</p>
-                </div>
-                {/* ========================================= */}
-
-                <div className="flex flex-col md:flex-row gap-3 pt-4 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onClick={() => { setShowModal(false); reset(); }} className="w-full md:flex-1 px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors order-2 md:order-1 text-sm">
-                    Cancel
-                  </button>
-                  <button type="submit" disabled={isSubmitting} className="w-full md:flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-900 dark:bg-blue-600 text-white font-bold rounded-xl hover:bg-slate-800 dark:hover:bg-blue-700 disabled:opacity-70 transition-colors shadow-sm order-1 md:order-2 text-sm">
-                    {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Confirm & Register'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
