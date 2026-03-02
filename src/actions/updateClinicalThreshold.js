@@ -30,6 +30,10 @@ export async function updateClinicalThreshold(clinicianId, patientId, newThresho
     revalidatePath(`/patient/${patientId}/myProfile`);
     revalidatePath(`/patient/${patientId}/settings`);
     revalidatePath(`/clinician/${clinicianId}/interventions`);
+
+    revalidatePath(`/clinician/${clinicianId}/patients`);
+    revalidatePath(`/clinician/${clinicianId}/dashboard`);
+    revalidatePath(`/clinician/${clinicianId}/dashboard/all-patients`);
     
     // Return the updated patient so the MQTT push has the freshest config
     return { success: true, patientData: updatedPatient };

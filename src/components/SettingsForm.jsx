@@ -25,7 +25,7 @@ export default function SettingsForm({ patient }) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
-  const { sendCommand, deviceStatus } = useMQTT(patient.deviceMac);
+  const { sendCommand, deviceStatus } = useMQTT(deviceMac);
 
   const getIntensityLabel = (val) => {
     if (val === 1) return 'Low';
@@ -75,9 +75,9 @@ export default function SettingsForm({ patient }) {
       setSaveStatus({ loading: false, success: true, error: null });
       
       // Sync the settings to the ESP32 via MQTT
-      if (sendCommand && patient.deviceMac) {
-        const currentThreshold = patient.riskThreshold ?? 75; 
-        const configCommand = `CONFIG:${highStressAlerts ? 1 : 0}:${vibrationEnabled ? 1 : 0}:${intensity}:${ledEnabled ? 1 : 0}:${currentThreshold}`;
+      if (sendCommand && deviceMac) {
+        const freshThreshold = result.patientData.riskThreshold ?? 75;
+        const configCommand = `CONFIG:${highStressAlerts ? 1 : 0}:${vibrationEnabled ? 1 : 0}:${intensity}:${ledEnabled ? 1 : 0}:${freshThreshold}`;
         sendCommand(configCommand);
       }
 

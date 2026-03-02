@@ -15,7 +15,7 @@ export async function updateDeviceSettings(patientId, settings) {
       if (formattedMac.length !== 12) return { success: false, error: 'MAC address must be exactly 12 characters.' };
     }
 
-    await prisma.patient.update({
+    const updatedPatient = await prisma.patient.update({
       where: { id: patientId },
       data: {
         highStressAlerts: settings.highStressAlerts,
@@ -23,12 +23,11 @@ export async function updateDeviceSettings(patientId, settings) {
         vibrationIntensity: settings.vibrationIntensity,
         ledEnabled: settings.ledEnabled,
         deviceMac: formattedMac, 
-        // Notice: We intentionally do NOT update riskThreshold here.
       },
     });
 
     revalidatePath(`/patient/${patientId}/settings`);
-    return { success: true };
+    return { success: true, patientData: updatedPatient };
   } catch (error) {
     if (error.code === 'P2002') return { success: false, error: 'This device is already linked to another account.' };
     return { success: false, error: 'Failed to update settings.' };

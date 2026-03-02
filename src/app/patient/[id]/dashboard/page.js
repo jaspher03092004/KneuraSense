@@ -18,6 +18,7 @@ export default async function PatientDashboard({ params }) {
       id: true, 
       fullName: true,
       deviceMac: true,
+      riskThreshold: true,
       interventions: {
         orderBy: { createdAt: 'desc' },
         take: 1, 
@@ -53,6 +54,7 @@ export default async function PatientDashboard({ params }) {
             patientId={patient.id}  
             deviceMac={patient.deviceMac}
             enableAutoSave={true} 
+            riskThreshold={patient.riskThreshold}
           />
         </div>
 

@@ -62,8 +62,13 @@ async function sendCriticalAlertEmail(patient, riskScore, logData) {
 export async function POST(request) {
   try {
     const body = await request.json();
-
     const riskScore = (body.risk_score !== undefined) ? parseInt(body.risk_score) : 0;
+
+    // 1. FETCH THE PATIENT FIRST to get their custom threshold
+    const patient = await prisma.patient.findUnique({
+      where: { id: body.patientId },
+      select: { id: true, fullName: true, clinicianId: true, riskThreshold: true }
+    });
 
     const newLog = await prisma.sensorLog.create({
       data: {
@@ -86,16 +91,11 @@ export async function POST(request) {
       },
     });
 
-    if (riskScore >= 70) {
+    const threshold = patient?.riskThreshold ?? 75;
+
+    if (riskScore >= threshold) {
        console.log(`High risk score (${riskScore}) detected. Attempting to send email...`);
        
-       // Ensure clinicianId is selected alongside the patient record
-       const patient = await prisma.patient.findUnique({
-         where: { id: body.patientId },
-         select: { id: true, fullName: true, clinicianId: true }
-       });
-       
-       // Only trigger the email if the patient exists AND has a designated clinician
        if (patient && patient.clinicianId) {
          await sendCriticalAlertEmail(patient, riskScore, newLog);
        } else {

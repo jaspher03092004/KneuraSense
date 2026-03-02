@@ -76,7 +76,7 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline, pulsing = false }) =>
   </div>
 );
 
-export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false }) {
+export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75 }) {
   const { data, deviceStatus, lastPacketTime, sendCommand } = useMQTT(deviceMac);
   const [weather, setWeather] = useState(null);
   
@@ -129,22 +129,31 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   }, [deviceStatus, patientId, enableAutoSave]);
 
   const riskConfig = useMemo(() => {
-    if (data.risk_score > 70) return { 
+    // Force both values to be evaluated as pure numbers
+    const currentScore = Number(data.risk_score);
+    const threshold = Number(riskThreshold);
+
+    // 1. Critical if it meets or exceeds the clinician's exact threshold
+    if (currentScore >= threshold) return { 
       isCritical: true, label: 'CRITICAL STRESS', textMain: 'text-rose-500 dark:text-rose-400',
       stroke: 'stroke-rose-500 dark:stroke-rose-400',
       badgeStyles: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
     };
-    if (data.risk_score > 40) return { 
+    
+    // 2. Moderate if it is within 15 points of the threshold
+    if (currentScore >= (threshold - 15)) return { 
       isCritical: false, label: 'MODERATE LOAD', textMain: 'text-amber-500 dark:text-amber-400',
       stroke: 'stroke-amber-500 dark:stroke-amber-400',
       badgeStyles: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
     };
+    
+    // 3. Otherwise Safe
     return { 
       isCritical: false, label: 'SAFE ZONE', textMain: 'text-emerald-500 dark:text-emerald-400',
       stroke: 'stroke-emerald-500 dark:stroke-emerald-400',
       badgeStyles: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
     };
-  }, [data.risk_score]);
+  }, [data.risk_score, riskThreshold]);
 
   // Weather Fetch
   useEffect(() => {
