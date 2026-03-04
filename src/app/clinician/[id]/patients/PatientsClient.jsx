@@ -1,15 +1,15 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { patientRegistrationSchema } from '@/lib/validations'; // Ensure this matches your schema
 import { clinicianRegisterPatient } from '@/actions/clinicianRegisterPatient';
-import { assignPatientToClinician } from '@/actions/assignPatient';
+import { assignPatientToClinician, unassignPatient, transferPatient } from '@/actions/assignPatient';
 import { 
   Search, ChevronLeft, User, Activity, AlertCircle, 
-  Download, UserPlus, Plus, X, AlertTriangle, CheckCircle, Loader2, Filter 
+  Download, UserPlus, Plus, X, AlertTriangle, CheckCircle, Loader2, Filter, Share2
 } from 'lucide-react';
 import Link from 'next/link';
 import LiveDashboard from '@/components/LiveDashboard';
@@ -26,6 +26,11 @@ export default function PatientsClient({ clinicianId, patients }) {
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [showThresholdModal, setShowThresholdModal] = useState(false);
   const [selectedPatientForThreshold, setSelectedPatientForThreshold] = useState(null);
+  const [showTransferModal, setShowTransferModal] = useState(false);
+  const [patientToTransfer, setPatientToTransfer] = useState(null);
+  const [targetClinicianEmail, setTargetClinicianEmail] = useState('');
+  const [isReleasing, setIsReleasing] = useState(false);
+  const [isTransferring, setIsTransferring] = useState(false);
   
   // -- Filter State --
   const [riskFilter, setRiskFilter] = useState('all'); // 'all', 'high', 'normal', 'low'
@@ -86,6 +91,65 @@ export default function PatientsClient({ clinicianId, patients }) {
   }, [patients, searchQuery, riskFilter, deviceFilter, oaFilter]);
 
   // -- Handlers --
+  const handleOpenTransfer = (e, patient) => {
+    e.stopPropagation();
+    setPatientToTransfer(patient);
+    setShowTransferModal(true);
+    setTargetClinicianEmail('');
+    setIsReleasing(false);
+  };
+
+  const handleExecuteTransfer = async () => {
+    if (isReleasing) {
+      if (!confirm(`Release ${patientToTransfer.fullName} from your care? They will be unassigned and available for any clinician to link.`)) {
+        return;
+      }
+      const result = await unassignPatient(patientToTransfer.id, clinicianId);
+      if (result.success) {
+        setShowTransferModal(false);
+        setPatientToTransfer(null);
+        setIsReleasing(false);
+        router.refresh();
+      } else {
+        alert(result.error);
+      }
+    } else {
+      if (!targetClinicianEmail.trim()) return;
+      setIsTransferring(true);
+      
+      const result = await transferPatient(patientToTransfer.id, clinicianId, targetClinicianEmail);
+      if (result.success) {
+        setShowTransferModal(false);
+        setPatientToTransfer(null);
+        setTargetClinicianEmail('');
+        router.refresh();
+      } else {
+        alert(result.error);
+      }
+      setIsTransferring(false);
+    }
+  };
+
+  const handleUnassign = async (patientId) => {
+    if (confirm("Release this patient from your care? They will be unassigned and available for any clinician to link.")) {
+      const result = await unassignPatient(patientId, clinicianId);
+      if (result.success) router.refresh();
+      else alert(result.error);
+    }
+  };
+
+  const handleAssignPatient = async (e) => {
+    e.preventDefault();
+    setAssignStatus({ loading: true, message: '', type: '' });
+    const result = await assignPatientToClinician(clinicianId, assignEmail);
+    if (result.success) {
+      setAssignStatus({ loading: false, message: 'Patient assigned successfully!', type: 'success' });
+      setTimeout(() => { setShowAssignModal(false); setAssignEmail(''); router.refresh(); }, 1500);
+    } else {
+      setAssignStatus({ loading: false, message: result.error, type: 'error' });
+    }
+  };
+
   const handleExport = () => {
     if (filteredPatients.length === 0) {
       alert("No patient data to export.");
@@ -151,24 +215,6 @@ export default function PatientsClient({ clinicianId, patients }) {
     } catch (error) {
       console.error(error); 
       setRegistrationMessage({ type: 'error', text: 'An error occurred during registration.' });
-    }
-  };
-
-  const handleAssignPatient = async (e) => {
-    e.preventDefault();
-    setAssignStatus({ loading: true, message: '', type: '' });
-    const result = await assignPatientToClinician(clinicianId, assignEmail);
-    
-    if (result.success) {
-      setAssignStatus({ loading: false, message: 'Patient assigned successfully!', type: 'success' });
-      setTimeout(() => {
-        setShowAssignModal(false);
-        setAssignEmail('');
-        setAssignStatus({ loading: false, message: '', type: '' });
-        router.refresh();
-      }, 1500);
-    } else {
-      setAssignStatus({ loading: false, message: result.error, type: 'error' });
     }
   };
 
@@ -409,12 +455,98 @@ export default function PatientsClient({ clinicianId, patients }) {
                     >
                       Set Threshold
                     </button>
+                    <button 
+                      onClick={(e) => handleOpenTransfer(e, patient)}
+                      className="p-2 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-lg hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors border border-rose-100 dark:border-rose-500/30 shadow-sm"
+                      title="Transfer or Release Patient"
+                    >
+                      <Share2 size={16} />
+                    </button>
                   </div>
                 </div>
               );
             })
           )}
         </div>
+
+        {/* --- TRANSFER MODAL --- */}
+        {showTransferModal && patientToTransfer && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowTransferModal(false)}></div>
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl p-6 max-w-md w-full relative border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Patient Management</h2>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage {patientToTransfer.fullName}</p>
+                </div>
+                <button onClick={() => setShowTransferModal(false)} className="p-2 text-slate-400 dark:text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-colors">
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="space-y-6">
+                {/* Transfer/Release Options */}
+                <div className="space-y-3">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="transferOption" 
+                      checked={!isReleasing}
+                      onChange={() => setIsReleasing(false)}
+                      className="w-4 h-4 accent-[#2D5F8B] dark:accent-blue-500"
+                    />
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Transfer to another clinician</span>
+                  </label>
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="transferOption" 
+                      checked={isReleasing}
+                      onChange={() => setIsReleasing(true)}
+                      className="w-4 h-4 accent-rose-500 dark:accent-rose-400"
+                    />
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">Release patient</span>
+                  </label>
+                </div>
+
+                <div className="border-t border-slate-200 dark:border-slate-700 pt-6">
+                  {!isReleasing ? (
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-2">Clinician Email Address</label>
+                      <input 
+                        type="email" 
+                        placeholder="clinician@example.com"
+                        value={targetClinicianEmail}
+                        onChange={(e) => setTargetClinicianEmail(e.target.value)}
+                        className="w-full px-4 py-3 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-sm"
+                      />
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-rose-50 dark:bg-rose-500/10 rounded-xl border border-rose-100 dark:border-rose-500/30">
+                      <p className="text-sm text-rose-700 dark:text-rose-400 font-semibold">This will unassign the patient and make them available for any clinician to link.</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <button 
+                    onClick={handleExecuteTransfer}
+                    disabled={(isReleasing ? false : !targetClinicianEmail.trim()) || isTransferring}
+                    className={`w-full py-3 font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${isReleasing ? 'bg-rose-600 dark:bg-rose-600 text-white hover:bg-rose-700 dark:hover:bg-rose-700 disabled:opacity-50' : 'bg-slate-900 dark:bg-blue-600 text-white hover:bg-slate-800 dark:hover:bg-blue-700 disabled:opacity-50'}`}
+                  >
+                    {isTransferring ? <Loader2 className="animate-spin" size={16} /> : (isReleasing ? 'Release Patient' : 'Confirm Transfer')}
+                  </button>
+                  <button 
+                    onClick={() => setShowTransferModal(false)}
+                    className="w-full py-3 text-slate-500 dark:text-slate-400 font-bold hover:text-slate-700 dark:hover:text-slate-300 transition-colors text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* --- ASSIGN PATIENT MODAL ---*/}
         {showAssignModal && (
@@ -429,13 +561,13 @@ export default function PatientsClient({ clinicianId, patients }) {
                     </h2>
                     <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Link an existing KneuraSense patient to your clinic.</p>
                  </div>
-                 <button onClick={() => setShowAssignModal(false)} className="p-2 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 rounded-full transition-colors text-slate-400 shrink-0">
+                 <button onClick={() => setShowAssignModal(false)} className="p-2 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-400 shrink-0">
                    <X size={18} />
                  </button>
                </div>
                
                {assignStatus.message && (
-                <div className={`mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-3 ${assignStatus.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+                <div className={`mb-6 p-4 rounded-xl text-sm font-bold flex items-center gap-3 ${assignStatus.type === 'error' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/30' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30'}`}>
                   {assignStatus.type === 'error' ? <AlertTriangle size={16} /> : <CheckCircle size={16} />}
                   {assignStatus.message}
                 </div>
@@ -443,22 +575,22 @@ export default function PatientsClient({ clinicianId, patients }) {
 
               <form onSubmit={handleAssignPatient} className="space-y-4 text-left">
                 <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Patient Email Address <span className="text-rose-500">*</span></label>
+                  <label className="block text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1.5">Patient Email Address <span className="text-rose-500 dark:text-rose-400">*</span></label>
                   <input 
                     type="email" 
                     value={assignEmail}
                     onChange={(e) => setAssignEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-sm font-medium" 
+                    className="w-full px-4 py-2.5 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-4 focus:ring-[#2D5F8B]/10 dark:focus:ring-blue-500/10 outline-none transition-all text-sm font-medium" 
                     placeholder="patient@example.com" 
                     required
                   />
                 </div>
 
                 <div className="flex flex-col gap-2 pt-2">
-                  <button type="submit" disabled={assignStatus.loading || !assignEmail} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#2D5F8B] dark:bg-blue-600 text-white font-bold rounded-xl hover:bg-[#22486b] disabled:opacity-70 transition-colors text-sm">
+                  <button type="submit" disabled={assignStatus.loading || !assignEmail} className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-[#2D5F8B] dark:bg-blue-600 text-white font-bold rounded-xl hover:bg-[#22486b] dark:hover:bg-blue-700 disabled:opacity-50 dark:disabled:opacity-50 transition-colors text-sm">
                     {assignStatus.loading ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Add to Roster'}
                   </button>
-                  <button type="button" onClick={() => setShowAssignModal(false)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 transition-colors text-sm">
+                  <button type="button" onClick={() => setShowAssignModal(false)} className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-sm">
                     Cancel
                   </button>
                 </div>
