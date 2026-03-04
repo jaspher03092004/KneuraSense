@@ -152,10 +152,24 @@ export async function finalizeRegistration(formData, otp) {
       // D. Send email to the Admin
       const transporter = nodemailer.createTransport({
         service: 'gmail',
-        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+        auth: { 
+          user: process.env.SMTP_USER, 
+          pass: process.env.SMTP_PASS 
+        },
       });
 
-      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'mgilbernard@gmail.com';
+      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+
+      // Handle the error if the admin email is not defined
+      if (!adminEmail) {
+        console.error("CRITICAL ERROR: ADMIN_NOTIFICATION_EMAIL is not defined in environment variables.");
+        // We return success to the user because their account was created and verified,
+        // but we log the error so the developer knows the admin wasn't notified.
+        return { 
+          success: true, 
+          message: 'Account created! Please wait for administrative approval.' 
+        };
+      }
 
       await transporter.sendMail({
         from: `"KneuraSense Security" <${process.env.SMTP_USER}>`,
