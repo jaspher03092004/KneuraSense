@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ClipboardList, AlertCircle, Loader2, Check, ShieldCheck } from 'lucide-react';
 import { acknowledgeIntervention } from '@/actions/acknowledgeIntervention';
+import ReactMarkdown from 'react-markdown';
 
 export default function InterventionAcknowledgmentModal({ pendingInterventions }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,15 +63,17 @@ export default function InterventionAcknowledgmentModal({ pendingInterventions }
           <div className="bg-[#f8fafc] dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 mb-6 relative overflow-hidden">
             {/* Decorative left accent bar */}
             
-            
             <div className="flex gap-3 mb-3">
               <AlertCircle size={18} className="text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
               <h3 className="font-semibold text-slate-800 dark:text-slate-200">Clinician Instructions</h3>
             </div>
             
-            <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-7">
-              {currentIntervention.notes || currentIntervention.patientFriendlyNote || "Please follow the updated physical therapy guidelines provided during your last visit."}
-            </p>
+            {/* Markdown Wrapper with Prose Styling */}
+            <div className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed pl-7 prose prose-sm dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:mb-2 prose-p:last:mb-0 prose-ul:list-disc prose-ul:ml-4 prose-ul:mb-2 prose-ul:last:mb-0 prose-ol:list-decimal prose-ol:ml-4 prose-ol:mb-2 prose-ol:last:mb-0">
+              <ReactMarkdown>
+                {currentIntervention.notes || currentIntervention.patientFriendlyNote || "Please follow the updated physical therapy guidelines provided during your last visit."}
+              </ReactMarkdown>
+            </div>
           </div>
 
           {/* Explicit Acknowledgment Checkbox */}

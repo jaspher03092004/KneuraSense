@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { MessageCircle, X, Bot, Send, User } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 export default function KneuraBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -160,7 +161,7 @@ export default function KneuraBot() {
         setIsLimitExceeded(true);
         setChatHistory(prev => [...prev, { 
           sender: 'bot', 
-          text: "⚠️ You've reached your daily limit for free AI questions. Please upgrade your plan or try again tomorrow!",
+          text: "You've reached your daily limit for free AI questions. Please upgrade your plan or try again tomorrow!",
           options: [{ label: "Return to Main Menu", next: "start" }]
         }]);
         setIsTyping(false);
@@ -230,13 +231,15 @@ export default function KneuraBot() {
                 )}
 
                 <div className={`flex flex-col max-w-[75%] ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
-                  {/* Message Bubble */}
-                  <div className={`p-3.5 text-sm shadow-sm ${
+                  {/* Message Bubble with ReactMarkdown */}
+                  <div className={`p-3.5 text-sm shadow-sm prose prose-sm max-w-none prose-p:leading-relaxed prose-p:mb-2 prose-p:last:mb-0 prose-ul:list-disc prose-ul:ml-4 prose-ul:mb-2 prose-ul:last:mb-0 prose-ol:list-decimal prose-ol:ml-4 prose-ol:mb-2 prose-ol:last:mb-0 ${
                     msg.sender === 'user' 
-                      ? 'bg-[#2D5F8B] dark:bg-blue-600 text-white rounded-2xl rounded-br-sm border border-[#2D5F8B] dark:border-blue-600' 
-                      : 'bg-white dark:bg-slate-900 text-[#2C3E50] dark:text-slate-200 border border-gray-200 dark:border-slate-800 rounded-2xl rounded-bl-sm'
+                      ? 'bg-[#2D5F8B] dark:bg-blue-600 text-white prose-invert rounded-2xl rounded-br-sm border border-[#2D5F8B] dark:border-blue-600' 
+                      : 'bg-white dark:bg-slate-900 text-[#2C3E50] dark:text-slate-200 dark:prose-invert border border-gray-200 dark:border-slate-800 rounded-2xl rounded-bl-sm'
                   }`}>
-                    <p className="whitespace-pre-line leading-relaxed">{msg.text}</p>
+                    <ReactMarkdown>
+                      {msg.text}
+                    </ReactMarkdown>
                   </div>
 
                   {/* Interactive Options as Chips */}

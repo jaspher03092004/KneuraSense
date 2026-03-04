@@ -15,6 +15,11 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "KneuraSense",
   description: "Monitor knee health telemetry and manage your patients",
+  icons: {
+    icon: "/images/Logo.svg",
+    shortcut: "/images/Logo.svg",
+    apple: "/images/Logo.svg",
+  },
 };
 
 export default function RootLayout({ children }) {

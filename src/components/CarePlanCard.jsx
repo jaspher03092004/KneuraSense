@@ -5,6 +5,7 @@ import {
   X, Sparkles, Pill, Activity, Stethoscope, 
   Calendar, Maximize2, ClipboardList 
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 export default function CarePlanCard({ intervention, aiSummary }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,9 +45,12 @@ export default function CarePlanCard({ intervention, aiSummary }) {
               <Sparkles size={14} />
               <span className="text-[10px] font-bold uppercase tracking-widest">Summary</span>
             </div>
-            <p className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed line-clamp-3">
-              {aiSummary}
-            </p>
+            {/* Clamped Markdown Wrapper */}
+            <div className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed line-clamp-3 prose prose-sm dark:prose-invert max-w-none prose-p:m-0 prose-ul:m-0 prose-li:m-0">
+              <ReactMarkdown>
+                {aiSummary}
+              </ReactMarkdown>
+            </div>
           </div>
         )}
 
@@ -104,9 +108,13 @@ export default function CarePlanCard({ intervention, aiSummary }) {
                    <Sparkles size={18} className="text-blue-600 dark:text-blue-400" />
                    <h4 className="text-xs font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Patient-Friendly Summary</h4>
                 </div>
-                <p className="text-base text-slate-700 dark:text-slate-200 font-medium leading-relaxed">
-                  {aiSummary || "No summary available."}
-                </p>
+                
+                {/* Full Markdown Wrapper */}
+                <div className="text-base text-slate-700 dark:text-slate-200 font-medium leading-relaxed prose prose-sm sm:prose-base dark:prose-invert max-w-none prose-p:leading-relaxed prose-p:mb-4 prose-p:last:mb-0 prose-ul:list-disc prose-ul:ml-6 prose-ul:mb-4 prose-ul:last:mb-0 prose-ol:list-decimal prose-ol:ml-6 prose-ol:mb-4 prose-ol:last:mb-0">
+                  <ReactMarkdown>
+                    {aiSummary || "No summary available."}
+                  </ReactMarkdown>
+                </div>
               </section>
 
               <hr className="border-slate-100 dark:border-slate-800/80" />
