@@ -3,6 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
+import crypto from 'crypto'; // Added for secure token generation
 
 // PHASE 1: Send OTP (NO USER SAVED YET)
 export async function initiateRegistration(formData) {
@@ -32,7 +33,7 @@ export async function initiateRegistration(formData) {
     const otp = Math.floor(100000 + Math.random() * 900000).toString(); // e.g. "482910"
     const expires = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
 
-    // 3. Clear old tokens and save ONLY the OTP token to Supabase
+    // 3. Clear old tokens and save ONLY the OTP token
     await prisma.emailVerificationToken.deleteMany({ where: { email } });
     await prisma.emailVerificationToken.create({ data: { email, token: otp, expires } });
 
@@ -96,16 +97,69 @@ export async function finalizeRegistration(formData, otp) {
     const hashed = await bcrypt.hash(password, 10);
 
     if (role === 'Clinician') {
-      await prisma.clinician.create({
+      // Create the clinician but DO NOT approve them yet
+      const newClinician = await prisma.clinician.create({
         data: {
           full_name: data.fullName?.trim(),
           email,
           phone_number: data.phoneNumber?.trim(),
           password_hash: hashed,
           specialization: data.specialization?.trim() || 'General',
-          isVerified: true, // Since they just verified the OTP
+          isVerified: true,  // Their email works
+          isApproved: false, // SECURITY: Pending admin approval
         },
       });
+
+      // --- NEW ADMIN APPROVAL WORKFLOW ---
+      
+      // A. Generate a secure 32-byte hex token
+      const approvalToken = crypto.randomBytes(32).toString('hex');
+
+      // B. Save it to the database
+      await prisma.adminApprovalToken.create({
+        data: {
+          clinicianId: newClinician.clinician_id,
+          token: approvalToken,
+        }
+      });
+
+      // C. Build the approval URL
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      const approvalLink = `${baseUrl}/api/approve-clinician?token=${approvalToken}`;
+
+      // D. Send email to the Admin
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+
+      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'mgilbernard@gmail.com';
+
+      await transporter.sendMail({
+        from: `"KneuraSense Security" <${process.env.SMTP_USER}>`,
+        to: adminEmail,
+        subject: 'ACTION REQUIRED: New Clinician Registration',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+            <h2 style="color: #b91c1c;">New Clinician Pending Approval</h2>
+            <p>A new user has registered as a clinician and successfully verified their email address.</p>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>Name:</strong> ${newClinician.full_name}</p>
+              <p><strong>Email:</strong> ${newClinician.email}</p>
+              <p><strong>Phone:</strong> ${newClinician.phone_number}</p>
+              <p><strong>Specialization:</strong> ${newClinician.specialization}</p>
+            </div>
+            <p>If you recognize and authorize this user, click the button below to grant them access to the platform:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${approvalLink}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                Approve Clinician Account
+              </a>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">If you do not recognize this user, simply ignore this email. They cannot log in without your approval.</p>
+          </div>
+        `
+      });
+
     } else {
       await prisma.patient.create({
         data: {
@@ -120,7 +174,7 @@ export async function finalizeRegistration(formData, otp) {
           painSeverity: parseInt(data.painSeverity) || null,
           occupation: data.occupation || null,
           activityLevel: data.activityLevel || null,
-          isVerified: true, // Since they just verified the OTP
+          isVerified: true, 
         },
       });
     }
@@ -128,7 +182,12 @@ export async function finalizeRegistration(formData, otp) {
     // 3. Cleanup: Delete the used OTP
     await prisma.emailVerificationToken.delete({ where: { id: verificationRecord.id } });
 
-    return { success: true, message: 'Account successfully created!' };
+    // Inform the user on the frontend that approval is pending if they are a clinician
+    const successMsg = role === 'Clinician' 
+      ? 'Email verified! Your account is now pending Administrator approval. You will be notified when you can log in.' 
+      : 'Account successfully created!';
+
+    return { success: true, message: successMsg };
 
   } catch (error) {
     console.error('Finalize Registration Error:', error);

@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  AdminApprovalToken: 'AdminApprovalToken',
   Clinician: 'Clinician',
   Patient: 'Patient',
   SensorLog: 'SensorLog',
@@ -76,6 +77,16 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AdminApprovalTokenScalarFieldEnum = {
+  id: 'id',
+  clinicianId: 'clinicianId',
+  token: 'token',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminApprovalTokenScalarFieldEnum = (typeof AdminApprovalTokenScalarFieldEnum)[keyof typeof AdminApprovalTokenScalarFieldEnum]
+
+
 export const ClinicianScalarFieldEnum = {
   clinician_id: 'clinician_id',
   full_name: 'full_name',
@@ -88,7 +99,9 @@ export const ClinicianScalarFieldEnum = {
   criticalAlerts: 'criticalAlerts',
   emailAlerts: 'emailAlerts',
   compactView: 'compactView',
-  isVerified: 'isVerified'
+  isVerified: 'isVerified',
+  licenseNumber: 'licenseNumber',
+  isApproved: 'isApproved'
 } as const
 
 export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]

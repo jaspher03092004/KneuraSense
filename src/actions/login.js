@@ -45,6 +45,13 @@ export async function login(email, password, rememberMe = false) {
       };
     }
 
+    if (role === 'clinician' && user.isApproved === false) {
+      return { 
+        success: false, 
+        error: 'Your account is pending administrator approval. Please wait for an admin to review your credentials.' 
+      };
+    }
+
     // 4. Verify Password safely supporting both table schemas
     const hashToCompare = user.password_hash || user.passwordHash;
     const passwordMatch = await bcrypt.compare(password, hashToCompare);

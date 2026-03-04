@@ -384,6 +384,7 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  AdminApprovalToken: 'AdminApprovalToken',
   Clinician: 'Clinician',
   Patient: 'Patient',
   SensorLog: 'SensorLog',
@@ -406,10 +407,84 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "clinician" | "patient" | "sensorLog" | "auditLog" | "intervention" | "passwordResetToken" | "emailVerificationToken"
+    modelProps: "adminApprovalToken" | "clinician" | "patient" | "sensorLog" | "auditLog" | "intervention" | "passwordResetToken" | "emailVerificationToken"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    AdminApprovalToken: {
+      payload: Prisma.$AdminApprovalTokenPayload<ExtArgs>
+      fields: Prisma.AdminApprovalTokenFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AdminApprovalTokenFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AdminApprovalTokenFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>
+        }
+        findFirst: {
+          args: Prisma.AdminApprovalTokenFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AdminApprovalTokenFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>
+        }
+        findMany: {
+          args: Prisma.AdminApprovalTokenFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>[]
+        }
+        create: {
+          args: Prisma.AdminApprovalTokenCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>
+        }
+        createMany: {
+          args: Prisma.AdminApprovalTokenCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AdminApprovalTokenCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>[]
+        }
+        delete: {
+          args: Prisma.AdminApprovalTokenDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>
+        }
+        update: {
+          args: Prisma.AdminApprovalTokenUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>
+        }
+        deleteMany: {
+          args: Prisma.AdminApprovalTokenDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AdminApprovalTokenUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AdminApprovalTokenUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>[]
+        }
+        upsert: {
+          args: Prisma.AdminApprovalTokenUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AdminApprovalTokenPayload>
+        }
+        aggregate: {
+          args: Prisma.AdminApprovalTokenAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAdminApprovalToken>
+        }
+        groupBy: {
+          args: Prisma.AdminApprovalTokenGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminApprovalTokenGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AdminApprovalTokenCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AdminApprovalTokenCountAggregateOutputType> | number
+        }
+      }
+    }
     Clinician: {
       payload: Prisma.$ClinicianPayload<ExtArgs>
       fields: Prisma.ClinicianFieldRefs
@@ -967,6 +1042,16 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AdminApprovalTokenScalarFieldEnum = {
+  id: 'id',
+  clinicianId: 'clinicianId',
+  token: 'token',
+  createdAt: 'createdAt'
+} as const
+
+export type AdminApprovalTokenScalarFieldEnum = (typeof AdminApprovalTokenScalarFieldEnum)[keyof typeof AdminApprovalTokenScalarFieldEnum]
+
+
 export const ClinicianScalarFieldEnum = {
   clinician_id: 'clinician_id',
   full_name: 'full_name',
@@ -979,7 +1064,9 @@ export const ClinicianScalarFieldEnum = {
   criticalAlerts: 'criticalAlerts',
   emailAlerts: 'emailAlerts',
   compactView: 'compactView',
-  isVerified: 'isVerified'
+  isVerified: 'isVerified',
+  licenseNumber: 'licenseNumber',
+  isApproved: 'isApproved'
 } as const
 
 export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof typeof ClinicianScalarFieldEnum]
@@ -1272,6 +1359,7 @@ export type PrismaClientOptions = ({
   comments?: runtime.SqlCommenterPlugin[]
 }
 export type GlobalOmitConfig = {
+  adminApprovalToken?: Prisma.AdminApprovalTokenOmit
   clinician?: Prisma.ClinicianOmit
   patient?: Prisma.PatientOmit
   sensorLog?: Prisma.SensorLogOmit
