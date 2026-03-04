@@ -6,8 +6,8 @@ import { revalidatePath } from 'next/cache';
 
 export async function updateClinicalThreshold(clinicianId, patientId, newThreshold) {
   try {
-    if (newThreshold < 50 || newThreshold > 100) {
-      return { success: false, error: 'Clinical threshold must be between 50 and 100.' };
+    if (newThreshold < 0 || newThreshold > 100) {
+      return { success: false, error: 'Clinical threshold must be between 0 and 100.' };
     }
 
     const patient = await prisma.patient.findFirst({

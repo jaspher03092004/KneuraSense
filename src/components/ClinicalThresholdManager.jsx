@@ -49,9 +49,9 @@ export default function ClinicalThresholdManager({ clinicianId, patient }) {
       <div className="flex items-center gap-6 mb-8">
         <input 
           type="range" 
-          min="50" 
-          max="95" 
-          step="5"
+          min="0" 
+          max="100" 
+          step="5" // You can also change the step to 1 if you want finer control
           value={threshold}
           onChange={(e) => setThreshold(Number(e.target.value))}
           className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-indigo-600 dark:accent-indigo-500"
