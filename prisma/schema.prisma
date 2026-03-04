@@ -10,6 +10,16 @@ datasource db {
   // url is removed because it is in prisma.config.ts
 }
 
+model AdminApprovalToken {
+  id          String    @id @default(uuid())
+  clinicianId String    @unique
+  token       String    @unique
+  createdAt   DateTime  @default(now())
+  
+  // Relation back to the clinician
+  clinician   Clinician @relation(fields: [clinicianId], references: [clinician_id], onDelete: Cascade)
+}
+
 model Clinician {
   clinician_id   String   @id @default(uuid())
   full_name      String
@@ -26,6 +36,9 @@ model Clinician {
   interventions Intervention[]
   isVerified    Boolean  @default(false)
   patients       Patient[]
+  licenseNumber  String?  // Optional: Store their medical license or NPI for vetting
+  isApproved     Boolean  @default(false) // MUST be manually set to true by an Admin
+  adminApprovalTokens AdminApprovalToken[]
 }
 
 model Patient {

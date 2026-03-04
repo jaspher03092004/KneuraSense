@@ -14,6 +14,9 @@ export default async function AllPatientsPage({ params }) {
 
   // Fetch all patients with their latest sensor logs
   const patientsData = await prisma.patient.findMany({
+    where: { 
+      clinicianId: id
+    },
     include: {
       sensorLogs: {
         orderBy: { timestamp: 'desc' },

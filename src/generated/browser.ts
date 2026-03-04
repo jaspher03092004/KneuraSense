@@ -18,6 +18,11 @@ export { Prisma }
 export * as $Enums from './enums.ts'
 export * from './enums.ts';
 /**
+ * Model AdminApprovalToken
+ * 
+ */
+export type AdminApprovalToken = Prisma.AdminApprovalTokenModel
+/**
  * Model Clinician
  * 
  */

@@ -117,15 +117,69 @@ export async function finalizeRegistration(formData, otp) {
 
     if (role === 'Clinician') {
       const specialization = data.specialization?.trim() || 'General';
-      await prisma.clinician.create({
+      const licenseNumber = data.licenseNumber?.trim();
+
+      const newClinician = await prisma.clinician.create({
         data: {
           full_name: fullName,
           email,
           phone_number: phoneNumber,
           password_hash: hashed,
           specialization,
-          isVerified: true, // Mark as verified immediately
+          licenseNumber: licenseNumber,
+          isVerified: true,
+          isApproved: false,
         },
+      });
+
+      // A. Generate a secure 32-byte hex token
+      const approvalToken = crypto.randomBytes(32).toString('hex');
+
+      // B. Save it to the database
+      await prisma.adminApprovalToken.create({
+        data: {
+          clinicianId: newClinician.clinician_id, // Make sure to use newClinician here
+          token: approvalToken,
+        }
+      });
+
+      // C. Build the approval URL
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      // Using .replace to strip any accidental trailing slashes from the .env variable
+      const safeBaseUrl = baseUrl.replace(/\/$/, ''); 
+      const approvalLink = `${safeBaseUrl}/api/approve-clinician?token=${approvalToken}`;
+
+      // D. Send email to the Admin
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
+      });
+
+      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'mgilbernard@gmail.com';
+
+      await transporter.sendMail({
+        from: `"KneuraSense Security" <${process.env.SMTP_USER}>`,
+        to: adminEmail,
+        subject: 'ACTION REQUIRED: New Clinician Registration',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
+            <h2 style="color: #b91c1c;">New Clinician Pending Approval</h2>
+            <p>A new user has registered as a clinician and successfully verified their email address.</p>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+              <p><strong>Name:</strong> ${newClinician.full_name}</p>
+              <p><strong>Email:</strong> ${newClinician.email}</p>
+              <p><strong>Phone:</strong> ${newClinician.phone_number}</p>
+              <p><strong>Specialization:</strong> ${newClinician.specialization}</p>
+            </div>
+            <p>If you recognize and authorize this user, click the button below to grant them access to the platform:</p>
+            <div style="text-align: center; margin: 30px 0;">
+              <a href="${approvalLink}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
+                Approve Clinician Account
+              </a>
+            </div>
+            <p style="font-size: 12px; color: #64748b;">If you do not recognize this user, simply ignore this email. They cannot log in without your approval.</p>
+          </div>
+        `
       });
     } else {
       await prisma.patient.create({

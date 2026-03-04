@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/AdminApprovalToken.ts'
 export type * from './models/Clinician.ts'
 export type * from './models/Patient.ts'
 export type * from './models/SensorLog.ts'
