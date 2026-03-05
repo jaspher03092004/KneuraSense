@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   X, Sparkles, Pill, Activity, Stethoscope, 
   Calendar, Maximize2, ClipboardList 
@@ -9,6 +9,12 @@ import ReactMarkdown from 'react-markdown';
 
 export default function CarePlanCard({ intervention, aiSummary }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsMounted(true);
+  }, []);
 
   if (!intervention) return (
     <div className="flex flex-col items-center justify-center h-full text-center opacity-50 py-12">
@@ -69,8 +75,9 @@ export default function CarePlanCard({ intervention, aiSummary }) {
             <Stethoscope size={12} />
             <span className="text-[10px] font-bold uppercase">Dr. {intervention.clinician?.full_name?.split(' ').pop()}</span>
           </div>
+          {/* 2. SAFE DATE RENDERING FOR MAIN CARD */}
           <span className="text-[10px] font-bold uppercase">
-            {new Date(intervention.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' })}
+            {isMounted ? new Date(intervention.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '...'}
           </span>
         </div>
       </div>
@@ -134,7 +141,8 @@ export default function CarePlanCard({ intervention, aiSummary }) {
 
               <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest pt-4">
                  <span>Prescribed By: Dr. {intervention.clinician?.full_name}</span>
-                 <span>Date: {new Date(intervention.createdAt).toLocaleDateString()}</span>
+                 {/* 3. SAFE DATE RENDERING FOR MODAL */}
+                 <span>Date: {isMounted ? new Date(intervention.createdAt).toLocaleDateString() : '...'}</span>
               </div>
             </div>
 
