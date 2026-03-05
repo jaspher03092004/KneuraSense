@@ -9,12 +9,20 @@ export async function clinicianRegisterPatient(formData) {
     const email = data.email?.trim().toLowerCase();
     const phoneNumber = data.phoneNumber?.trim();
     
-    // 1. Check for duplicates
-    const existingEmail = await prisma.patient.findUnique({ where: { email } });
-    if (existingEmail) return { success: false, error: 'Email already registered.' };
+    // 1. Check for duplicates ACROSS BOTH TABLES
+    const existingPatientEmail = await prisma.patient.findUnique({ where: { email } });
+    const existingClinicianEmail = await prisma.clinician.findUnique({ where: { email } });
     
-    const existingPhone = await prisma.patient.findUnique({ where: { phoneNumber } });
-    if (existingPhone) return { success: false, error: 'Phone number already registered.' };
+    if (existingPatientEmail || existingClinicianEmail) {
+      return { success: false, error: 'This email is already registered in the system.' };
+    }
+    
+    const existingPatientPhone = await prisma.patient.findUnique({ where: { phoneNumber } });
+    const existingClinicianPhone = await prisma.clinician.findUnique({ where: { phone_number: phoneNumber } });
+    
+    if (existingPatientPhone || existingClinicianPhone) {
+      return { success: false, error: 'This phone number is already registered in the system.' };
+    }
 
     // 2. Hash password
     const passwordHash = await bcrypt.hash(data.password, 10);
@@ -31,7 +39,7 @@ export async function clinicianRegisterPatient(formData) {
         oaDiagnosis: data.oaDiagnosis === 'Yes',
         activityLevel: data.activityLevel,
         isVerified: true,
-        deviceMac: formattedMac,
+        deviceMac: data.deviceMac, // Ensure this matches your form payload
       }
     });
 

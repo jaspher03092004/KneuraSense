@@ -15,54 +15,52 @@ export async function login(email, password, rememberMe = false) {
     let user = null;
     let role = null;
     let userId = null;
+    let authError = null;
 
-    // 1. Find User (Clinician or Patient)
+    // 1. Fetch both potential accounts
     const clinician = await prisma.clinician.findUnique({ where: { email: lookupEmail } });
-    
+    const patient = await prisma.patient.findUnique({ where: { email: lookupEmail } });
+
+    // 2. Validate Clinician first
     if (clinician) {
-      user = clinician;
-      role = 'clinician';
-      userId = clinician.clinician_id;
-    } else {
-      const patient = await prisma.patient.findUnique({ where: { email: lookupEmail } });
-      if (patient) {
-        user = patient;
-        role = 'patient';
-        userId = patient.id;
+      const passwordMatch = await bcrypt.compare(password, clinician.password_hash);
+      if (passwordMatch) {
+        if (!clinician.isVerified) {
+          authError = 'Please verify your email address before logging in.';
+        } else if (!clinician.isApproved) {
+          authError = 'Your account is pending administrator approval. Please wait for an admin to review your credentials.';
+        } else {
+          user = clinician;
+          role = 'clinician';
+          userId = clinician.clinician_id;
+        }
       }
     }
 
-    // 2. Prevent User Enumeration
+    // 3. If Clinician login didn't fully succeed (e.g., pending approval), try Patient
+    if (!user && patient) {
+      const passwordMatch = await bcrypt.compare(password, patient.passwordHash);
+      if (passwordMatch) {
+        if (!patient.isVerified) {
+          // Only overwrite the error if we didn't already have a clinician error
+          if (!authError) authError = 'Please verify your email address before logging in.';
+        } else {
+          // Successful Patient Login
+          user = patient;
+          role = 'patient';
+          userId = patient.id;
+          authError = null; // Clear any previous clinician errors
+        }
+      }
+    }
+
+    // 4. Prevent User Enumeration / Handle failed login
     if (!user) {
-      return { success: false, error: 'Invalid email or password.' };
-    }
-
-    // 3. ENFORCE EMAIL VERIFICATION (Added for OTP System)
-    if (user.isVerified === false) {
-      return { 
-        success: false, 
-        error: 'Please verify your email address before logging in. If you lost the code, please register again.' 
-      };
-    }
-
-    if (role === 'clinician' && user.isApproved === false) {
-      return { 
-        success: false, 
-        error: 'Your account is pending administrator approval. Please wait for an admin to review your credentials.' 
-      };
-    }
-
-    // 4. Verify Password safely supporting both table schemas
-    const hashToCompare = user.password_hash || user.passwordHash;
-    const passwordMatch = await bcrypt.compare(password, hashToCompare);
-    
-    if (!passwordMatch) {
-      return { success: false, error: 'Invalid email or password.' };
+      return { success: false, error: authError || 'Invalid email or password.' };
     }
 
     // 5. Safely encode JWT Secret
     const secretKey = process.env.JWT_SECRET;
-    
     if (!secretKey) {
       console.error("CRITICAL SECURITY ERROR: JWT_SECRET is missing.");
       return { success: false, error: 'Server configuration error. Please contact admin.' };
@@ -80,7 +78,7 @@ export async function login(email, password, rememberMe = false) {
       .setExpirationTime(expiration)
       .sign(encodedSecret);
 
-    // 7. Set HTTP-Only Cookie (Next.js 15 compatible using await)
+    // 7. Set HTTP-Only Cookie
     const cookieStore = await cookies();
     cookieStore.set('auth_token', token, {
       httpOnly: true,
