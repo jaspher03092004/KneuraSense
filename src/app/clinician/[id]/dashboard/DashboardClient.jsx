@@ -270,7 +270,6 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                           <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'} transition-all`}>
                             <div className="flex flex-col">
                               <span className={`${isCompact ? 'text-xs' : 'text-sm'} font-semibold text-slate-600 dark:text-slate-300 whitespace-nowrap transition-all`}>
-                                {/* UPDATE THIS LINE */}
                                 {isMounted ? (patient.lastSensorSync ? new Date(patient.lastSensorSync).toLocaleDateString() : 'N/A') : 'Loading...'}
                               </span>
                               <span className="text-[10px] font-medium text-slate-400 mt-0.5">{patient.lastActive}</span>
