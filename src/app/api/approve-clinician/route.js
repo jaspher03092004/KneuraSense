@@ -121,7 +121,6 @@ const buildHtmlResponse = (title, iconSvg, iconColor, iconBg, heading, contentHt
     </head>
     <body>
       <div class="card">
-        <img src="${safeBaseUrl}/images/Logo.svg" alt="KneuraSense" class="logo" onerror="this.style.display='none'" />
         <div class="icon-container">
           ${iconSvg}
         </div>
