@@ -57,28 +57,34 @@ export async function requestPasswordReset(formData) {
       },
     });
 
-    // 7. Define Email Content (HTML format)
+    // 7. Define Email Content (HTML format) with Branded Header & Footer
     const mailOptions = {
       from: `"KneuraSense Support" <${process.env.SMTP_USER}>`,
       to: email,
       subject: 'Reset your KneuraSense Password',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-          <h2 style="color: #0f172a;">Password Reset Request</h2>
-          <p style="color: #475569; font-size: 16px;">Hello ${userName},</p>
-          <p style="color: #475569; font-size: 16px;">We received a request to reset the password for your KneuraSense account. Click the button below to choose a new password:</p>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
           
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${resetLink}" style="background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-              Reset Password
-            </a>
+          <img src="${appUrl}/images/email/Header.png" alt="KneuraSense Header" style="width: 100%; height: auto; display: block; border-bottom: 1px solid #f1f5f9;" />
+          
+          <div style="padding: 40px 30px;">
+            <h2 style="color: #0f172a; margin-top: 0; font-size: 24px;">Password Reset Request</h2>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6;">Hello <strong>${userName}</strong>,</p>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6;">We received a request to reset the password for your KneuraSense account. Click the button below to choose a new password:</p>
+            
+            <div style="text-align: center; margin: 35px 0;">
+              <a href="${resetLink}" style="background-color: #0f172a; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
+                Reset Password
+              </a>
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 0;">
+              If you did not request this password reset, please ignore this email. This link will safely expire in 1 hour.
+            </p>
           </div>
+
+          <img src="${appUrl}/images/email/Footer.png" alt="KneuraSense Footer" style="width: 100%; height: auto; display: block; border-top: 1px solid #f1f5f9;" />
           
-          <p style="color: #475569; font-size: 14px;">If you did not request this password reset, please ignore this email. This link will expire in 1 hour.</p>
-          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
-          <p style="color: #94a3b8; font-size: 12px; text-align: center;">
-            © ${new Date().getFullYear()} KneuraSense Edge AI Monitoring. All rights reserved.
-          </p>
         </div>
       `,
     };
