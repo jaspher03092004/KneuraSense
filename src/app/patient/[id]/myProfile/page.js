@@ -45,12 +45,12 @@ export default async function PatientProfile({ params }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 bg-transparent transition-colors duration-300">
+    <div className="max-w-[1300px] mx-auto space-y-6 bg-transparent transition-colors duration-300">
       
       {/* Header & Quick Actions */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Profile</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">My Profile</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your personal information and health settings</p>
         </div>
         <div className="hidden sm:block">

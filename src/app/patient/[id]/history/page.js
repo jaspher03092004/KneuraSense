@@ -118,7 +118,7 @@ export default async function HistoryPage({ params, searchParams }) {
 
   return (
     <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-slate-800 antialiased overflow-x-hidden">
-      <div className="mx-auto w-full max-w-7xl px-4 py-6 md:p-8">
+      <div className="mx-auto w-full max-w-[1400px] px-4 py-6 md:p-8">
         
         {/* Header */}
         <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

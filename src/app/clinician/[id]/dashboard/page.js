@@ -14,8 +14,11 @@ export default async function ClinicianDashboardPage({ params }) {
     }
   });
 
-  // 2. Fetch patients and their 10 most recent sensor logs
+  // 2. SECURED: Fetch ONLY the patients assigned to this clinician
   const patientsData = await prisma.patient.findMany({
+    where: {
+      clinicianId: id // <-- Security lock applied here
+    },
     include: {
       sensorLogs: {
         orderBy: { timestamp: 'desc' },
@@ -61,7 +64,6 @@ export default async function ClinicianDashboardPage({ params }) {
     if (latestLog) {
       const diffMins = Math.floor((now - new Date(latestLog.timestamp)) / 60000);
       
-      // FIX: Add "Just now" for 0 minutes
       if (diffMins < 1) lastActive = 'Just now';
       else if (diffMins < 60) lastActive = `${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
       else if (diffMins < 1440) lastActive = `${Math.floor(diffMins / 60)} hour${Math.floor(diffMins / 60) === 1 ? '' : 's'} ago`;
@@ -80,11 +82,11 @@ export default async function ClinicianDashboardPage({ params }) {
       lastActive,
       lastSensorSync: latestLog ? latestLog.timestamp.toISOString() : null,
       avgStrainScore,
-      compliance: latestLog ? 100 : 0 // Compliance logic can be adjusted later based on log frequency
+      compliance: latestLog ? 100 : 0 
     };
   });
 
-  // 4. Calculate overview statistics dynamically
+  // 4. Calculate overview statistics dynamically based ONLY on the clinician's patients
   const activeTodayCount = formattedPatients.filter(p => p.status !== 'offline' && p.lastActive !== 'Never').length;
   const highRiskCount = formattedPatients.filter(p => p.status === 'high-risk').length;
   const offlineCount = formattedPatients.filter(p => p.status === 'offline').length;

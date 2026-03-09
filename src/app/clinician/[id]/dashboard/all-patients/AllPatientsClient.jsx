@@ -77,7 +77,7 @@ export default function AllPatientsClient({ patients, clinicianId, isCompact }) 
       <div className="max-w-[1400px] mx-auto space-y-6">
         
         {/* Header Section */}
-        <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <header className="mb-6 -mt-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-3 mb-3">
               <button 
@@ -135,7 +135,7 @@ export default function AllPatientsClient({ patients, clinicianId, isCompact }) 
         </nav>
 
         {/* Patient Table */}
-        <section className="overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+        <section className="-mt-2 overflow-hidden rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
           <div className="border-b border-slate-50 dark:border-slate-800 p-4 md:p-5 flex justify-between items-center">
             <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100">Patient Roster</h3>
             <span className="text-[10px] md:text-xs font-medium text-slate-400 dark:text-slate-500">Showing {filteredPatients.length} records</span>

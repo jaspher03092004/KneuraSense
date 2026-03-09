@@ -58,14 +58,14 @@ export default function ClinicianHelpClient({ clinician }) {
 
   return (
     <div className="pb-16 pt-8">
-      <div className="px-6 text-center max-w-4xl mx-auto mb-16">
+      <div className="px-6 text-center max-w-4xl mx-auto mb-16 -mt-4">
         <div className="w-16 h-16 bg-[#2D5F8B] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md">
-          <Stethoscope size={32} />
+          <Stethoscope size={30} />
         </div>
         <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
           Clinician Knowledge Base
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg mb-10 max-w-2xl mx-auto">
+        <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg mb-8 max-w-2xl mx-auto">
           Welcome, Dr. {clinician?.full_name?.split(' ').pop() || 'Provider'}. Search for documentation on patient management, clinical validity, and platform features.
         </p>
         
@@ -83,12 +83,12 @@ export default function ClinicianHelpClient({ clinician }) {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-6 space-y-8">
+      <div className="max-w-[1400px] mx-auto px-6 space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
            <div className="lg:col-span-2 space-y-10">
               {!searchQuery && (
                 <div>
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-6">Browse by Topic</h3>
+                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Browse by Topic</h3>
                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {categories.map((cat, i) => (
                         <div key={i} className="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#2D5F8B]/50 dark:hover:border-blue-500/50 hover:shadow-md transition-all cursor-pointer">
@@ -104,7 +104,7 @@ export default function ClinicianHelpClient({ clinician }) {
               )}
 
               <div>
-                 <div className="flex items-center gap-3 mb-6">
+                 <div className="flex items-center gap-3 mb-4">
                     <HelpCircle className="text-[#2D5F8B] dark:text-blue-400" size={24} />
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                       {searchQuery ? `Search Results (${filteredFaqs.length})` : "Common Clinical Questions"}
