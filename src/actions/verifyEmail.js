@@ -3,7 +3,7 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
-import crypto from 'crypto'; // Added for secure token generation
+import crypto from 'crypto'; 
 
 // PHASE 1: Send OTP (NO USER SAVED YET)
 export async function initiateRegistration(formData) {
@@ -37,6 +37,10 @@ export async function initiateRegistration(formData) {
     await prisma.emailVerificationToken.deleteMany({ where: { email } });
     await prisma.emailVerificationToken.create({ data: { email, token: otp, expires } });
 
+    // Establish Safe Base URL for Images
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const safeBaseUrl = baseUrl.replace(/\/$/, '');
+
     // 4. Send the Email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -48,14 +52,26 @@ export async function initiateRegistration(formData) {
       to: email,
       subject: 'Verify your KneuraSense Registration',
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; text-align: center;">
-          <h2 style="color: #0f172a;">Verify Your Email</h2>
-          <p style="color: #475569; font-size: 16px;">Hello ${fullName},</p>
-          <p style="color: #475569; font-size: 16px;">Please use the verification code below to complete your registration:</p>
-          <div style="margin: 30px 0; padding: 15px; background-color: #f1f5f9; border-radius: 8px; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #2563eb;">
-            ${otp}
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+          
+          <img src="${safeBaseUrl}/images/email/Header.png" alt="KneuraSense Header" style="width: 100%; height: auto; display: block; border-bottom: 1px solid #f1f5f9;" />
+          
+          <div style="padding: 40px 30px; text-align: center;">
+            <h2 style="color: #0f172a; margin-top: 0; font-size: 24px;">Verify Your Email</h2>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6;">Hello <strong>${fullName}</strong>,</p>
+            <p style="color: #475569; font-size: 16px; line-height: 1.6;">Please use the verification code below to complete your KneuraSense registration:</p>
+            
+            <div style="margin: 30px 0; padding: 20px; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #2563eb;">
+              ${otp}
+            </div>
+            
+            <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 0;">
+              This code will securely expire in 15 minutes. If you did not request this code, please ignore this email.
+            </p>
           </div>
-          <p style="color: #475569; font-size: 14px;">This code will expire in 15 minutes.</p>
+
+          <img src="${safeBaseUrl}/images/email/Footer.png" alt="KneuraSense Footer" style="width: 100%; height: auto; display: block; border-top: 1px solid #f1f5f9;" />
+          
         </div>
       `,
     });
@@ -125,7 +141,8 @@ export async function finalizeRegistration(formData, otp) {
 
       // C. Build the approval URL
       const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-      const approvalLink = `${baseUrl}/api/approve-clinician?token=${approvalToken}`;
+      const safeBaseUrl = baseUrl.replace(/\/$/, '');
+      const approvalLink = `${safeBaseUrl}/api/approve-clinician?token=${approvalToken}`;
 
       // D. Send email to the Admin
       const transporter = nodemailer.createTransport({
@@ -133,29 +150,54 @@ export async function finalizeRegistration(formData, otp) {
         auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
       });
 
-      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL || 'mgilbernard@gmail.com';
+      const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
+
+      // Handle the error if the admin email is not defined
+      if (!adminEmail) {
+        console.error("CRITICAL ERROR: ADMIN_NOTIFICATION_EMAIL is not defined in environment variables.");
+        // We return success to the user because their account was created and verified,
+        // but we log the error so the developer knows the admin wasn't notified.
+        return { 
+          success: true, 
+          message: 'Email verified! Your account is now pending Administrator approval. You will be notified when you can log in.' 
+        };
+      }
 
       await transporter.sendMail({
         from: `"KneuraSense Security" <${process.env.SMTP_USER}>`,
         to: adminEmail,
         subject: 'ACTION REQUIRED: New Clinician Registration',
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px;">
-            <h2 style="color: #b91c1c;">New Clinician Pending Approval</h2>
-            <p>A new user has registered as a clinician and successfully verified their email address.</p>
-            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
-              <p><strong>Name:</strong> ${newClinician.full_name}</p>
-              <p><strong>Email:</strong> ${newClinician.email}</p>
-              <p><strong>Phone:</strong> ${newClinician.phone_number}</p>
-              <p><strong>Specialization:</strong> ${newClinician.specialization}</p>
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            
+            <img src="${safeBaseUrl}/images/email/Header.png" alt="KneuraSense Header" style="width: 100%; height: auto; display: block; border-bottom: 1px solid #f1f5f9;" />
+            
+            <div style="padding: 40px 30px;">
+              <h2 style="color: #b91c1c; margin-top: 0; font-size: 24px; text-align: center;">New Clinician Pending Approval</h2>
+              <p style="color: #475569; font-size: 16px; line-height: 1.6; text-align: center;">A new user has registered as a clinician and successfully verified their email address.</p>
+              
+              <div style="background: #f8fafc; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; margin: 25px 0;">
+                <p style="margin: 0 0 10px 0; color: #334155; font-size: 15px;"><strong>Name:</strong> ${newClinician.full_name}</p>
+                <p style="margin: 0 0 10px 0; color: #334155; font-size: 15px;"><strong>Email:</strong> ${newClinician.email}</p>
+                <p style="margin: 0 0 10px 0; color: #334155; font-size: 15px;"><strong>Phone:</strong> ${newClinician.phone_number}</p>
+                <p style="margin: 0; color: #334155; font-size: 15px;"><strong>Specialization:</strong> ${newClinician.specialization}</p>
+              </div>
+              
+              <p style="color: #475569; font-size: 16px; line-height: 1.6; text-align: center;">If you recognize and authorize this user, click the button below to grant them access to the platform:</p>
+              
+              <div style="text-align: center; margin: 35px 0;">
+                <a href="${approvalLink}" style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
+                  Approve Clinician Account
+                </a>
+              </div>
+              
+              <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 0; text-align: center;">
+                If you do not recognize this user, simply ignore this email. They cannot log in without your approval.
+              </p>
             </div>
-            <p>If you recognize and authorize this user, click the button below to grant them access to the platform:</p>
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${approvalLink}" style="background: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                Approve Clinician Account
-              </a>
-            </div>
-            <p style="font-size: 12px; color: #64748b;">If you do not recognize this user, simply ignore this email. They cannot log in without your approval.</p>
+
+            <img src="${safeBaseUrl}/images/email/Footer.png" alt="KneuraSense Footer" style="width: 100%; height: auto; display: block; border-top: 1px solid #f1f5f9;" />
+            
           </div>
         `
       });
