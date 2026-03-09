@@ -57,7 +57,7 @@ export function useMQTT(deviceMac) {
           const payload = JSON.parse(message.toString());
           const now = Date.now();
           
-          if (now - lastUpdateTime.current > 200) {
+          if (now - lastUpdateTime.current > 500) {
             setData(prev => ({ ...prev, ...payload }));
             setDeviceStatus("Online");
             setLastPacketTime(now);

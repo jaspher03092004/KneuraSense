@@ -5,21 +5,34 @@ export default async function InterventionsPage({ params }) {
   const resolvedParams = await params;
   const { id: clinicianId } = resolvedParams;
 
-  // Fetch all patients for the select dropdown
+  // SECURED: Fetch ONLY the patients assigned to this clinician
   const allPatients = await prisma.patient.findMany({
-    select: { id: true, fullName: true, oaDiagnosis: true },
-    orderBy: { fullName: 'asc' }
+    where: { 
+      clinicianId: clinicianId // Security lock applied here
+    },
+    select: { 
+      id: true, 
+      fullName: true, 
+      oaDiagnosis: true 
+    },
+    orderBy: { 
+      fullName: 'asc' 
+    }
   });
 
   // Fetch all interventions logged by this clinician, including the patient's name
   const interventions = await prisma.intervention.findMany({
-    where: { clinicianId },
+    where: { 
+      clinicianId: clinicianId // This was already secure
+    },
     include: {
       patient: {
         select: { fullName: true }
       }
     },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { 
+      createdAt: 'desc' 
+    }
   });
 
   return (
@@ -29,4 +42,4 @@ export default async function InterventionsPage({ params }) {
       interventions={interventions} 
     />
   );
-} 
+}

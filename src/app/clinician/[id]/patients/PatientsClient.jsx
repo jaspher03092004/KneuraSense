@@ -241,10 +241,10 @@ export default function PatientsClient({ clinicianId, patients }) {
 
   return (
     <div className="min-h-screen p-4 md:p-8 font-sans text-slate-800 antialiased relative">
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1400px]">
         
         {/* --- Header & Actions --- */}
-        <header className="mb-8 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <header className="mb-8 -mt-6 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">Patient Directory</h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Manage, register, and assign your clinic&apos;s patients.</p>

@@ -96,7 +96,7 @@ export default function ClinicianSettingsForm({ clinician }) {
   return (
     <div className="max-w-3xl mx-auto space-y-8 pb-10 bg-transparent transition-colors duration-300 p-4 md:p-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white transition-colors duration-300">Settings</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white transition-colors duration-300">Settings</h1>
         <p className="text-slate-500 dark:text-slate-400 transition-colors duration-300">Manage your clinician account and notification preferences</p>
       </div>
 

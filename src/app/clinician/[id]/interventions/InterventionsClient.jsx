@@ -94,9 +94,9 @@ export default function InterventionsClient({ clinicianId, allPatients = [], int
 
   return (
     <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-slate-800 antialiased p-4 md:p-8">
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1400px]">
         
-        <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <header className="mb-8 -mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">Intervention Tracking</h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Log clinical advice, prescriptions, and exercise modifications.</p>
@@ -109,7 +109,7 @@ export default function InterventionsClient({ clinicianId, allPatients = [], int
           </button>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
           
           {/* Left Column: Form */}
           <div className="lg:col-span-1 space-y-6 sticky top-6 z-20">

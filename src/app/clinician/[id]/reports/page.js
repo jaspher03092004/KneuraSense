@@ -29,11 +29,11 @@ export default async function ReportsPage({ params }) {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-8 transition-colors duration-200">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-[1400px] mx-auto">
         
         {/* Header Section */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
             Clinical Reports
           </h1>
           <p className="text-slate-600 dark:text-slate-400 mt-2 text-lg">

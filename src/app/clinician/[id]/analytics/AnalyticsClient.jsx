@@ -43,10 +43,10 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
   if (!patientData) {
     return (
       <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-slate-800 antialiased p-4 md:p-8">
-        <div className="mx-auto w-full max-w-5xl">
+        <div className="mx-auto w-full max-w-[1400px]">
           <header className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div className="space-y-1">
-              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">Select a Patient</h1>
+              <h1 className="-mt-6 text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">Select a Patient</h1>
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Choose a patient to view their biomechanical analytics.</p>
             </div>
             <button 
@@ -127,10 +127,10 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
   
   return (
     <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-slate-800 antialiased overflow-x-hidden p-4 md:p-8">
-      <div className="mx-auto w-full max-w-7xl">
+      <div className="mx-auto w-full max-w-[1400px]">
         
         {/* HEADER */}
-        <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <header className="mb-6 -mt-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-bold text-xl border border-blue-100 dark:border-blue-500/20">
               {patientData.initials}
@@ -159,7 +159,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
         </header>
 
         {/* DATE FILTERS */}
-        <div className="mb-8 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+        <div className="mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-4">
           <nav className="flex items-center gap-2 overflow-x-auto pb-2 xl:pb-0 snap-x touch-pan-x min-w-0">
             <FilterLink label="24 Hours" active={activePeriod === '24h' && !start} onClick={() => handlePeriodChange('24h')} />
             <FilterLink label="7 Days" active={activePeriod === '7d' && !start} onClick={() => handlePeriodChange('7d')} />
@@ -180,7 +180,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
         </div>
 
         {/* ROW 1: PRIMARY KPIs */}
-        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <StatCard icon={<Target size={18} />} value={patientData.avgRisk} label="Avg Risk Score" trend={patientData.avgRisk > 50 ? "Elevated" : "Normal"} color={patientData.avgRisk > 50 ? "amber" : "emerald"} />
           <StatCard icon={<AlertTriangle size={18} />} value={highRiskLogsCount} label="High Risk Events" trend="Action Required" color={highRiskLogsCount > 0 ? "rose" : "slate"} />
           <StatCard icon={<Mountain size={18} />} value={`${maxFlexion}°`} label="Max Flexion (ROM)" trend="Stiffness Check" color="blue" />
@@ -188,7 +188,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
         </section>
 
         {/* ROW 2: THE BIG PICTURE */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
           {/* Left: Risk Distribution */}
           <div className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm lg:col-span-1 flex flex-col">
             <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
@@ -210,7 +210,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
 
           {/* Right: Overuse Overlay (Risk + Force) */}
           <div className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm lg:col-span-2 flex flex-col">
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex justify-between items-center mb-4">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
                 <Activity size={16} className="text-slate-400 dark:text-slate-500" /> Overuse Overlay (Load vs Risk)
               </h3>
@@ -226,7 +226,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
         </section>
 
         {/* ROW 3: BIOMECHANICAL & PHYSIOLOGICAL DEEP DIVE */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
           {/* Scatter Plot */}
           <div className="rounded-2xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm">
             <div className="flex justify-between items-center mb-2">

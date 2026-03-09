@@ -42,12 +42,12 @@ export default async function ClinicianProfile({ params }) {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 bg-transparent transition-colors duration-300 p-4 md:p-8">
+    <div className="max-w-[1400px] mx-auto space-y-6 bg-transparent transition-colors duration-300 p-4 md:p-8">
       
       {/* Header & Quick Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-2">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My Profile</h1>
+          <h1 className="-mt-4 text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white">My Profile</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm">Manage your professional information</p>
         </div>
         <div className="hidden sm:block">
