@@ -214,7 +214,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
     <>
       <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
         {/* Header */}
-        <header className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
+        <header className="-mt-4 flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Live Telemetry</h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
