@@ -121,7 +121,7 @@ export default async function HistoryPage({ params, searchParams }) {
       <div className="mx-auto w-full max-w-[1400px] px-4 py-6 md:p-8">
         
         {/* Header */}
-        <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <header className="-mt-4 mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
             <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">History & Trends</h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{patientInfo.fullName} • {rangeLabel}</p>

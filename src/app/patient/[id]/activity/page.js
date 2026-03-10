@@ -147,7 +147,7 @@ export default async function ActivityPage({ params }) {
     <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-6 bg-transparent transition-colors duration-300 min-h-screen">
       
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 -mt-2">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-800 dark:text-white">Activity Recommendations</h1>
           <p className="text-slate-500 dark:text-slate-400 text-sm">Personalized guidance based on your live sensor data</p>
