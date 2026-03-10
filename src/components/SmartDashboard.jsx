@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
@@ -17,7 +17,8 @@ const THEMES = {
   slate: "bg-slate-50/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50"
 };
 
-const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue", isLive = true }) => {
+// [OPTIMIZATION] Wrapped in React.memo
+const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue", isLive = true }) => {
   const isAlert = status?.includes('High');
 
   return (
@@ -56,9 +57,13 @@ const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status, colorThe
       </div>
     </article>
   );
-};
+});
 
-const StatusBadge = ({ icon: Icon, label, value, isOnline, pulsing = false }) => (
+// FIX: Add display name for SensorCard
+SensorCard.displayName = 'SensorCard';
+
+// [OPTIMIZATION] Wrapped in React.memo
+const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false }) => (
   <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
     <div className="relative">
       <Icon size={16} aria-hidden="true" className={isOnline ? "text-emerald-500" : "text-slate-400"} />
@@ -74,7 +79,10 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline, pulsing = false }) =>
       <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{value}</span>
     </div>
   </div>
-);
+));
+
+// FIX: Add display name for StatusBadge
+StatusBadge.displayName = 'StatusBadge';
 
 export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75 }) {
   const { data, deviceStatus, lastPacketTime, sendCommand } = useMQTT(deviceMac);
@@ -87,6 +95,10 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   const dataRef = useRef(data); 
   const weatherRef = useRef(weather); 
+  
+  // [OPTIMIZATION] Track last fetched coordinates
+  const lastLatRef = useRef(null);
+  const lastLngRef = useRef(null);
 
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { weatherRef.current = weather; }, [weather]);
@@ -94,12 +106,17 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   // Database Auto-Save Interval
   useEffect(() => {
     if (!enableAutoSave) return;
+    
+    let isSaving = false; // [OPTIMIZATION] Prevent overlapping API requests
 
     const saveInterval = setInterval(async () => {
+      if (isSaving) return;
+      
       const currentData = dataRef.current;
       const currentWeather = weatherRef.current; 
       
       if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
+        isSaving = true;
         try {
            await fetch('/api/save-log', {
              method: 'POST',
@@ -121,6 +138,8 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
            });
         } catch (err) {
             console.error("Auto-save failed", err);
+        } finally {
+            isSaving = false;
         }
       }
     }, 10000); 
@@ -129,25 +148,21 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   }, [deviceStatus, patientId, enableAutoSave]);
 
   const riskConfig = useMemo(() => {
-    // Force both values to be evaluated as pure numbers
     const currentScore = Number(data.risk_score);
     const threshold = Number(riskThreshold);
 
-    // 1. Critical if it meets or exceeds the clinician's exact threshold
     if (currentScore >= threshold) return { 
       isCritical: true, label: 'CRITICAL STRESS', textMain: 'text-rose-500 dark:text-rose-400',
       stroke: 'stroke-rose-500 dark:stroke-rose-400',
       badgeStyles: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
     };
     
-    // 2. Moderate if it is within 15 points of the threshold
     if (currentScore >= (threshold - 15)) return { 
       isCritical: false, label: 'MODERATE LOAD', textMain: 'text-amber-500 dark:text-amber-400',
       stroke: 'stroke-amber-500 dark:stroke-amber-400',
       badgeStyles: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
     };
     
-    // 3. Otherwise Safe
     return { 
       isCritical: false, label: 'SAFE ZONE', textMain: 'text-emerald-500 dark:text-emerald-400',
       stroke: 'stroke-emerald-500 dark:stroke-emerald-400',
@@ -159,14 +174,24 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   useEffect(() => {
     const lat = Number(data.lat);
     const lng = Number(data.lng);
+    
     if (lat && lng && lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)) {
-      const fetchWeather = async () => {
-        try {
-          const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat.toFixed(2)}&lon=${lng.toFixed(2)}&units=metric&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`);
-          if (res.ok) setWeather(await res.json());
-        } catch (error) {}
-      };
-      fetchWeather();
+      // [OPTIMIZATION] Round to avoid fetch spam
+      const roundedLat = lat.toFixed(2);
+      const roundedLng = lng.toFixed(2);
+      
+      if (lastLatRef.current !== roundedLat || lastLngRef.current !== roundedLng) {
+        lastLatRef.current = roundedLat;
+        lastLngRef.current = roundedLng;
+        
+        const fetchWeather = async () => {
+          try {
+            const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${roundedLat}&lon=${roundedLng}&units=metric&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`);
+            if (res.ok) setWeather(await res.json());
+          } catch (error) {}
+        };
+        fetchWeather();
+      }
     }
   }, [data.lat, data.lng]);
 
@@ -220,8 +245,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
-             
-             {/* IMPROVED CALIBRATION BUTTON */}
              <div className="relative group flex items-center">
                <button 
                  onClick={() => setShowCalibrationModal(true)}
@@ -232,7 +255,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                  Set Standing Baseline
                </button>
                
-               {/* Tooltip that appears on hover */}
                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 dark:bg-slate-700 text-white text-[10px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-center z-10 pointer-events-none shadow-lg">
                  Click this while standing perfectly straight to zero your joint angle to 0°.
                  <svg className="absolute text-slate-800 dark:text-slate-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
@@ -255,8 +277,9 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
              <div className="relative w-full max-w-[260px] aspect-[2/1] mx-auto flex justify-center items-end">
                 <svg className="w-full h-full overflow-visible drop-shadow-sm" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
                   <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="20" strokeLinecap="round" />
+                  {/* [OPTIMIZATION] Changed to duration-500 to sync with MQTT hook */}
                   <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
-                    className={`transition-all duration-1000 ease-out ${riskConfig.stroke}`}
+                    className={`transition-all duration-500 ease-out ${riskConfig.stroke}`}
                     strokeWidth="20" strokeLinecap="round" strokeDasharray="251.2"
                     strokeDashoffset={251.2 - (data.risk_score / 100) * 251.2}
                   />
@@ -323,7 +346,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
         </footer>
       </section>
 
-      {/* Calibration Modal */}
+      {/* Calibration Modal remains the same */}
       {showCalibrationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">

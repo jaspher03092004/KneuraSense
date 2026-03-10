@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
@@ -9,7 +9,8 @@ import {
 } from 'lucide-react';
 
 // --- Helper Components ---
-const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue" }) => {
+// [OPTIMIZATION] Wrapped in React.memo to prevent unnecessary re-renders
+const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue" }) => {
   const themes = {
     blue: "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400",
     rose: "bg-rose-50 text-rose-600 dark:bg-rose-950 dark:text-rose-400",
@@ -44,9 +45,13 @@ const SensorCard = ({ icon: Icon, title, subTitle, value, unit, status, colorThe
       </div>
     </div>
   );
-};
+});
+// Fix for ESLint react/display-name
+SensorCard.displayName = 'SensorCard';
 
-const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
+
+// [OPTIMIZATION] Wrapped in React.memo
+const StatusBadge = memo(({ icon: Icon, label, value, isOnline }) => (
   <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-none">
     <Icon size={18} className={isOnline ? "text-emerald-500" : "text-slate-400 dark:text-slate-600"} />
     <div className="flex flex-col">
@@ -54,42 +59,65 @@ const StatusBadge = ({ icon: Icon, label, value, isOnline }) => (
       <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">{value}</span>
     </div>
   </div>
-);
+));
+// Fix for ESLint react/display-name
+StatusBadge.displayName = 'StatusBadge';
 
 // --- Main Component (Saves to DB) ---
-export default function SmartDashboard({ patientName, patientId, deviceMac }) {
+export default function LiveDashboard({ patientName, patientId, deviceMac }) {
   const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
   
   const [weather, setWeather] = useState(null);
   const dataRef = useRef(data); 
   const weatherRef = useRef(weather); 
+  
+  // [OPTIMIZATION] Refs to track previous coordinates to prevent API spam
+  const lastLatRef = useRef(null);
+  const lastLngRef = useRef(null);
 
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { weatherRef.current = weather; }, [weather]);
 
   // --- WEATHER FETCHING ---
   useEffect(() => {
-    if (data.lat && data.lng && data.lat !== "0" && data.lng !== "0") {
-      const fetchWeather = async () => {
-        const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY; 
-        const url = `https://api.openweathermap.org/data/2.5/weather?lat=${data.lat}&lon=${data.lng}&units=metric&appid=${API_KEY}`;
-        try {
-          const response = await fetch(url);
-          const result = await response.json();
-          if (result.cod === 200) setWeather(result);
-        } catch (error) { console.error("Error fetching weather:", error); }
-      };
-      fetchWeather();
+    const lat = Number(data.lat);
+    const lng = Number(data.lng);
+    
+    if (lat && lng && lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)) {
+      // [OPTIMIZATION] Round coordinates to 2 decimals (~1.1km) to stop GPS jitter spam
+      const roundedLat = lat.toFixed(2);
+      const roundedLng = lng.toFixed(2);
+      
+      if (lastLatRef.current !== roundedLat || lastLngRef.current !== roundedLng) {
+        lastLatRef.current = roundedLat;
+        lastLngRef.current = roundedLng;
+        
+        const fetchWeather = async () => {
+          const API_KEY = process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY; 
+          const url = `https://api.openweathermap.org/data/2.5/weather?lat=${roundedLat}&lon=${roundedLng}&units=metric&appid=${API_KEY}`;
+          try {
+            const response = await fetch(url);
+            const result = await response.json();
+            if (result.cod === 200) setWeather(result);
+          } catch (error) { console.error("Error fetching weather:", error); }
+        };
+        fetchWeather();
+      }
     }
   }, [data.lat, data.lng]); 
 
   // --- AUTO-SAVE TO SUPABASE ---
   useEffect(() => {
+    let isSaving = false; // [OPTIMIZATION] Lock to prevent overlapping requests
+    
     const saveInterval = setInterval(async () => {
+      if (isSaving) return;
+      
       const currentData = dataRef.current;
       const currentWeather = weatherRef.current; 
       
       if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
+        isSaving = true;
         try {
            await fetch('/api/save-log', {
              method: 'POST',
@@ -109,7 +137,11 @@ export default function SmartDashboard({ patientName, patientId, deviceMac }) {
                pressure: currentData.pressure
              }),
            });
-        } catch (err) { console.error("Auto-save failed:", err); }
+        } catch (err) { 
+          console.error("Auto-save failed:", err); 
+        } finally {
+          isSaving = false;
+        }
       }
     }, 10000); 
     return () => clearInterval(saveInterval);
@@ -142,12 +174,12 @@ export default function SmartDashboard({ patientName, patientId, deviceMac }) {
               <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Knee Osteoarthritis stress indicator</p>
            </div>
            
-           {/* UPDATED GAUGE CONTAINER FOR RESPONSIVENESS */}
            <div className="relative w-full max-w-[240px] md:max-w-xs h-32 mt-4 mb-2 mx-auto flex justify-center items-end min-w-0">
               <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
                 <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-700" strokeWidth="18" strokeLinecap="round" />
+                {/* [OPTIMIZATION] Changed duration-1000 to duration-500 to sync with MQTT */}
                 <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
-                  className={`transition-all duration-1000 ease-out ${
+                  className={`transition-all duration-500 ease-out ${
                     data.risk_score > 70 ? 'text-rose-500' : data.risk_score > 40 ? 'text-amber-500' : 'text-emerald-500'
                   }`}
                   stroke="currentColor" strokeWidth="18" strokeLinecap="round" strokeDasharray="251.2"
