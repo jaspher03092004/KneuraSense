@@ -166,14 +166,14 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
              };
 
             return (
-              <div key={index} className="relative overflow-hidden rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-md transition-all duration-300 group">
+              <div key={index} className="relative overflow-hidden rounded-lg border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-md transition-all duration-300 group">
                 <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10 blur-2xl transition-all group-hover:scale-150 ${stat.bg.replace('bg-', 'bg-')}`}></div>
                 
                 <div className="flex justify-between items-start mb-4 relative z-10">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl border ${stat.bg} ${stat.borderColor} shrink-0 transition-transform duration-300 group-hover:scale-110`}>
+                  <div className={`flex h-10 w-10 items-center justify-center rounded-md border ${stat.bg} ${stat.borderColor} shrink-0 transition-transform duration-300 group-hover:scale-110`}>
                     {iconMap[stat.icon]}
                   </div>
-                  <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-slate-50 dark:bg-slate-800 text-slate-500">
+                  <span className="text-[10px] font-bold px-2 py-1 rounded-md bg-slate-50 dark:bg-slate-800 text-slate-500">
                     {stat.icon === 'AlertCircle' ? 'Needs Review' : 'Live'}
                   </span>
                 </div>
@@ -193,7 +193,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
 
         {/* --- CLINIC POPULATION ANALYTICS --- */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] lg:col-span-1">
+          <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-800 p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] lg:col-span-1">
             <div className="mb-2">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Roster Health</h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">Current triage distribution</p>
@@ -203,7 +203,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                 <PieChart>
                   <RechartsTooltip 
                     cursor={{ fill: 'transparent' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                    contentStyle={{ borderRadius: '6px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                     itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
                   />
                   <Pie
@@ -231,7 +231,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
             </div>
           </section>
 
-          <section className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/60 dark:border-slate-800 p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] lg:col-span-2 flex flex-col">
+          <section className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-800 p-5 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] lg:col-span-2 flex flex-col">
             <div className="mb-2">
               <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Average Risk by Age Demographic</h3>
               <p className="text-[11px] text-slate-500 dark:text-slate-400">Identifying vulnerable populations in your roster</p>
@@ -255,7 +255,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                   />
                   <RechartsTooltip
                     cursor={{ fill: 'rgba(241, 245, 249, 0.4)' }}
-                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
+                    contentStyle={{ borderRadius: '6px', border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}
                     labelStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#64748b', marginBottom: '4px' }}
                     itemStyle={{ fontSize: '13px', fontWeight: 'bold', color: '#0f172a' }}
                     formatter={(value, name) => [name === 'avgRisk' ? `${value} / 100` : value, name === 'avgRisk' ? 'Avg Risk Score' : 'Patients']}
@@ -281,14 +281,14 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
               <button 
                 key={filter.id} 
                 onClick={() => { setSelectedFilter(filter.id); setCurrentPage(1); }} 
-                className={`px-4 md:px-6 py-2 rounded-full text-[11px] md:text-xs font-bold transition-all border whitespace-nowrap shrink-0 flex items-center gap-2 ${
+                className={`px-4 md:px-6 py-2 rounded-md text-[11px] md:text-xs font-bold transition-all border whitespace-nowrap shrink-0 flex items-center gap-2 ${
                   selectedFilter === filter.id 
                   ? 'bg-[#2D5F8B] dark:bg-blue-600 text-white border-[#2D5F8B] dark:border-blue-600 shadow-md' 
                   : 'bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                 }`}
               >
                 {filter.label}
-                <span className={`text-[10px] px-1.5 py-0.5 rounded-md font-black ${
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-sm font-black ${
                   selectedFilter === filter.id ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                 }`}>
                   {filter.count}
@@ -306,25 +306,25 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
               placeholder="Search patients..." 
               value={searchQuery} 
               onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }} 
-              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-900 rounded-xl md:rounded-full border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-[13px] font-medium text-slate-600 dark:text-slate-300 shadow-sm" 
+              className="w-full pl-11 pr-4 py-2.5 bg-white dark:bg-slate-900 rounded-md md:rounded-md border border-slate-200 dark:border-slate-700 focus:border-slate-300 dark:focus:border-slate-600 focus:ring-4 focus:ring-slate-100 dark:focus:ring-slate-800 outline-none transition-all text-[13px] font-medium text-slate-600 dark:text-slate-300 shadow-sm" 
             />
           </div>
         </div>
 
         {/* Patient Directory Table & Cards */}
-        <section className="-mt-4 overflow-hidden rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] relative">
+        <section className="-mt-4 overflow-hidden rounded-lg border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] relative">
           <div className="overflow-hidden border-b border-slate-100 dark:border-slate-800/80 p-4 md:p-5 flex justify-between items-center bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm">
             <h3 className="text-sm md:text-base font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
               Patient Roster
               {sortConfig.key === 'score' && (
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 ml-2 border border-rose-100 dark:border-rose-500/20">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-sm bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 ml-2 border border-rose-100 dark:border-rose-500/20">
                   Sorted by Risk
                 </span>
               )}
             </h3>
             <div className="flex items-center gap-4">
               <span className="text-[10px] md:text-xs font-medium text-slate-400 dark:text-slate-500">Showing {processedPatients.length} records</span>
-              <Link href={`/clinician/${params.id}/dashboard/all-patients`} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-[10px] md:text-xs font-bold">
+              <Link href={`/clinician/${params.id}/dashboard/all-patients`} className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 rounded-md hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-[10px] md:text-xs font-bold">
                 <Eye size={14} /> View All
               </Link>
             </div>
@@ -357,7 +357,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                       <div className="flex justify-between items-start">
                         <div className="flex items-center gap-3">
                           <div className="relative">
-                            <div className={`${isCompact ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm'} rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0`}>
+                            <div className={`${isCompact ? 'w-8 h-8 text-xs' : 'w-10 h-10 text-sm'} rounded-md bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0`}>
                               {patient.initials}
                             </div>
                             {patient.status !== 'offline' && (
@@ -377,13 +377,13 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                             <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
                           </div>
                         </div>
-                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md shrink-0 border border-transparent ${statusConfig.bg} ${statusConfig.text}`}>
+                        <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-sm shrink-0 border border-transparent ${statusConfig.bg} ${statusConfig.text}`}>
                           {statusConfig.label}
                         </span>
                       </div>
 
                       <div className="grid grid-cols-2 gap-2">
-                        <div className={`flex flex-col justify-center bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-lg ${isCompact ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
+                        <div className={`flex flex-col justify-center bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-md ${isCompact ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
                           <div className="flex justify-between items-end mb-1">
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Score</p>
                             <p className={`font-mono font-bold ${isCompact ? 'text-xs' : 'text-sm'} ${getScoreColor(patient.score)}`}>
@@ -402,7 +402,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                                   />
                                   {/* Mobile Custom Tooltip */}
                                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/spark:flex z-50">
-                                    <span className="bg-slate-800 dark:bg-slate-700 text-white text-[10px] font-bold py-0.5 px-1.5 rounded shadow-lg">
+                                    <span className="bg-slate-800 dark:bg-slate-700 text-white text-[10px] font-bold py-0.5 px-1.5 rounded-sm shadow-lg">
                                       {historicalScore}
                                     </span>
                                   </div>
@@ -411,7 +411,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                             })}
                           </div>
                         </div>
-                        <div className={`flex flex-col justify-center bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-lg ${isCompact ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
+                        <div className={`flex flex-col justify-center bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-700/50 rounded-md ${isCompact ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
                           <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Sync</p>
                           <p className={`font-bold text-slate-600 dark:text-slate-300 truncate ${isCompact ? 'text-[9px]' : 'text-[10px]'}`}>{patient.lastActive}</p>
                         </div>
@@ -421,13 +421,13 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                       <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800/50 flex items-center justify-between gap-2">
                         <Link 
                           href={`/clinician/${params.id}/interventions?patientId=${patient.id}`}
-                          className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 dark:hover:bg-rose-500/30 rounded-lg text-xs font-bold transition-colors border border-rose-100 dark:border-rose-500/20"
+                          className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2.5 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 dark:hover:bg-rose-500/30 rounded-md text-xs font-bold transition-colors border border-rose-100 dark:border-rose-500/20"
                         >
                           <Stethoscope size={14} /> Intervene
                         </Link>
                         <button 
                           onClick={() => handleTelemetryClick(patient)}
-                          className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 rounded-lg text-xs font-bold transition-colors border border-indigo-100 dark:border-indigo-500/20"
+                          className="flex-1 flex justify-center items-center gap-1.5 px-3 py-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 rounded-md text-xs font-bold transition-colors border border-indigo-100 dark:border-indigo-500/20"
                         >
                           <Activity size={14} /> Telemetry
                         </button>
@@ -461,7 +461,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                           <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'}`}>
                             <div className="flex items-center gap-4">
                               <div className="relative">
-                                <div className={`${isCompact ? 'w-8 h-8 text-xs rounded-lg' : 'w-10 h-10 text-sm rounded-xl'} bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0`}>
+                                <div className={`${isCompact ? 'w-8 h-8 text-xs rounded-md' : 'w-10 h-10 text-sm rounded-md'} bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-700 dark:text-slate-200 font-bold shadow-sm shrink-0`}>
                                   {patient.initials}
                                 </div>
                                 {patient.status !== 'offline' && (
@@ -483,7 +483,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                           </td>
                           
                           <td className={`${isCompact ? 'px-4 py-2' : 'px-6 py-4'}`}>
-                            <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-md border border-transparent ${statusConfig.bg} ${statusConfig.text}`}>
+                            <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-sm border border-transparent ${statusConfig.bg} ${statusConfig.text}`}>
                               {statusConfig.label}
                             </span>
                           </td>
@@ -506,7 +506,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                                       />
                                       {/* Custom CSS Hover Tooltip */}
                                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 hidden group-hover/spark:flex z-50">
-                                        <span className="bg-slate-800 dark:bg-slate-700 text-white text-[10px] font-bold py-0.5 px-1.5 rounded whitespace-nowrap shadow-lg">
+                                        <span className="bg-slate-800 dark:bg-slate-700 text-white text-[10px] font-bold py-0.5 px-1.5 rounded-sm whitespace-nowrap shadow-lg">
                                           {historicalScore}
                                         </span>
                                       </div>
@@ -530,14 +530,14 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                             <div className="absolute inset-y-0 right-0 flex items-center justify-end gap-2 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-10 bg-gradient-to-l from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 pl-16 pr-6">
                               <Link 
                                 href={`/clinician/${params.id}/interventions?patientId=${patient.id}`} 
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 dark:hover:bg-rose-500/30 rounded-lg text-xs font-bold transition-colors shadow-sm border border-rose-100 dark:border-rose-500/20"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 text-rose-700 hover:bg-rose-100 dark:bg-rose-500/20 dark:text-rose-300 dark:hover:bg-rose-500/30 rounded-md text-xs font-bold transition-colors shadow-sm border border-rose-100 dark:border-rose-500/20"
                               >
                                 <Stethoscope size={14} /> Intervene
                               </Link>
                               
                               <button 
                                 onClick={() => handleTelemetryClick(patient)}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 rounded-lg text-xs font-bold transition-colors shadow-sm border border-indigo-100 dark:border-indigo-500/20"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-500/20 dark:text-indigo-300 dark:hover:bg-indigo-500/30 rounded-md text-xs font-bold transition-colors shadow-sm border border-indigo-100 dark:border-indigo-500/20"
                               >
                                 <Activity size={14} /> Telemetry
                               </button>
@@ -558,7 +558,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
               <button 
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} 
                 disabled={currentPage <= 1} 
-                className={`flex items-center gap-1 text-xs md:text-sm font-bold px-3 md:px-4 py-2 rounded-lg border transition-all ${currentPage === 1 ? 'text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 pointer-events-none' : 'text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'}`}
+                className={`flex items-center gap-1 text-xs md:text-sm font-bold px-3 md:px-4 py-2 rounded-md border transition-all ${currentPage === 1 ? 'text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 pointer-events-none' : 'text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'}`}
               >
                 <ChevronLeft size={16} /> <span className="hidden sm:inline">Previous</span>
               </button>
@@ -566,7 +566,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
               <button 
                 onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))} 
                 disabled={currentPage >= totalPages} 
-                className={`flex items-center gap-1 text-xs md:text-sm font-bold px-3 md:px-4 py-2 rounded-lg border transition-all ${currentPage === totalPages ? 'text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 pointer-events-none' : 'text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'}`}
+                className={`flex items-center gap-1 text-xs md:text-sm font-bold px-3 md:px-4 py-2 rounded-md border transition-all ${currentPage === totalPages ? 'text-slate-300 dark:text-slate-600 border-slate-200 dark:border-slate-700 pointer-events-none' : 'text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm'}`}
               >
                 <span className="hidden sm:inline">Next</span> <ChevronRight size={16} />
               </button>
@@ -578,7 +578,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
         {showLiveDashboard && selectedPatient && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowLiveDashboard(false)}></div>
-            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl max-w-5xl w-full max-h-[90dvh] overflow-y-auto relative border border-slate-100 dark:border-slate-800 no-scrollbar">
+            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl max-w-5xl w-full max-h-[90dvh] overflow-y-auto relative border border-slate-100 dark:border-slate-800 no-scrollbar">
               <div className="sticky top-0 bg-white dark:bg-slate-900 flex justify-between items-center p-6 border-b border-slate-100 dark:border-slate-800 z-10">
                 <div className="min-w-0">
                   <h2 className="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">{selectedPatient.name} - Live Dashboard</h2>
@@ -586,7 +586,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                 </div>
                 <button 
                   onClick={() => setShowLiveDashboard(false)} 
-                  className="p-2 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-full transition-colors text-slate-400 shrink-0"
+                  className="p-2 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors text-slate-400 shrink-0"
                 >
                   <X size={20} />
                 </button>

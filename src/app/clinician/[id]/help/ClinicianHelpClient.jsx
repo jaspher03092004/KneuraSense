@@ -57,46 +57,46 @@ export default function ClinicianHelpClient({ clinician }) {
   };
 
   return (
-    <div className="pb-16 pt-8">
-      <div className="px-6 text-center max-w-4xl mx-auto mb-16 -mt-4">
-        <div className="w-16 h-16 bg-[#2D5F8B] text-white rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-md">
-          <Stethoscope size={30} />
+    <div className="pb-8 pt-4">
+      <div className="px-6 text-center max-w-3xl mx-auto mb-8">
+        <div className="w-12 h-12 bg-[#2D5F8B] text-white rounded-lg flex items-center justify-center mx-auto mb-4 shadow-sm">
+          <Stethoscope size={24} />
         </div>
-        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">
-          Clinician Knowledge Base
+        <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-2">
+          Knowledge Base
         </h1>
-        <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg mb-8 max-w-2xl mx-auto">
-          Welcome, Dr. {clinician?.full_name?.split(' ').pop() || 'Provider'}. Search for documentation on patient management, clinical validity, and platform features.
+        <p className="text-slate-500 dark:text-slate-400 text-sm mb-6 max-w-xl mx-auto">
+          Welcome, Dr. {clinician?.full_name?.split(' ').pop() || 'Provider'}. Search for documentation on patient management and clinical features.
         </p>
         
-        <div className="relative max-w-2xl mx-auto group">
-          <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-            <Search className="h-6 w-6 text-slate-400 group-focus-within:text-[#2D5F8B] dark:group-focus-within:text-blue-400 transition-colors" />
+        <div className="relative max-w-xl mx-auto group">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-slate-400 group-focus-within:text-[#2D5F8B] transition-colors" />
           </div>
           <input 
             type="text" 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search for 'Calibrate', 'Billing', 'Export'..." 
-            className="w-full pl-16 pr-6 py-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-full text-lg text-slate-900 dark:text-white shadow-sm hover:shadow-md focus:outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-4 focus:ring-[#2D5F8B]/10 transition-all placeholder:text-slate-400"
+            placeholder="Search documentation..." 
+            className="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-base text-slate-900 dark:text-white shadow-sm focus:outline-none focus:border-[#2D5F8B] focus:ring-4 focus:ring-[#2D5F8B]/10 transition-all placeholder:text-slate-400"
           />
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-6 space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-           <div className="lg:col-span-2 space-y-10">
+      <div className="max-w-[1400px] mx-auto px-6 space-y-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+           <div className="lg:col-span-2 space-y-6">
               {!searchQuery && (
                 <div>
-                   <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">Browse by Topic</h3>
-                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                   <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-3">Browse by Topic</h3>
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {categories.map((cat, i) => (
-                        <div key={i} className="group bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#2D5F8B]/50 dark:hover:border-blue-500/50 hover:shadow-md transition-all cursor-pointer">
-                           <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-[#2D5F8B] dark:text-blue-400 rounded-xl flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-[#2D5F8B] group-hover:text-white transition-all">
-                              <cat.icon size={22} />
+                        <div key={i} className="group bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm hover:border-[#2D5F8B]/50 transition-all cursor-pointer">
+                           <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 text-[#2D5F8B] dark:text-blue-400 rounded-md flex items-center justify-center mb-3 group-hover:bg-[#2D5F8B] group-hover:text-white transition-all">
+                              <cat.icon size={20} />
                            </div>
-                           <h4 className="font-bold text-slate-900 dark:text-white mb-1.5">{cat.title}</h4>
-                           <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{cat.desc}</p>
+                           <h4 className="font-bold text-slate-900 dark:text-white text-sm mb-1">{cat.title}</h4>
+                           <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">{cat.desc}</p>
                         </div>
                       ))}
                    </div>
@@ -104,38 +104,34 @@ export default function ClinicianHelpClient({ clinician }) {
               )}
 
               <div>
-                 <div className="flex items-center gap-3 mb-4">
-                    <HelpCircle className="text-[#2D5F8B] dark:text-blue-400" size={24} />
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                 <div className="flex items-center gap-2 mb-3">
+                    <HelpCircle className="text-[#2D5F8B] dark:text-blue-400" size={20} />
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                       {searchQuery ? `Search Results (${filteredFaqs.length})` : "Common Clinical Questions"}
                     </h3>
                  </div>
                  
-                 <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                 <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                     <div className="divide-y divide-slate-100 dark:divide-slate-800">
                        {filteredFaqs.length > 0 ? filteredFaqs.map((item, i) => (
                          <details key={i} className="group transition-colors" open={!!searchQuery}>
-                            <summary className="flex items-center justify-between p-6 cursor-pointer list-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                               <span className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-[#2D5F8B] dark:group-hover:text-blue-400 transition-colors pr-4">
+                            <summary className="flex items-center justify-between p-4 cursor-pointer list-none hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                               <span className="font-semibold text-slate-800 dark:text-slate-200 text-sm group-hover:text-[#2D5F8B] transition-colors pr-4">
                                  {highlightText(item.q, searchQuery)}
                                </span>
-                               <div className="w-8 h-8 rounded-full border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 group-open:bg-[#2D5F8B] group-open:border-[#2D5F8B] group-open:text-white dark:group-open:bg-blue-600 dark:group-open:border-blue-600 transition-all">
-                                 <ChevronRight size={16} className="text-slate-400 group-open:text-white transition-transform group-open:rotate-90" />
+                               <div className="w-6 h-6 rounded-md border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 group-open:bg-[#2D5F8B] group-open:text-white transition-all">
+                                 <ChevronRight size={14} className="text-slate-400 group-open:text-white transition-transform group-open:rotate-90" />
                                </div>
                             </summary>
-                            <div className="px-6 pb-6 pt-2 text-slate-600 dark:text-slate-400 leading-relaxed text-sm">
+                            <div className="px-4 pb-4 pt-1 text-slate-600 dark:text-slate-400 leading-relaxed text-xs">
                                {highlightText(item.a, searchQuery)}
                             </div>
                          </details>
                        )) : (
-                         <div className="p-10 text-center flex flex-col items-center justify-center">
-                           <div className="w-16 h-16 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-4">
-                             <Search className="text-slate-400" size={24} />
-                           </div>
-                           <h4 className="font-bold text-slate-900 dark:text-white mb-2">No results found</h4>
-                           <p className="text-slate-500 dark:text-slate-400 max-w-xs">
-                             We couldn&apos;t find anything matching &quot;{searchQuery}&quot;. Try adjusting your keywords.
-                           </p>
+                         <div className="p-8 text-center flex flex-col items-center justify-center">
+                            <Search className="text-slate-300 mb-2" size={32} />
+                            <h4 className="font-bold text-slate-900 dark:text-white text-sm">No results found</h4>
+                            <p className="text-xs text-slate-500 max-w-xs">Try adjusting your keywords.</p>
                          </div>
                        )}
                     </div>
@@ -143,39 +139,39 @@ export default function ClinicianHelpClient({ clinician }) {
               </div>
            </div>
 
-           <div className="space-y-6">
-              <div className="bg-slate-900 dark:bg-slate-800 rounded-2xl p-6 shadow-md border border-slate-800 dark:border-slate-700">
-                 <h3 className="font-bold text-white mb-2">Provider Support</h3>
-                 <p className="text-sm text-slate-400 mb-6">Get priority assistance from our clinical success team.</p>
-                 <div className="space-y-3">
-                    <a href={`mailto:providers@kneurasense.com?subject=Provider Support - Dr. ${clinician?.full_name || ''}`} className="flex items-center justify-center gap-2 w-full py-3 bg-white text-slate-900 hover:bg-slate-100 rounded-xl font-semibold transition-colors shadow-sm">
-                       <Mail size={18} /> Email Success Team
+           <div className="space-y-4">
+              <div className="bg-slate-900 dark:bg-slate-800 rounded-lg p-5 shadow-sm border border-slate-800">
+                 <h3 className="text-sm font-bold text-white mb-1">Provider Support</h3>
+                 <p className="text-xs text-slate-400 mb-4">Get priority assistance from our team.</p>
+                 <div className="space-y-2">
+                    <a href={`mailto:providers@kneurasense.com`} className="flex items-center justify-center gap-2 w-full py-2.5 bg-white text-slate-900 hover:bg-slate-100 rounded-md text-xs font-bold transition-colors">
+                        <Mail size={16} /> Email Success
                     </a>
-                    <a href="tel:+639123456789" className="flex items-center justify-center gap-2 w-full py-3 bg-transparent text-white hover:bg-slate-800 border border-slate-700 rounded-xl font-semibold transition-colors">
-                       <Phone size={18} /> Priority Line
+                    <a href="tel:+639123456789" className="flex items-center justify-center gap-2 w-full py-2.5 bg-transparent text-white hover:bg-slate-800 border border-slate-700 rounded-md text-xs font-bold transition-colors">
+                        <Phone size={16} /> Priority Line
                     </a>
                  </div>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-6">
-                 <h3 className="font-bold text-slate-900 dark:text-white mb-4">Clinical Resources</h3>
+              <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm p-5">
+                 <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-3">Clinical Resources</h3>
                  <div className="space-y-1">
-                    <a href="/KneuraSense_Clinical_Validation.pdf" download className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
-                      <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 text-[#2D5F8B] dark:text-blue-400 rounded-full flex items-center justify-center group-hover:bg-[#2D5F8B] group-hover:text-white transition-colors shrink-0">
-                        <Activity size={18} />
+                    <a href="/KneuraSense_Clinical_Validation.pdf" download className="flex items-center gap-3 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
+                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 text-[#2D5F8B] rounded-md flex items-center justify-center group-hover:bg-[#2D5F8B] group-hover:text-white transition-colors shrink-0">
+                        <Activity size={16} />
                       </div>
                       <div>
-                         <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Validation Whitepaper</p>
-                         <p className="text-xs text-slate-500">Clinical Study (PDF)</p>
+                         <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-none">Validation Paper</p>
+                         <p className="text-[10px] text-slate-500 mt-1">Study (PDF)</p>
                       </div>
                     </a>
-                    <a href="/KneuraSense_RPM_Billing_Guide.pdf" download className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
-                      <div className="w-10 h-10 bg-slate-50 dark:bg-slate-800 text-[#2D5F8B] dark:text-blue-400 rounded-full flex items-center justify-center group-hover:bg-[#2D5F8B] group-hover:text-white transition-colors shrink-0">
-                        <BookOpen size={18} />
+                    <a href="/KneuraSense_RPM_Billing_Guide.pdf" download className="flex items-center gap-3 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
+                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 text-[#2D5F8B] rounded-md flex items-center justify-center group-hover:bg-[#2D5F8B] group-hover:text-white transition-colors shrink-0">
+                        <BookOpen size={16} />
                       </div>
                       <div>
-                         <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">RPM Billing Guide</p>
-                         <p className="text-xs text-slate-500">CPT Codes & Compliance</p>
+                         <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-none">Billing Guide</p>
+                         <p className="text-[10px] text-slate-500 mt-1">Compliance (PDF)</p>
                       </div>
                     </a>
                  </div>
