@@ -144,7 +144,7 @@ export default async function ActivityPage({ params }) {
   }
 
   return (
-    <div className="space-y-6 max-w-[1400px] mx-auto p-4 md:p-6 bg-transparent transition-colors duration-300 min-h-screen">
+    <div className="space-y-4 max-w-[1400px] mx-auto p-3 md:p-4 bg-transparent transition-colors duration-300 min-h-screen">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 -mt-2">
@@ -163,7 +163,7 @@ export default async function ActivityPage({ params }) {
       </div>
 
       {/* Dynamic Context Factors Banner */}
-      <div className="bg-gradient-to-r from-[#E9F0F5] to-[#F1F5F9] dark:from-slate-800 dark:to-slate-800/50 rounded-2xl p-6 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border border-slate-200 dark:border-slate-700 transition-colors duration-300 shadow-sm">
+      <div className="bg-gradient-to-r from-[#E9F0F5] to-[#F1F5F9] dark:from-slate-800 dark:to-slate-800/50 rounded-lg p-4 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 border border-slate-200 dark:border-slate-700 transition-colors duration-300 shadow-sm">
         <div>
           <h3 className="flex items-center gap-2 font-extrabold text-slate-800 dark:text-white text-lg">
             <AlertTriangle size={20} className="text-slate-600 dark:text-slate-400" /> Current Context Factors
@@ -171,9 +171,9 @@ export default async function ActivityPage({ params }) {
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time variables affecting your knee health right now</p>
         </div>
         
-        <div className="flex flex-wrap gap-4 md:gap-8">
-          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg">
+        <div className="flex flex-wrap gap-3 md:gap-4">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-md">
               <Thermometer size={18} className="text-blue-500 dark:text-blue-400" />
             </div>
             <div>
@@ -184,8 +184,8 @@ export default async function ActivityPage({ params }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div className="p-2 bg-indigo-50 dark:bg-indigo-500/10 rounded-md">
               <Activity size={18} className="text-indigo-500 dark:text-indigo-400" />
             </div>
             <div>
@@ -196,8 +196,8 @@ export default async function ActivityPage({ params }) {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-3 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm">
-            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-lg">
+          <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div className="p-2 bg-slate-50 dark:bg-slate-800 rounded-md">
               <Shield size={18} className={`${riskColor} ${riskAnimation}`} />
             </div>
             <div>
@@ -208,16 +208,16 @@ export default async function ActivityPage({ params }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6">
         
         {/* Left Column: Data-Driven Recommendations */}
-        <div className="xl:col-span-2 space-y-6">
+        <div className="xl:col-span-2 space-y-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Activity size={20} className="text-blue-600 dark:text-blue-400" /> Active Insights
           </h2>
 
           {activeRecommendations.map((rec) => (
-            <div key={rec.id} className="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors duration-300">
+            <div key={rec.id} className="bg-white dark:bg-slate-900 rounded-lg p-4 md:p-5 border border-slate-200 dark:border-slate-800 shadow-sm space-y-3 transition-colors duration-300">
                <div className="flex justify-between items-start">
                   <span className={`${rec.priorityColor} text-[10px] font-black px-2.5 py-1 rounded uppercase tracking-wider`}>
                     {rec.priority}
@@ -238,7 +238,7 @@ export default async function ActivityPage({ params }) {
                  </p>
                </div>
 
-               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 grid grid-cols-3 gap-4 border border-slate-100 dark:border-slate-700/50">
+               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3 grid grid-cols-3 gap-3 border border-slate-100 dark:border-slate-700/50">
                   {rec.stats.map((stat, i) => (
                     <div key={i}>
                       <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider mb-1">{stat.label}</p>
@@ -251,20 +251,20 @@ export default async function ActivityPage({ params }) {
         </div>
 
         {/* Right Column: General Tips */}
-        <div className="space-y-6">
+        <div className="space-y-4">
           <h2 className="text-lg font-bold text-slate-800 dark:text-white flex items-center gap-2">
             <Footprints size={20} className="text-blue-600 dark:text-blue-400" /> OA Management Rules
           </h2>
           
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-3">
             {[
               { title: 'Proper Footwear', icon: Footprints, desc: 'Wear shoes with good arch support to reduce impact forces.', tags: ['Avoid flat shoes'] },
               { title: 'Anti-inflammatory Diet', icon: Utensils, desc: 'Incorporate foods that reduce systemic joint inflammation.', tags: ['Omega-3 rich foods'] },
               { title: 'Rest & Recovery', icon: Bed, desc: 'Proper rest is crucial for managing cartilage stress.', tags: ['Elevate legs post-walk'] },
             ].map((tip, i) => (
-              <div key={i} className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300 hover:shadow-md group">
+              <div key={i} className="bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300 hover:shadow-md group">
                 <div className="flex items-center gap-3 mb-2.5">
-                  <div className="p-2 bg-slate-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 rounded-lg text-slate-500 group-hover:text-blue-500 transition-colors">
+                  <div className="p-2 bg-slate-50 dark:bg-slate-800 group-hover:bg-blue-50 dark:group-hover:bg-blue-500/10 rounded-md text-slate-500 group-hover:text-blue-500 transition-colors">
                     <tip.icon size={18} />
                   </div>
                   <h4 className="font-bold text-slate-800 dark:text-slate-100 text-sm">{tip.title}</h4>
@@ -280,11 +280,11 @@ export default async function ActivityPage({ params }) {
       </div>
 
       {/* --- CLINICIAN CARE PLAN FOOTER --- */}
-      <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-800">
+      <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-800">
         
         {/* Dynamic Header based on Pending Status */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className={`p-2.5 rounded-xl text-white ${pendingInterventions.length > 0 ? 'bg-amber-500 shadow-amber-500/20 shadow-lg' : 'bg-blue-600 shadow-blue-600/20 shadow-lg'}`}>
+        <div className="flex items-center gap-3 mb-4">
+          <div className={`p-2 rounded-lg text-white ${pendingInterventions.length > 0 ? 'bg-amber-500 shadow-amber-500/20 shadow-lg' : 'bg-blue-600 shadow-blue-600/20 shadow-lg'}`}>
             <ClipboardList size={20} />
           </div>
           <div>
@@ -301,15 +301,15 @@ export default async function ActivityPage({ params }) {
 
         {/* SCENARIO A: Multiple Pending Interventions */}
         {pendingInterventions.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {pendingInterventions.map((intervention) => (
               
-              <div key={intervention.id} className="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-colors duration-300 overflow-hidden">
+              <div key={intervention.id} className="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm transition-colors duration-300 overflow-hidden">
                 {/* UNIFORM ACCENT LINE (Amber for pending) */}
                 <div className="h-1.5 w-full bg-amber-500 dark:bg-amber-400 shrink-0"></div>
                 
-                <div className="p-5 md:p-6 flex flex-col flex-1">
-                  <div className="flex items-center justify-between gap-4 mb-4">
+                <div className="p-4 md:p-5 flex flex-col flex-1">
+                  <div className="flex items-center justify-between gap-3 mb-3">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-black text-sm border border-blue-100 dark:border-blue-800/30">
                          {getInitials(intervention.clinician.full_name)}
@@ -324,8 +324,8 @@ export default async function ActivityPage({ params }) {
                   </div>
                   
                   {/* UNIFORM INNER BOUNDING BOX */}
-                  <div className="flex flex-col flex-1 bg-amber-50/50 dark:bg-amber-500/5 rounded-xl p-5 border border-amber-100/50 dark:border-amber-500/20">
-                    <div className="flex items-start gap-2 mb-2">
+                  <div className="flex flex-col flex-1 bg-amber-50/50 dark:bg-amber-500/5 rounded-lg p-4 border border-amber-100/50 dark:border-amber-500/20">
+                    <div className="flex items-start gap-2 mb-1.5">
                       <span className="bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-400 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-amber-200 dark:border-amber-500/30">
                         {intervention.type}
                       </span>
@@ -335,16 +335,16 @@ export default async function ActivityPage({ params }) {
                     </div>
                     
                     {/* FIXED ESLINT QUOTES */}
-                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium mb-5">
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium mb-4">
                       &quot;{intervention.notes}&quot;
                     </p>
                     
-                    <div className="mt-auto pt-4 border-t border-amber-200/50 dark:border-amber-500/30 flex justify-end">
+                    <div className="mt-auto pt-3 border-t border-amber-200/50 dark:border-amber-500/30 flex justify-end">
                        <AcknowledgeButton 
-                          interventionId={intervention.id} 
-                          patientId={patient.id}
-                          isAcknowledged={intervention.isAcknowledged}
-                          acknowledgedAt={intervention.acknowledgedAt}
+                         interventionId={intervention.id} 
+                         patientId={patient.id}
+                         isAcknowledged={intervention.isAcknowledged}
+                         acknowledgedAt={intervention.acknowledgedAt}
                        />
                     </div>
                   </div>
@@ -357,12 +357,12 @@ export default async function ActivityPage({ params }) {
         ) : lastAcknowledged ? (
           
           /* SCENARIO B: Caught Up (Show latest acknowledged plan) */
-          <div className="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-colors duration-300 overflow-hidden">
+          <div className="flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm transition-colors duration-300 overflow-hidden">
             {/* UNIFORM ACCENT LINE (Blue for standard active plan) */}
             <div className="h-1.5 w-full bg-blue-600 dark:bg-blue-500 shrink-0"></div>
             
-            <div className="p-6 md:p-8 flex flex-col flex-1">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <div className="p-4 md:p-5 flex flex-col flex-1">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
                 <div className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center font-black text-lg border border-blue-100 dark:border-blue-800/30">
                      {getInitials(lastAcknowledged.clinician.full_name)}
@@ -380,8 +380,8 @@ export default async function ActivityPage({ params }) {
               </div>
               
               {/* UNIFORM INNER BOUNDING BOX */}
-              <div className="flex flex-col flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-100 dark:border-slate-700/50">
-                <div className="flex items-start gap-2 mb-3">
+              <div className="flex flex-col flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-lg p-4 md:p-5 border border-slate-100 dark:border-slate-700/50">
+                <div className="flex items-start gap-2 mb-2.5">
                   <span className="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded border border-slate-300 dark:border-slate-600">
                     {lastAcknowledged.type}
                   </span>
@@ -391,11 +391,11 @@ export default async function ActivityPage({ params }) {
                 </div>
                 
                 {/* FIXED ESLINT QUOTES */}
-                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium mb-6">
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-medium mb-4">
                   &quot;{lastAcknowledged.notes}&quot;
                 </p>
                 
-                <div className="mt-auto pt-5 border-t border-slate-200 dark:border-slate-700/60 flex justify-end">
+                <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-700/60 flex justify-end">
                    <AcknowledgeButton 
                       interventionId={lastAcknowledged.id} 
                       patientId={patient.id}
@@ -409,7 +409,7 @@ export default async function ActivityPage({ params }) {
 
         ) : (
           /* SCENARIO C: No history at all */
-          <div className="flex flex-col items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm transition-colors duration-300 p-8 text-center">
+          <div className="flex flex-col items-center justify-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg shadow-sm transition-colors duration-300 p-6 text-center">
              <div className="mx-auto w-14 h-14 bg-slate-50 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 rounded-full flex items-center justify-center mb-4 border border-slate-100 dark:border-slate-700/50">
                 <ClipboardList size={28} strokeWidth={1.5} />
              </div>

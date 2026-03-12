@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
-import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
   Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2,
   Target, X
 } from 'lucide-react';
+import { useMQTT } from '@/hooks/useMQTT';
 
 const THEMES = {
   blue: "bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800/30",
@@ -22,9 +22,9 @@ const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, col
   const isAlert = status?.includes('High');
 
   return (
-    <article className="bg-white dark:bg-slate-900 rounded-2xl p-5 flex flex-col justify-between h-full min-h-[160px] border border-slate-200 dark:border-slate-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-md transition-all duration-300 group">
+    <article className="bg-white dark:bg-slate-900 rounded-lg p-5 flex flex-col justify-between h-full min-h-[160px] border border-slate-200 dark:border-slate-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-md transition-all duration-300 group">
       <header className="flex justify-between items-start mb-4">
-        <div className={`p-2.5 rounded-xl border transition-colors duration-300 ${THEMES[colorTheme]}`}>
+        <div className={`p-2.5 rounded-lg border transition-colors duration-300 ${THEMES[colorTheme]}`}>
           <Icon size={20} strokeWidth={2.5} aria-hidden="true" />
         </div>
         <div className="text-right">
@@ -59,12 +59,11 @@ const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, col
   );
 });
 
-// FIX: Add display name for SensorCard
 SensorCard.displayName = 'SensorCard';
 
 // [OPTIMIZATION] Wrapped in React.memo
 const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false }) => (
-  <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+  <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
     <div className="relative">
       <Icon size={16} aria-hidden="true" className={isOnline ? "text-emerald-500" : "text-slate-400"} />
       {pulsing && isOnline && (
@@ -81,7 +80,6 @@ const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false 
   </div>
 ));
 
-// FIX: Add display name for StatusBadge
 StatusBadge.displayName = 'StatusBadge';
 
 export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75 }) {
@@ -249,7 +247,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                <button 
                  onClick={() => setShowCalibrationModal(true)}
                  disabled={!isOnline}
-                 className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                >
                  <Target size={16} className={isOnline ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"} />
                  Set Standing Baseline
@@ -267,8 +265,8 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
         </header>
 
         {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <article className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-3xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <article className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden">
              <div className="w-full text-center mb-8">
                 <h2 className="text-lg font-bold text-slate-800 dark:text-slate-100">Overuse Risk Index</h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-medium uppercase tracking-wider mt-1">Real-time Joint Stress</p>
@@ -300,7 +298,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
           <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
              <section>
                <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Joint Kinematics</h3>
-               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                   <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Current Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" isLive={isOnline} />
                   <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 1000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
                </div>
@@ -308,7 +306,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
              <section>
                <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Vitals & Environment</h3>
-               <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
+               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                   <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="BPM" value={data.bpm || "--"} unit="" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" isLive={isOnline && data.bpm > 0} />
                   <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"} unit="°C" colorTheme="emerald" isLive={isOnline} />
                   <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" colorTheme="slate" isLive={isOnline} />
@@ -318,7 +316,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
           </div>
         </div>
 
-        <footer className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <footer className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
            <div className="flex items-center gap-4 w-full sm:w-1/2">
               <div className={`p-2.5 rounded-xl ${data.bat < 20 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
                  <Battery size={20} strokeWidth={2.5}/>
@@ -346,7 +344,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
         </footer>
       </section>
 
-      {/* Calibration Modal remains the same */}
+      {/* Calibration Modal */}
       {showCalibrationModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">

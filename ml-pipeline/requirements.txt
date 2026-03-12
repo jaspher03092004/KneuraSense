@@ -5,6 +5,9 @@ This folder contains the Python scripts to extract sensor data from the Next.js 
 ## How to Set Up the Environment (First Time or New PC)
 To avoid conflicting with global Python packages, you must run this script inside an isolated virtual environment.
 
+#Use this command if you ever go too deep and want to move back one folder 
+##(e.g., from ml-pipeline back to KneuraSense), type: `cd ..`
+
 1. Open your terminal and navigate to this folder:
    `cd ml-pipeline`
 
