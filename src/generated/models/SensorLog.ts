@@ -28,6 +28,8 @@ export type AggregateSensorLog = {
 
 export type SensorLogAvgAggregateOutputType = {
   angle: number | null
+  thighPitch: number | null
+  shankPitch: number | null
   force: number | null
   skinTemp: number | null
   battery: number | null
@@ -42,6 +44,8 @@ export type SensorLogAvgAggregateOutputType = {
 
 export type SensorLogSumAggregateOutputType = {
   angle: number | null
+  thighPitch: number | null
+  shankPitch: number | null
   force: number | null
   skinTemp: number | null
   battery: number | null
@@ -58,6 +62,8 @@ export type SensorLogMinAggregateOutputType = {
   id: string | null
   patientId: string | null
   angle: number | null
+  thighPitch: number | null
+  shankPitch: number | null
   force: number | null
   skinTemp: number | null
   battery: number | null
@@ -75,6 +81,8 @@ export type SensorLogMaxAggregateOutputType = {
   id: string | null
   patientId: string | null
   angle: number | null
+  thighPitch: number | null
+  shankPitch: number | null
   force: number | null
   skinTemp: number | null
   battery: number | null
@@ -92,6 +100,8 @@ export type SensorLogCountAggregateOutputType = {
   id: number
   patientId: number
   angle: number
+  thighPitch: number
+  shankPitch: number
   force: number
   skinTemp: number
   battery: number
@@ -109,6 +119,8 @@ export type SensorLogCountAggregateOutputType = {
 
 export type SensorLogAvgAggregateInputType = {
   angle?: true
+  thighPitch?: true
+  shankPitch?: true
   force?: true
   skinTemp?: true
   battery?: true
@@ -123,6 +135,8 @@ export type SensorLogAvgAggregateInputType = {
 
 export type SensorLogSumAggregateInputType = {
   angle?: true
+  thighPitch?: true
+  shankPitch?: true
   force?: true
   skinTemp?: true
   battery?: true
@@ -139,6 +153,8 @@ export type SensorLogMinAggregateInputType = {
   id?: true
   patientId?: true
   angle?: true
+  thighPitch?: true
+  shankPitch?: true
   force?: true
   skinTemp?: true
   battery?: true
@@ -156,6 +172,8 @@ export type SensorLogMaxAggregateInputType = {
   id?: true
   patientId?: true
   angle?: true
+  thighPitch?: true
+  shankPitch?: true
   force?: true
   skinTemp?: true
   battery?: true
@@ -173,6 +191,8 @@ export type SensorLogCountAggregateInputType = {
   id?: true
   patientId?: true
   angle?: true
+  thighPitch?: true
+  shankPitch?: true
   force?: true
   skinTemp?: true
   battery?: true
@@ -277,6 +297,8 @@ export type SensorLogGroupByOutputType = {
   id: string
   patientId: string
   angle: number
+  thighPitch: number | null
+  shankPitch: number | null
   force: number
   skinTemp: number
   battery: number
@@ -317,6 +339,8 @@ export type SensorLogWhereInput = {
   id?: Prisma.StringFilter<"SensorLog"> | string
   patientId?: Prisma.StringFilter<"SensorLog"> | string
   angle?: Prisma.FloatFilter<"SensorLog"> | number
+  thighPitch?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  shankPitch?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   force?: Prisma.IntFilter<"SensorLog"> | number
   skinTemp?: Prisma.FloatFilter<"SensorLog"> | number
   battery?: Prisma.IntFilter<"SensorLog"> | number
@@ -335,6 +359,8 @@ export type SensorLogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrderInput | Prisma.SortOrder
+  shankPitch?: Prisma.SortOrderInput | Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -356,6 +382,8 @@ export type SensorLogWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SensorLogWhereInput | Prisma.SensorLogWhereInput[]
   patientId?: Prisma.StringFilter<"SensorLog"> | string
   angle?: Prisma.FloatFilter<"SensorLog"> | number
+  thighPitch?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  shankPitch?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   force?: Prisma.IntFilter<"SensorLog"> | number
   skinTemp?: Prisma.FloatFilter<"SensorLog"> | number
   battery?: Prisma.IntFilter<"SensorLog"> | number
@@ -374,6 +402,8 @@ export type SensorLogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrderInput | Prisma.SortOrder
+  shankPitch?: Prisma.SortOrderInput | Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -399,6 +429,8 @@ export type SensorLogScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SensorLog"> | string
   patientId?: Prisma.StringWithAggregatesFilter<"SensorLog"> | string
   angle?: Prisma.FloatWithAggregatesFilter<"SensorLog"> | number
+  thighPitch?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
+  shankPitch?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
   force?: Prisma.IntWithAggregatesFilter<"SensorLog"> | number
   skinTemp?: Prisma.FloatWithAggregatesFilter<"SensorLog"> | number
   battery?: Prisma.IntWithAggregatesFilter<"SensorLog"> | number
@@ -415,6 +447,8 @@ export type SensorLogScalarWhereWithAggregatesInput = {
 export type SensorLogCreateInput = {
   id?: string
   angle: number
+  thighPitch?: number | null
+  shankPitch?: number | null
   force: number
   skinTemp: number
   battery: number
@@ -433,6 +467,8 @@ export type SensorLogUncheckedCreateInput = {
   id?: string
   patientId: string
   angle: number
+  thighPitch?: number | null
+  shankPitch?: number | null
   force: number
   skinTemp: number
   battery: number
@@ -449,6 +485,8 @@ export type SensorLogUncheckedCreateInput = {
 export type SensorLogUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -467,6 +505,8 @@ export type SensorLogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -484,6 +524,8 @@ export type SensorLogCreateManyInput = {
   id?: string
   patientId: string
   angle: number
+  thighPitch?: number | null
+  shankPitch?: number | null
   force: number
   skinTemp: number
   battery: number
@@ -500,6 +542,8 @@ export type SensorLogCreateManyInput = {
 export type SensorLogUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -517,6 +561,8 @@ export type SensorLogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   patientId?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -544,6 +590,8 @@ export type SensorLogCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrder
+  shankPitch?: Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -559,6 +607,8 @@ export type SensorLogCountOrderByAggregateInput = {
 
 export type SensorLogAvgOrderByAggregateInput = {
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrder
+  shankPitch?: Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -575,6 +625,8 @@ export type SensorLogMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrder
+  shankPitch?: Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -592,6 +644,8 @@ export type SensorLogMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   patientId?: Prisma.SortOrder
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrder
+  shankPitch?: Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -607,6 +661,8 @@ export type SensorLogMinOrderByAggregateInput = {
 
 export type SensorLogSumOrderByAggregateInput = {
   angle?: Prisma.SortOrder
+  thighPitch?: Prisma.SortOrder
+  shankPitch?: Prisma.SortOrder
   force?: Prisma.SortOrder
   skinTemp?: Prisma.SortOrder
   battery?: Prisma.SortOrder
@@ -680,6 +736,8 @@ export type NullableFloatFieldUpdateOperationsInput = {
 export type SensorLogCreateWithoutPatientInput = {
   id?: string
   angle: number
+  thighPitch?: number | null
+  shankPitch?: number | null
   force: number
   skinTemp: number
   battery: number
@@ -696,6 +754,8 @@ export type SensorLogCreateWithoutPatientInput = {
 export type SensorLogUncheckedCreateWithoutPatientInput = {
   id?: string
   angle: number
+  thighPitch?: number | null
+  shankPitch?: number | null
   force: number
   skinTemp: number
   battery: number
@@ -742,6 +802,8 @@ export type SensorLogScalarWhereInput = {
   id?: Prisma.StringFilter<"SensorLog"> | string
   patientId?: Prisma.StringFilter<"SensorLog"> | string
   angle?: Prisma.FloatFilter<"SensorLog"> | number
+  thighPitch?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  shankPitch?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   force?: Prisma.IntFilter<"SensorLog"> | number
   skinTemp?: Prisma.FloatFilter<"SensorLog"> | number
   battery?: Prisma.IntFilter<"SensorLog"> | number
@@ -758,6 +820,8 @@ export type SensorLogScalarWhereInput = {
 export type SensorLogCreateManyPatientInput = {
   id?: string
   angle: number
+  thighPitch?: number | null
+  shankPitch?: number | null
   force: number
   skinTemp: number
   battery: number
@@ -774,6 +838,8 @@ export type SensorLogCreateManyPatientInput = {
 export type SensorLogUpdateWithoutPatientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -790,6 +856,8 @@ export type SensorLogUpdateWithoutPatientInput = {
 export type SensorLogUncheckedUpdateWithoutPatientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -806,6 +874,8 @@ export type SensorLogUncheckedUpdateWithoutPatientInput = {
 export type SensorLogUncheckedUpdateManyWithoutPatientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   angle?: Prisma.FloatFieldUpdateOperationsInput | number
+  thighPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  shankPitch?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   force?: Prisma.IntFieldUpdateOperationsInput | number
   skinTemp?: Prisma.FloatFieldUpdateOperationsInput | number
   battery?: Prisma.IntFieldUpdateOperationsInput | number
@@ -825,6 +895,8 @@ export type SensorLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   id?: boolean
   patientId?: boolean
   angle?: boolean
+  thighPitch?: boolean
+  shankPitch?: boolean
   force?: boolean
   skinTemp?: boolean
   battery?: boolean
@@ -843,6 +915,8 @@ export type SensorLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   patientId?: boolean
   angle?: boolean
+  thighPitch?: boolean
+  shankPitch?: boolean
   force?: boolean
   skinTemp?: boolean
   battery?: boolean
@@ -861,6 +935,8 @@ export type SensorLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   id?: boolean
   patientId?: boolean
   angle?: boolean
+  thighPitch?: boolean
+  shankPitch?: boolean
   force?: boolean
   skinTemp?: boolean
   battery?: boolean
@@ -879,6 +955,8 @@ export type SensorLogSelectScalar = {
   id?: boolean
   patientId?: boolean
   angle?: boolean
+  thighPitch?: boolean
+  shankPitch?: boolean
   force?: boolean
   skinTemp?: boolean
   battery?: boolean
@@ -892,7 +970,7 @@ export type SensorLogSelectScalar = {
   timestamp?: boolean
 }
 
-export type SensorLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "angle" | "force" | "skinTemp" | "battery" | "riskScore" | "lat" | "lng" | "weatherTemp" | "bpm" | "ambientTemp" | "pressure" | "timestamp", ExtArgs["result"]["sensorLog"]>
+export type SensorLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "angle" | "thighPitch" | "shankPitch" | "force" | "skinTemp" | "battery" | "riskScore" | "lat" | "lng" | "weatherTemp" | "bpm" | "ambientTemp" | "pressure" | "timestamp", ExtArgs["result"]["sensorLog"]>
 export type SensorLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }
@@ -912,6 +990,8 @@ export type $SensorLogPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     id: string
     patientId: string
     angle: number
+    thighPitch: number | null
+    shankPitch: number | null
     force: number
     skinTemp: number
     battery: number
@@ -1350,6 +1430,8 @@ export interface SensorLogFieldRefs {
   readonly id: Prisma.FieldRef<"SensorLog", 'String'>
   readonly patientId: Prisma.FieldRef<"SensorLog", 'String'>
   readonly angle: Prisma.FieldRef<"SensorLog", 'Float'>
+  readonly thighPitch: Prisma.FieldRef<"SensorLog", 'Float'>
+  readonly shankPitch: Prisma.FieldRef<"SensorLog", 'Float'>
   readonly force: Prisma.FieldRef<"SensorLog", 'Int'>
   readonly skinTemp: Prisma.FieldRef<"SensorLog", 'Float'>
   readonly battery: Prisma.FieldRef<"SensorLog", 'Int'>

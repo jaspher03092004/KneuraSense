@@ -74,6 +74,8 @@ export async function POST(request) {
       data: {
         patientId:   body.patientId,
         angle:       (body.angle !== undefined) ? parseFloat(body.angle) : 0,
+        thighPitch:  (body.thigh_pitch !== undefined) ? parseFloat(body.thigh_pitch) : null,
+        shankPitch:  (body.shank_pitch !== undefined) ? parseFloat(body.shank_pitch) : null,
         force:       (body.fsr !== undefined) ? parseInt(body.fsr) : 0,      
         skinTemp:    (body.skin_temp !== undefined) ? parseFloat(body.skin_temp) : 0, 
         battery:     (body.bat !== undefined) ? parseInt(body.bat) : 0,
@@ -84,7 +86,7 @@ export async function POST(request) {
         lng:         (body.lng !== undefined && body.lng !== null && body.lng !== "0") ? parseFloat(body.lng) : null,
         weatherTemp: (body.weatherTemp !== undefined && body.weatherTemp !== null) ? parseFloat(body.weatherTemp) : null,
         
-        // --- NEW SENSOR MAPPINGS ---
+        // --- SENSOR MAPPINGS ---
         bpm:         (body.bpm !== undefined && body.bpm !== null) ? parseInt(body.bpm) : null,
         ambientTemp: (body.ambient_temp !== undefined && body.ambient_temp !== null) ? parseFloat(body.ambient_temp) : null,
         pressure:    (body.pressure !== undefined && body.pressure !== null) ? parseFloat(body.pressure) : null,
