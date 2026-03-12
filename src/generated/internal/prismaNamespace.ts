@@ -1104,6 +1104,8 @@ export const SensorLogScalarFieldEnum = {
   id: 'id',
   patientId: 'patientId',
   angle: 'angle',
+  thighPitch: 'thighPitch',
+  shankPitch: 'shankPitch',
   force: 'force',
   skinTemp: 'skinTemp',
   battery: 'battery',

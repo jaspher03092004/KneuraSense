@@ -45,3 +45,13 @@ next-env.d.ts
 .env
 
 /src/generated/prisma
+
+# --- Machine Learning Pipeline ---
+# Ignore the Python virtual environment
+ml-pipeline/venv/
+venv/
+__pycache__/
+
+# Ignore the generated datasets folder and ALL CSV files (Protect Patient Data)
+ml-pipeline/datasets/
+*.csv
