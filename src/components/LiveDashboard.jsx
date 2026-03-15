@@ -124,6 +124,8 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
                risk_score: currentData.risk_score,
                bat: currentData.bat,
                angle: currentData.angle,
+               thigh_pitch: currentData.thigh_pitch,
+               shank_pitch: currentData.shank_pitch,
                skin_temp: currentData.skin_temp,
                fsr: currentData.fsr,
                lat: currentData.lat, 
