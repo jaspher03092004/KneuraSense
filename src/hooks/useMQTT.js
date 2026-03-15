@@ -4,7 +4,8 @@ import mqtt from 'mqtt';
 export function useMQTT(deviceMac) {
   const [data, setData] = useState({
     angle: 0, fsr: 0, skin_temp: 0, bat: 0, risk_score: 0, lat: "0", lng: "0", 
-    bpm: 0, ambient_temp: 0, pressure: 0
+    bpm: 0, ambient_temp: 0, pressure: 0,
+    thigh_pitch: 0, shank_pitch: 0
   });
   const [deviceStatus, setDeviceStatus] = useState("Offline"); 
   const [lastPacketTime, setLastPacketTime] = useState(0);
