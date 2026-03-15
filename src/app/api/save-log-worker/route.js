@@ -58,6 +58,13 @@ async function sendCriticalAlertEmail(patient, riskScore, logData) {
 
 export async function POST(request) {
   try {
+    // 1. SECURITY CHECK FIRST
+    const apiKey = request.headers.get('x-api-key');
+    if (apiKey !== process.env.WORKER_SECRET_KEY) {
+      console.warn("Blocked unauthorized API request!");
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const riskScore = (body.risk_score !== undefined) ? parseInt(body.risk_score) : 0;
 
