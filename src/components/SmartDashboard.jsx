@@ -6,7 +6,7 @@ import {
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
   Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2,
-  Target, X
+  Target, X, Volume2,
 } from 'lucide-react';
 import { useMQTT } from '@/hooks/useMQTT';
 
@@ -91,7 +91,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   const [showCalibrationModal, setShowCalibrationModal] = useState(false);
   const [calibrationPhase, setCalibrationPhase] = useState('idle'); 
   const [calibrationProgress, setCalibrationProgress] = useState(0);
-
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const dataRef = useRef(data); 
   const weatherRef = useRef(weather); 
   
@@ -105,25 +105,46 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   // --- NEW: VOICE ALERT LISTENER ---
   useEffect(() => {
     if (voiceAlert && typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      // Cancel any current speech to prioritize this critical alert
       window.speechSynthesis.cancel();
       
-      // Create the speech utterance
       const utterance = new SpeechSynthesisUtterance(voiceAlert);
-      utterance.rate = 0.9;   // Speak slightly slower for better comprehension
-      utterance.pitch = 1.1;  // Slightly elevated pitch to sound urgent/clear
-      utterance.volume = 1.0; // Max volume
-      
-      // Speak the text!
+      utterance.rate = 0.9;
+      utterance.pitch = 1.1;
+      utterance.volume = 1.0;
+
+      // Handle potential block
+      utterance.onerror = (event) => {
+        if (event.error === 'not-allowed') {
+          console.warn("Autoplay blocked. Showing manual play button.");
+          setAudioBlocked(true);
+        }
+      };
+
+      // Attempt to speak immediately
       window.speechSynthesis.speak(utterance);
 
-      // Clean up the URL. We remove the ?voiceAlert parameter silently
-      // so that if the user hits refresh on the page, it doesn't shout at them again.
+      // Some browsers don't fire onerror immediately for autoplay blocks. 
+      // We can check the speaking state after a tiny delay.
+      setTimeout(() => {
+        if (!window.speechSynthesis.speaking) {
+          setAudioBlocked(true);
+        }
+      }, 500);
+
+      // Clean up URL
       const url = new URL(window.location);
       url.searchParams.delete('voiceAlert');
       window.history.replaceState({}, '', url);
     }
   }, [voiceAlert]);
+
+  const handleManualPlay = () => {
+    if (voiceAlert) {
+      const utterance = new SpeechSynthesisUtterance(voiceAlert);
+      window.speechSynthesis.speak(utterance);
+      setAudioBlocked(false);
+    }
+  };
 
   // Database Auto-Save Interval
   useEffect(() => {
@@ -258,10 +279,23 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
       setCalibrationProgress(0);
     }, 300);
   };
+  
 
   return (
     <>
       <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
+        {/* src/components/SmartDashboard.jsx */}
+        {audioBlocked && (
+          <div className="fixed inset-x-4 top-20 z-[100] animate-in slide-in-from-top-4 duration-500">
+            <button 
+              onClick={handleManualPlay}
+              className="w-full bg-rose-600 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-center gap-3 font-bold border-2 border-white/20"
+            >
+              <Volume2 size={24} className="animate-pulse" />
+              TAP TO HEAR URGENT INSTRUCTIONS
+            </button>
+          </div>
+        )}
         {/* Header */}
         <header className="-mt-4 flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
           <div>
