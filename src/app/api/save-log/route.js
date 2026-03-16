@@ -6,7 +6,7 @@ import webpush from "web-push"; // <-- Import the library
 
 // Configure Web Push with your VAPID keys from .env
 webpush.setVapidDetails(
-  'mailto:your-admin-email@example.com', // Replace with a real admin email
+  `mailto:${process.env.ADMIN_NOTIFICATION_EMAIL}`,
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
   process.env.VAPID_PRIVATE_KEY
 );
