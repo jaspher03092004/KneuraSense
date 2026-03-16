@@ -1,9 +1,7 @@
-// src/components/VoiceAlertButton.jsx
 "use client";
 import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
-// Move the helper function directly into this file to avoid import issues on the client side
 function urlBase64ToUint8Array(base64String) {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
   const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
@@ -19,7 +17,6 @@ export default function VoiceAlertButton({ patientId }) {
   const [isEnabled, setIsEnabled] = useState(false);
   const [status, setStatus] = useState("idle");
 
-  // Check if the user is already subscribed when the component mounts
   useEffect(() => {
     if ('serviceWorker' in navigator && 'PushManager' in window) {
       navigator.serviceWorker.ready.then(reg => {
@@ -34,7 +31,6 @@ export default function VoiceAlertButton({ patientId }) {
 
   const handleToggle = async (e) => {
     const checked = e.target.checked;
-    // Optimistically update UI
     setIsEnabled(checked);
     setStatus("loading");
 
@@ -47,17 +43,18 @@ export default function VoiceAlertButton({ patientId }) {
           return;
         }
 
-        // 1. Register the Service Worker
+        // EXPLICIT PERMISSION CHECK ADDED HERE
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error(`Notification permission status: ${permission}`);
+        }
+
         const registration = await navigator.serviceWorker.register('/sw.js');
-        
-        // Wait for it to be active
         await navigator.serviceWorker.ready;
 
-        // 2. Request permission and subscribe
         const publicVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
         if (!publicVapidKey) {
-            console.error("VAPID Public Key is missing from environment variables.");
-            throw new Error("Missing VAPID Key");
+            throw new Error("Missing VAPID Key in environment variables.");
         }
 
         const convertedVapidKey = urlBase64ToUint8Array(publicVapidKey);
@@ -67,7 +64,6 @@ export default function VoiceAlertButton({ patientId }) {
           applicationServerKey: convertedVapidKey
         });
 
-        // 3. Send the subscription object to your database
         const response = await fetch(`/api/patient/${patientId}/subscribe`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -81,23 +77,23 @@ export default function VoiceAlertButton({ patientId }) {
           throw new Error("Failed to save to database");
         }
       } catch (error) {
-        console.error("Subscription failed:", error);
+        // IMPROVED ERROR LOGGING
+        console.error("Subscription failed with error:", error);
         setStatus("error");
-        setIsEnabled(false); // Revert toggle if it fails
-        alert("Failed to enable voice alerts. Please ensure notifications are allowed in your browser settings.");
+        setIsEnabled(false); 
+        
+        // Show a more specific alert if possible
+        alert(`Failed to enable voice alerts. Error: ${error.message}`);
       }
     } else {
-      // Unsubscribe logic
       try {
         const reg = await navigator.serviceWorker.ready;
         const sub = await reg.pushManager.getSubscription();
         if (sub) {
           await sub.unsubscribe();
           
-          // Optionally, ping the DB to clear the subscription
-          // This ensures the backend knows to stop trying to push to a dead token
           await fetch(`/api/patient/${patientId}/subscribe`, {
-              method: "DELETE", // We'll add a DELETE handler below
+              method: "DELETE", 
           });
         }
         setStatus("idle");
@@ -105,7 +101,7 @@ export default function VoiceAlertButton({ patientId }) {
       } catch (error) {
         console.error("Unsubscribe failed:", error);
         setStatus("error");
-        setIsEnabled(true); // Revert toggle if it fails
+        setIsEnabled(true); 
       }
     }
   };
