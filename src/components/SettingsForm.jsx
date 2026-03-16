@@ -6,6 +6,7 @@ import { changePassword } from '@/actions/changePassword';
 import { updateDeviceSettings } from '@/actions/updateDeviceSettings';
 import { deleteAccount } from '@/actions/deleteAccount';
 import { useMQTT } from '@/hooks/useMQTT';
+import VoiceAlertButton from "./VoiceAlertButton";
 import { 
   Bell, Lock, ChevronRight, Smartphone, RotateCcw, Save, X, 
   Loader2, CheckCircle, AlertCircle, Trash2, AlertTriangle, Shield, Link as LinkIcon 
@@ -17,6 +18,7 @@ export default function SettingsForm({ patient }) {
   const [intensity, setIntensity] = useState(patient.vibrationIntensity ?? 2);
   const [ledEnabled, setLedEnabled] = useState(patient.ledEnabled ?? true);
   const [deviceMac, setDeviceMac] = useState(patient.deviceMac || '');
+  const [voiceAlertsEnabled, setVoiceAlertsEnabled] = useState(patient?.voiceAlertsEnabled || false);
   
   const [saveStatus, setSaveStatus] = useState({ loading: false, success: false, error: null });
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
@@ -227,6 +229,26 @@ export default function SettingsForm({ patient }) {
         </div>
         
         <div className="p-6 space-y-8">
+
+          {/* --- START LIVE VOICE ALERTS SECTION --- */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-1 pr-4">
+              <h4 className="font-bold text-slate-900 dark:text-slate-200 transition-colors duration-300">Live Voice Instructions</h4>
+              <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors duration-300">Receive spoken alerts from your browser when high knee stress is detected</p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0">
+              <input 
+                type="checkbox" 
+                className="sr-only peer" 
+                checked={voiceAlertsEnabled}
+                onChange={(e) => setVoiceAlertsEnabled(e.target.checked)}
+              />
+              <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-200 after:border-gray-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#3A9D8C] dark:peer-checked:bg-teal-500 transition-colors duration-300"></div>
+            </label>
+          </div>
+
+          <div className="border-t border-slate-100 dark:border-slate-800 transition-colors duration-300"></div>
+          {/* --- END LIVE VOICE ALERTS SECTION --- */}
           
           <div className="flex items-center justify-between">
             <div className="space-y-1">

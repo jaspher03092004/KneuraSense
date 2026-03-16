@@ -3,14 +3,17 @@ import { redirect } from 'next/navigation';
 import SmartDashboard from '@/components/SmartDashboard';
 import CarePlanCard from '@/components/CarePlanCard'; 
 import { ClipboardList } from 'lucide-react';
-// 1. Import the new modal component
 import InterventionAcknowledgmentModal from '@/components/InterventionAcknowledgmentModal'; 
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
-export default async function PatientDashboard({ params }) {
+export default async function PatientDashboard({ params, searchParams }) {
   const { id } = await params;
+
+  // Extract the voiceAlert from the URL (e.g., ?voiceAlert=Warning...)
+  const resolvedSearchParams = await searchParams;
+  const voiceAlert = resolvedSearchParams?.voiceAlert || null;
 
   const patient = await prisma.patient.findUnique({
     where: { id },
@@ -29,7 +32,7 @@ export default async function PatientDashboard({ params }) {
 
   if (!patient) redirect('/login');
 
-  // 2. Fetch unacknowledged interventions directly using your schema's boolean field
+  // Fetch unacknowledged interventions directly using your schema's boolean field
   const pendingInterventions = await prisma.intervention.findMany({
     where: { 
       patientId: id,
@@ -44,7 +47,7 @@ export default async function PatientDashboard({ params }) {
   return (
     <main className="min-h-screen p-4 md:p-6 lg:p-8 max-w-[1600px] mx-auto space-y-6 relative">
       
-      {/* 3. Drop the modal at the top level of the dashboard */}
+      {/* Drop the modal at the top level of the dashboard */}
       <InterventionAcknowledgmentModal pendingInterventions={pendingInterventions} />
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-4 items-stretch">
@@ -55,6 +58,7 @@ export default async function PatientDashboard({ params }) {
             deviceMac={patient.deviceMac}
             enableAutoSave={true} 
             riskThreshold={patient.riskThreshold}
+            voiceAlert={voiceAlert} // <--- Pass the extracted message down to the client
           />
         </div>
 

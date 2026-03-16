@@ -1,3 +1,4 @@
+// src/components/SmartDashboard.jsx
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, memo } from 'react';
@@ -82,7 +83,7 @@ const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false 
 
 StatusBadge.displayName = 'StatusBadge';
 
-export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75 }) {
+export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75, voiceAlert }) {
   const { data, deviceStatus, lastPacketTime, sendCommand } = useMQTT(deviceMac);
   const [weather, setWeather] = useState(null);
   
@@ -100,6 +101,29 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { weatherRef.current = weather; }, [weather]);
+
+  // --- NEW: VOICE ALERT LISTENER ---
+  useEffect(() => {
+    if (voiceAlert && typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      // Cancel any current speech to prioritize this critical alert
+      window.speechSynthesis.cancel();
+      
+      // Create the speech utterance
+      const utterance = new SpeechSynthesisUtterance(voiceAlert);
+      utterance.rate = 0.9;   // Speak slightly slower for better comprehension
+      utterance.pitch = 1.1;  // Slightly elevated pitch to sound urgent/clear
+      utterance.volume = 1.0; // Max volume
+      
+      // Speak the text!
+      window.speechSynthesis.speak(utterance);
+
+      // Clean up the URL. We remove the ?voiceAlert parameter silently
+      // so that if the user hits refresh on the page, it doesn't shout at them again.
+      const url = new URL(window.location);
+      url.searchParams.delete('voiceAlert');
+      window.history.replaceState({}, '', url);
+    }
+  }, [voiceAlert]);
 
   // Database Auto-Save Interval
   useEffect(() => {
@@ -277,7 +301,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
              <div className="relative w-full max-w-[260px] aspect-[2/1] mx-auto flex justify-center items-end">
                 <svg className="w-full h-full overflow-visible drop-shadow-sm" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
                   <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-800" strokeWidth="20" strokeLinecap="round" />
-                  {/* [OPTIMIZATION] Changed to duration-500 to sync with MQTT hook */}
                   <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
                     className={`transition-all duration-500 ease-out ${riskConfig.stroke}`}
                     strokeWidth="20" strokeLinecap="round" strokeDasharray="251.2"
