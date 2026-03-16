@@ -231,20 +231,20 @@ export default function SettingsForm({ patient }) {
         <div className="p-6 space-y-8">
 
           {/* --- START LIVE VOICE ALERTS SECTION --- */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1 pr-4">
-              <h4 className="font-bold text-slate-900 dark:text-slate-200 transition-colors duration-300">Live Voice Instructions</h4>
-              <p className="text-sm text-slate-500 dark:text-slate-400 transition-colors duration-300">Receive spoken alerts from your browser when high knee stress is detected</p>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
+                Critical Voice Alerts
+              </h3>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Allow this device to wake up and speak urgent instructions out loud when your knee stress reaches critical levels.
+              </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer shrink-0">
-              <input 
-                type="checkbox" 
-                className="sr-only peer" 
-                checked={voiceAlertsEnabled}
-                onChange={(e) => setVoiceAlertsEnabled(e.target.checked)}
-              />
-              <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white dark:peer-checked:after:border-slate-900 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-slate-200 after:border-gray-300 dark:after:border-slate-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#3A9D8C] dark:peer-checked:bg-teal-500 transition-colors duration-300"></div>
-            </label>
+            
+            {/* Render the toggle button, passing the patient ID */}
+            <div className="shrink-0">
+              <VoiceAlertButton patientId={patient?.id} />
+            </div>
           </div>
 
           <div className="border-t border-slate-100 dark:border-slate-800 transition-colors duration-300"></div>
