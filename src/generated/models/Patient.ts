@@ -63,6 +63,7 @@ export type PatientMinAggregateOutputType = {
   riskThreshold: number | null
   deviceMac: string | null
   clinicianId: string | null
+  pushSubscription: string | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -88,6 +89,7 @@ export type PatientMaxAggregateOutputType = {
   riskThreshold: number | null
   deviceMac: string | null
   clinicianId: string | null
+  pushSubscription: string | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -113,6 +115,7 @@ export type PatientCountAggregateOutputType = {
   riskThreshold: number
   deviceMac: number
   clinicianId: number
+  pushSubscription: number
   _all: number
 }
 
@@ -154,6 +157,7 @@ export type PatientMinAggregateInputType = {
   riskThreshold?: true
   deviceMac?: true
   clinicianId?: true
+  pushSubscription?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -179,6 +183,7 @@ export type PatientMaxAggregateInputType = {
   riskThreshold?: true
   deviceMac?: true
   clinicianId?: true
+  pushSubscription?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -204,6 +209,7 @@ export type PatientCountAggregateInputType = {
   riskThreshold?: true
   deviceMac?: true
   clinicianId?: true
+  pushSubscription?: true
   _all?: true
 }
 
@@ -316,6 +322,7 @@ export type PatientGroupByOutputType = {
   riskThreshold: number
   deviceMac: string | null
   clinicianId: string | null
+  pushSubscription: string | null
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -364,6 +371,7 @@ export type PatientWhereInput = {
   riskThreshold?: Prisma.IntFilter<"Patient"> | number
   deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
   clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
+  pushSubscription?: Prisma.StringNullableFilter<"Patient"> | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
   clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
@@ -392,6 +400,7 @@ export type PatientOrderByWithRelationInput = {
   riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
   clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
+  pushSubscription?: Prisma.SortOrderInput | Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
   clinician?: Prisma.ClinicianOrderByWithRelationInput
@@ -423,6 +432,7 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   ledEnabled?: Prisma.BoolFilter<"Patient"> | boolean
   riskThreshold?: Prisma.IntFilter<"Patient"> | number
   clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
+  pushSubscription?: Prisma.StringNullableFilter<"Patient"> | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
   clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
@@ -451,6 +461,7 @@ export type PatientOrderByWithAggregationInput = {
   riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
   clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
+  pushSubscription?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -484,6 +495,7 @@ export type PatientScalarWhereWithAggregatesInput = {
   riskThreshold?: Prisma.IntWithAggregatesFilter<"Patient"> | number
   deviceMac?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   clinicianId?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  pushSubscription?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
 }
 
 export type PatientCreateInput = {
@@ -508,6 +520,7 @@ export type PatientCreateInput = {
   ledEnabled?: boolean
   riskThreshold?: number
   deviceMac?: string | null
+  pushSubscription?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
   clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
@@ -536,6 +549,7 @@ export type PatientUncheckedCreateInput = {
   riskThreshold?: number
   deviceMac?: string | null
   clinicianId?: string | null
+  pushSubscription?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -562,6 +576,7 @@ export type PatientUpdateInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
   clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
@@ -590,6 +605,7 @@ export type PatientUncheckedUpdateInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -617,6 +633,7 @@ export type PatientCreateManyInput = {
   riskThreshold?: number
   deviceMac?: string | null
   clinicianId?: string | null
+  pushSubscription?: string | null
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -641,6 +658,7 @@ export type PatientUpdateManyMutationInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PatientUncheckedUpdateManyInput = {
@@ -666,6 +684,7 @@ export type PatientUncheckedUpdateManyInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type PatientListRelationFilter = {
@@ -701,6 +720,7 @@ export type PatientCountOrderByAggregateInput = {
   riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrder
   clinicianId?: Prisma.SortOrder
+  pushSubscription?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
@@ -733,6 +753,7 @@ export type PatientMaxOrderByAggregateInput = {
   riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrder
   clinicianId?: Prisma.SortOrder
+  pushSubscription?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -758,6 +779,7 @@ export type PatientMinOrderByAggregateInput = {
   riskThreshold?: Prisma.SortOrder
   deviceMac?: Prisma.SortOrder
   clinicianId?: Prisma.SortOrder
+  pushSubscription?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
@@ -880,6 +902,7 @@ export type PatientCreateWithoutClinicianInput = {
   ledEnabled?: boolean
   riskThreshold?: number
   deviceMac?: string | null
+  pushSubscription?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
@@ -906,6 +929,7 @@ export type PatientUncheckedCreateWithoutClinicianInput = {
   ledEnabled?: boolean
   riskThreshold?: number
   deviceMac?: string | null
+  pushSubscription?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -962,6 +986,7 @@ export type PatientScalarWhereInput = {
   riskThreshold?: Prisma.IntFilter<"Patient"> | number
   deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
   clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
+  pushSubscription?: Prisma.StringNullableFilter<"Patient"> | string | null
 }
 
 export type PatientCreateWithoutSensorLogsInput = {
@@ -986,6 +1011,7 @@ export type PatientCreateWithoutSensorLogsInput = {
   ledEnabled?: boolean
   riskThreshold?: number
   deviceMac?: string | null
+  pushSubscription?: string | null
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
   clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
@@ -1013,6 +1039,7 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   riskThreshold?: number
   deviceMac?: string | null
   clinicianId?: string | null
+  pushSubscription?: string | null
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -1054,6 +1081,7 @@ export type PatientUpdateWithoutSensorLogsInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
   clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
@@ -1081,6 +1109,7 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -1106,6 +1135,7 @@ export type PatientCreateWithoutInterventionsInput = {
   ledEnabled?: boolean
   riskThreshold?: number
   deviceMac?: string | null
+  pushSubscription?: string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
@@ -1133,6 +1163,7 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   riskThreshold?: number
   deviceMac?: string | null
   clinicianId?: string | null
+  pushSubscription?: string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -1174,6 +1205,7 @@ export type PatientUpdateWithoutInterventionsInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
@@ -1201,6 +1233,7 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -1226,6 +1259,7 @@ export type PatientCreateManyClinicianInput = {
   ledEnabled?: boolean
   riskThreshold?: number
   deviceMac?: string | null
+  pushSubscription?: string | null
 }
 
 export type PatientUpdateWithoutClinicianInput = {
@@ -1250,6 +1284,7 @@ export type PatientUpdateWithoutClinicianInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
@@ -1276,6 +1311,7 @@ export type PatientUncheckedUpdateWithoutClinicianInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -1302,6 +1338,7 @@ export type PatientUncheckedUpdateManyWithoutClinicianInput = {
   ledEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -1367,6 +1404,7 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   riskThreshold?: boolean
   deviceMac?: boolean
   clinicianId?: boolean
+  pushSubscription?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
@@ -1396,6 +1434,7 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   riskThreshold?: boolean
   deviceMac?: boolean
   clinicianId?: boolean
+  pushSubscription?: boolean
   clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
@@ -1422,6 +1461,7 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   riskThreshold?: boolean
   deviceMac?: boolean
   clinicianId?: boolean
+  pushSubscription?: boolean
   clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
@@ -1448,9 +1488,10 @@ export type PatientSelectScalar = {
   riskThreshold?: boolean
   deviceMac?: boolean
   clinicianId?: boolean
+  pushSubscription?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId" | "pushSubscription", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
@@ -1494,6 +1535,7 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     riskThreshold: number
     deviceMac: string | null
     clinicianId: string | null
+    pushSubscription: string | null
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1942,6 +1984,7 @@ export interface PatientFieldRefs {
   readonly riskThreshold: Prisma.FieldRef<"Patient", 'Int'>
   readonly deviceMac: Prisma.FieldRef<"Patient", 'String'>
   readonly clinicianId: Prisma.FieldRef<"Patient", 'String'>
+  readonly pushSubscription: Prisma.FieldRef<"Patient", 'String'>
 }
     
 
