@@ -1,10 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"; 
 import { sendCriticalAlertEmail } from "@/lib/email"; 
+import webpush from "web-push"; // <-- 1. Import Web Push
+
+// 2. Configure Web Push
+webpush.setVapidDetails(
+  `mailto:${process.env.ADMIN_NOTIFICATION_EMAIL}`,
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY
+);
 
 export async function POST(request) {
   try {
-    // 1. SECURITY CHECK FIRST
+    // SECURITY CHECK FIRST
     const apiKey = request.headers.get('x-api-key');
     if (apiKey !== process.env.WORKER_SECRET_KEY) {
       console.warn("Blocked unauthorized API request!");
@@ -14,10 +22,16 @@ export async function POST(request) {
     const body = await request.json();
     const riskScore = (body.risk_score !== undefined) ? parseInt(body.risk_score) : 0;
 
-    // 2. FETCH THE PATIENT USING MAC ADDRESS
+    // FETCH THE PATIENT (3. Add pushSubscription to select)
     const patient = await prisma.patient.findFirst({
       where: { deviceMac: body.deviceMac },
-      select: { id: true, fullName: true, clinicianId: true, riskThreshold: true }
+      select: { 
+        id: true, 
+        fullName: true, 
+        clinicianId: true, 
+        riskThreshold: true,
+        pushSubscription: true // <-- Required for web push
+      }
     });
 
     if (!patient) {
@@ -25,7 +39,7 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: "Unregistered device" }, { status: 404 });
     }
 
-    // 3. CREATE THE LOG ENTRY
+    // CREATE THE LOG ENTRY
     const newLog = await prisma.sensorLog.create({
       data: {
         patientId:   patient.id, 
@@ -45,17 +59,37 @@ export async function POST(request) {
       },
     });
 
-    // 4. CHECK THRESHOLD AND SEND EMAIL
+    // CHECK THRESHOLD AND SEND ALERTS
     const threshold = patient?.riskThreshold ?? 75;
 
     if (riskScore >= threshold) {
-       console.log(`High risk score (${riskScore}) detected. Attempting to send email...`);
+       console.log(`High risk score (${riskScore}) detected. Triggering alerts...`);
        
-       // Fixed redundant check here!
+       // --- A. Clinician Email Alert ---
        if (patient.clinicianId) {
          await sendCriticalAlertEmail(patient, riskScore, newLog); 
        } else {
          console.log("No assigned clinician found for this patient. Alert skipped.");
+       }
+
+       // --- B. Patient Web Push Alert ---
+       if (patient.pushSubscription) {
+         try {
+           const subscriptionObj = JSON.parse(patient.pushSubscription);
+           const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and sit down immediately to prevent injury.`;
+           
+           const payload = JSON.stringify({
+             title: "⚠️ Urgent Knee Alert",
+             body: "Tap to hear urgent instructions.",
+             url: `/patient/${patient.id}/dashboard?voiceAlert=${encodeURIComponent(voiceMessage)}`
+           });
+
+           await webpush.sendNotification(subscriptionObj, payload);
+           console.log("Successfully fired Push-to-Talk wake-up call to device!");
+
+         } catch (pushErr) {
+           console.error("Failed to send web push. Subscription might be invalid or expired:", pushErr);
+         }
        }
     }
 
