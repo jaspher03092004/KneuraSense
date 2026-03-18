@@ -6,9 +6,15 @@ const COOLDOWN_PERIOD_MS = 15 * 60 * 1000;
 
 export async function sendCriticalAlertEmail(patient, riskScore, logData) {
   try {
-    // 1. Check the cooldown timer to prevent spamming
-    if (patient.lastCriticalAlertAt) {
-      const timeSinceLastAlert = Date.now() - new Date(patient.lastCriticalAlertAt).getTime();
+    // 1. RE-FETCH the patient to get the absolute latest timestamp to prevent split-second race conditions
+    const currentPatient = await prisma.patient.findUnique({
+      where: { id: patient.id },
+      select: { lastCriticalAlertAt: true }
+    });
+
+    // 2. Check the cooldown timer using the freshly fetched data
+    if (currentPatient?.lastCriticalAlertAt) {
+      const timeSinceLastAlert = Date.now() - new Date(currentPatient.lastCriticalAlertAt).getTime();
       
       if (timeSinceLastAlert < COOLDOWN_PERIOD_MS) {
         console.log(`Email Alert Aborted: Cooldown active for patient ${patient.id}.`);
@@ -27,7 +33,7 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
       return;
     }
 
-    // 2. Lock the database immediately by updating the timestamp BEFORE sending the email
+    // 3. LOCK IT IN: Update the timestamp immediately before sending to block parallel requests
     await prisma.patient.update({
       where: { id: patient.id },
       data: { lastCriticalAlertAt: new Date() }
@@ -66,23 +72,14 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
       `,
     };
 
-    // 3. Send the email AFTER the database is locked
+    // 4. Send the email
     await transporter.sendMail(mailOptions);
     console.log(`Critical alert email successfully sent to ${clinician.email}`);
 
   } catch (err) {
     console.error("Failed to process alert emails:", err);
     
-    // Optional fallback: If sending the email fails due to a network error, revert the lock so it can try again
-    try {
-      if (patient && patient.id) {
-        await prisma.patient.update({
-          where: { id: patient.id },
-          data: { lastCriticalAlertAt: patient.lastCriticalAlertAt } // Revert to the old timestamp
-        });
-      }
-    } catch (revertErr) {
-       console.error("Failed to revert cooldown after email error:", revertErr);
-    }
+    // Optional fallback: if the email genuinely fails to send, clear the lock so it can try again
+    // await prisma.patient.update({ where: { id: patient.id }, data: { lastCriticalAlertAt: null } });
   }
 }
