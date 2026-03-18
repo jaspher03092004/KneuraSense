@@ -27,6 +27,12 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
       return;
     }
 
+    // 2. Lock the database immediately by updating the timestamp BEFORE sending the email
+    await prisma.patient.update({
+      where: { id: patient.id },
+      data: { lastCriticalAlertAt: new Date() }
+    });
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
@@ -60,17 +66,23 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
       `,
     };
 
-    // 2. Send the email
+    // 3. Send the email AFTER the database is locked
     await transporter.sendMail(mailOptions);
     console.log(`Critical alert email successfully sent to ${clinician.email}`);
 
-    // 3. Update the patient's last alert timestamp in the database to start the cooldown
-    await prisma.patient.update({
-      where: { id: patient.id },
-      data: { lastCriticalAlertAt: new Date() }
-    });
-
   } catch (err) {
     console.error("Failed to process alert emails:", err);
+    
+    // Optional fallback: If sending the email fails due to a network error, revert the lock so it can try again
+    try {
+      if (patient && patient.id) {
+        await prisma.patient.update({
+          where: { id: patient.id },
+          data: { lastCriticalAlertAt: patient.lastCriticalAlertAt } // Revert to the old timestamp
+        });
+      }
+    } catch (revertErr) {
+       console.error("Failed to revert cooldown after email error:", revertErr);
+    }
   }
 }
