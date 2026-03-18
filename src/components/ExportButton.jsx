@@ -1,71 +1,93 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import { Download } from 'lucide-react';
+import BiomechanicalReportTemplate from './BiomechanicalReportTemplate';
 
-export default function ExportButton({ logs, patientName }) {
-  const handleExport = () => {
+export default function ExportButton({ logs, patientName, clinicianName, deviceMac, patientId, className }) {
+  const [isExporting, setIsExporting] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const reportRef = useRef();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const handleExport = async () => {
     if (!logs || logs.length === 0) {
       alert("No data available to export.");
       return;
     }
 
-    // 1. Use descriptive headers with units for clarity
-    const headers = [
-      "Date & Time", 
-      "Risk Level (0-100)", 
-      "Knee Bend (Degrees)", 
-      "Applied Pressure (Newtons)",
-      "Heart Rate (BPM)", 
-      "Skin Temperature (°C)", 
-      "Room Temperature (°C)", 
-      "Atmospheric Pressure (hPa)"
-    ];
+    setIsExporting(true);
 
-    const csvRows = logs.map(log => {
-      // 2. Format the date to be human-readable (e.g., "Feb 19, 2026, 7:30 AM")
-      const dateStr = new Date(log.timestamp).toLocaleString('en-US', {
-        dateStyle: 'medium',
-        timeStyle: 'short'
-      }).replace(/,/g, '');
+    try {
+      // Import html2pdf
+      const html2pdf = (await import('html2pdf.js')).default;
+      const element = reportRef.current;
+      
+      const safeName = (patientName || 'Patient').replace(/[^a-z0-9]/gi, '_');
+      const dateString = new Date().toLocaleDateString().replace(/\//g, '-');
 
-      // 3. Round values and provide defaults to avoid confusing "0" or "null"
-      return [
-        dateStr, 
-        log.riskScore, 
-        log.angle.toFixed(1), // Show only 1 decimal place
-        log.force, 
-        log.bpm || "N/A",      // Use "N/A" instead of 0 for missing data
-        log.skinTemp.toFixed(1), 
-        log.ambientTemp ? log.ambientTemp.toFixed(1) : "N/A", 
-        log.pressure ? Math.round(log.pressure) : "N/A"
-      ].join(',');
-    });
+      // html2pdf Options
+      const opt = {
+        margin:       0.5, // Adds a 0.5-inch margin to EVERY page automatically
+        filename:     `KneuraSense_Report_${safeName}_${dateString}.pdf`,
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true }, 
+        jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' },
+        pagebreak:    { mode: ['css', 'legacy'] } // Enables CSS page breaks
+      };
 
-    const csvString = [headers.join(','), ...csvRows].join('\n');
-    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    
-    // 4. Use a clear, descriptive filename
-    const safeName = patientName.replace(/[^a-z0-9]/gi, '_');
-    const dateString = new Date().toLocaleDateString().replace(/\//g, '-');
-    link.download = `KneuraSense_Report_${safeName}_${dateString}.csv`;
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+      // Generate the visual PDF (NO CSV logic here)
+      await html2pdf().set(opt).from(element).save();
+    } catch (error) {
+      console.error("PDF Export failed:", error);
+      alert("Failed to generate PDF report.");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Auto-calculate metrics
+  const metrics = {
+    totalLogs: logs?.length || 0,
+    meanRisk: logs?.length ? Math.round(logs.reduce((acc, log) => acc + (log.riskScore || 0), 0) / logs.length) : 0,
+    criticalCount: logs?.filter(log => log.riskScore >= 75).length || 0,
+    peakForce: logs?.length ? Math.max(...logs.map(log => log.force || 0)) : 0,
+    meanSkinTemp: logs?.length ? (logs.reduce((acc, log) => acc + (log.skinTemp || 0), 0) / logs.length).toFixed(1) : "N/A",
+    avgAmbientTemp: logs?.length ? (logs.reduce((acc, log) => acc + (log.ambientTemp || 0), 0) / logs.length).toFixed(1) : "N/A"
+  };
+
+  const patientData = {
+    name: patientName || "N/A",
+    id: patientId || ("KN-" + Math.floor(Math.random() * 90000 + 10000)),
+    deviceId: deviceMac || "Not Assigned",
+    physician: clinicianName || "Not Assigned"
   };
 
   return (
-    <button 
-      onClick={handleExport}
-      className="flex h-11 w-full md:w-auto items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-blue-600 px-5 text-sm font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-slate-800 dark:hover:bg-blue-700"
-    >
-      <Download size={16} />
-      <span>Download Report</span>
-    </button>
+    <>
+      <button 
+        onClick={handleExport}
+        disabled={isExporting}
+        className={`flex h-11 items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-blue-600 px-5 text-sm font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-slate-800 dark:hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed ${className || "w-full md:w-auto"}`}
+      >
+        <Download size={16} className={isExporting ? "animate-bounce" : ""} />
+        <span>{isExporting ? 'Generating PDF...' : 'Download Report'}</span>
+      </button>
+
+      {/* Hidden PDF Template Container */}
+      {isMounted && (
+        <div style={{ position: 'absolute', top: '-9999px', left: 0, width: '8.5in', overflow: 'hidden' }}>
+          <BiomechanicalReportTemplate 
+            ref={reportRef} 
+            patientData={patientData} 
+            metrics={metrics} 
+            logs={logs} 
+          />
+        </div>
+      )}
+    </>
   );
 }
