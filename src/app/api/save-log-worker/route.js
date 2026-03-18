@@ -20,6 +20,12 @@ export async function POST(request) {
     }
 
     const body = await request.json();
+
+    if (!body.deviceMac) {
+      console.warn("API Error: Missing deviceMac in request payload");
+      return NextResponse.json({ success: false, error: "Missing deviceMac" }, { status: 400 });
+    }
+
     const riskScore = (body.risk_score !== undefined) ? parseInt(body.risk_score) : 0;
 
     // FETCH THE PATIENT (3. Add pushSubscription to select)
