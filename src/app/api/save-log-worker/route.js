@@ -1,10 +1,9 @@
-// src/app/api/save-log-worker/route.js
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"; 
 import { sendCriticalAlertEmail } from "@/lib/email"; 
-import webpush from "web-push";
+import webpush from "web-push"; // <-- 1. Import Web Push
 
-// Configure Web Push
+// 2. Configure Web Push
 webpush.setVapidDetails(
   `mailto:${process.env.ADMIN_NOTIFICATION_EMAIL}`,
   process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
@@ -21,9 +20,15 @@ export async function POST(request) {
     }
 
     const body = await request.json();
+
+    if (!body.deviceMac) {
+      console.warn("API Error: Missing deviceMac in request payload");
+      return NextResponse.json({ success: false, error: "Missing deviceMac" }, { status: 400 });
+    }
+
     const riskScore = (body.risk_score !== undefined) ? parseInt(body.risk_score) : 0;
 
-    // FETCH THE PATIENT (Using deviceMac)
+    // FETCH THE PATIENT (3. Add pushSubscription to select)
     const patient = await prisma.patient.findFirst({
       where: { deviceMac: body.deviceMac },
       select: { 
@@ -31,7 +36,7 @@ export async function POST(request) {
         fullName: true, 
         clinicianId: true, 
         riskThreshold: true,
-        pushSubscription: true 
+        pushSubscription: true // <-- Required for web push
       }
     });
 
@@ -60,62 +65,36 @@ export async function POST(request) {
       },
     });
 
-    // CHECK THRESHOLD & ALERT WITH COOLDOWN
+    // CHECK THRESHOLD AND SEND ALERTS
     const threshold = patient?.riskThreshold ?? 75;
 
     if (riskScore >= threshold) {
-       console.log(`High risk score (${riskScore}) detected. Evaluating cooldowns...`);
+       console.log(`High risk score (${riskScore}) detected. Triggering alerts...`);
        
-       const EMAIL_COOLDOWN_MINUTES = 30; 
-       const PUSH_COOLDOWN_MINUTES = 5;   
-       const now = new Date();
-
-       // Find the most recent high-risk log (excluding the one just created)
-       const lastHighRiskLog = await prisma.sensorLog.findFirst({
-         where: {
-           patientId: patient.id,
-           riskScore: { gte: threshold },
-           id: { not: newLog.id } 
-         },
-         orderBy: { timestamp: 'desc' }
-       });
-
-       const lastAlertTime = lastHighRiskLog ? new Date(lastHighRiskLog.timestamp) : new Date(0);
-       const minutesSinceLastAlert = (now - lastAlertTime) / (1000 * 60);
-
        // --- A. Clinician Email Alert ---
        if (patient.clinicianId) {
-         if (minutesSinceLastAlert >= EMAIL_COOLDOWN_MINUTES) {
-           console.log("Sending Clinician Email...");
-           await sendCriticalAlertEmail(patient, riskScore, newLog); 
-         } else {
-           console.log(`Email skipped to prevent spam. Cooldown active for another ${Math.round(EMAIL_COOLDOWN_MINUTES - minutesSinceLastAlert)} mins.`);
-         }
+         await sendCriticalAlertEmail(patient, riskScore, newLog); 
        } else {
-         console.log("No assigned clinician found for this patient. Email alert skipped.");
+         console.log("No assigned clinician found for this patient. Alert skipped.");
        }
 
-       // --- B. Patient "Push-to-Talk" Web Push Alert ---
+       // --- B. Patient Web Push Alert ---
        if (patient.pushSubscription) {
-         if (minutesSinceLastAlert >= PUSH_COOLDOWN_MINUTES) {
-           try {
-             const subscriptionObj = JSON.parse(patient.pushSubscription);
-             const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and sit down immediately to prevent injury.`;
-             
-             const payload = JSON.stringify({
-               title: "⚠️ Urgent Knee Alert",
-               body: "Tap to hear urgent instructions.",
-               url: `/patient/${patient.id}/dashboard?voiceAlert=${encodeURIComponent(voiceMessage)}`
-             });
+         try {
+           const subscriptionObj = JSON.parse(patient.pushSubscription);
+           const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and sit down immediately to prevent injury.`;
+           
+           const payload = JSON.stringify({
+             title: "⚠️ Urgent Knee Alert",
+             body: "Tap to hear urgent instructions.",
+             url: `/patient/${patient.id}/dashboard?voiceAlert=${encodeURIComponent(voiceMessage)}`
+           });
 
-             await webpush.sendNotification(subscriptionObj, payload);
-             console.log("Successfully fired Push-to-Talk wake-up call to device!");
+           await webpush.sendNotification(subscriptionObj, payload);
+           console.log("Successfully fired Push-to-Talk wake-up call to device!");
 
-           } catch (pushErr) {
-             console.error("Failed to send web push. Subscription might be invalid or expired:", pushErr);
-           }
-         } else {
-             console.log(`Web Push skipped. Patient was just warned ${Math.round(minutesSinceLastAlert)} minutes ago.`);
+         } catch (pushErr) {
+           console.error("Failed to send web push. Subscription might be invalid or expired:", pushErr);
          }
        }
     }
