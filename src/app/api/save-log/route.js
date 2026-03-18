@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma"; 
 import { sendCriticalAlertEmail } from "@/lib/email"; 
-import webpush from "web-push"; // <-- Import the library
+import webpush from "web-push";
 
 // Configure Web Push with your VAPID keys from .env
 webpush.setVapidDetails(
@@ -16,7 +16,7 @@ export async function POST(request) {
     const body = await request.json();
     const riskScore = (body.risk_score !== undefined) ? parseInt(body.risk_score) : 0;
 
-    // 1. FETCH THE PATIENT (Added pushSubscription to the select)
+    // 1. FETCH THE PATIENT
     const patient = await prisma.patient.findUnique({
       where: { id: body.patientId },
       select: { 
@@ -24,7 +24,7 @@ export async function POST(request) {
         fullName: true, 
         clinicianId: true, 
         riskThreshold: true,
-        pushSubscription: true // <-- We need this to send the push
+        pushSubscription: true 
       }
     });
 
@@ -52,38 +52,60 @@ export async function POST(request) {
       },
     });
 
-    // 3. CHECK THRESHOLD & ALERT
+    // 3. CHECK THRESHOLD & ALERT WITH COOLDOWN
     const threshold = patient.riskThreshold ?? 75; 
 
     if (riskScore >= threshold) {
-       console.log(`High risk score (${riskScore}) detected. Triggering alerts...`);
+       console.log(`High risk score (${riskScore}) detected. Evaluating cooldowns...`);
        
+       const EMAIL_COOLDOWN_MINUTES = 30; 
+       const PUSH_COOLDOWN_MINUTES = 5;   
+       const now = new Date();
+
+       // Find the most recent high-risk log (excluding the one just created)
+       const lastHighRiskLog = await prisma.sensorLog.findFirst({
+         where: {
+           patientId: patient.id,
+           riskScore: { gte: threshold },
+           id: { not: newLog.id } 
+         },
+         orderBy: { timestamp: 'desc' }
+       });
+
+       const lastAlertTime = lastHighRiskLog ? new Date(lastHighRiskLog.timestamp) : new Date(0);
+       const minutesSinceLastAlert = (now - lastAlertTime) / (1000 * 60);
+
        // --- A. Clinician Email Alert ---
-       if (patient.clinicianId) { 
-         await sendCriticalAlertEmail(patient, riskScore, newLog); 
+       if (patient.clinicianId) {
+         if (minutesSinceLastAlert >= EMAIL_COOLDOWN_MINUTES) {
+           console.log("Sending Clinician Email...");
+           await sendCriticalAlertEmail(patient, riskScore, newLog); 
+         } else {
+           console.log(`Email skipped to prevent spam. Cooldown active for another ${Math.round(EMAIL_COOLDOWN_MINUTES - minutesSinceLastAlert)} mins.`);
+         }
        }
 
        // --- B. Patient "Push-to-Talk" Web Push Alert ---
        if (patient.pushSubscription) {
-         try {
-           const subscriptionObj = JSON.parse(patient.pushSubscription);
-           
-           // 1. Generate the dynamic voice string based on context
-           const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and sit down immediately to prevent injury.`;
-           
-           // 2. Build the payload. The 'url' is what the Service Worker will force-open!
-           const payload = JSON.stringify({
-             title: "⚠️ Urgent Knee Alert",
-             body: "Tap to hear urgent instructions.",
-             url: `/patient/${patient.id}/dashboard?voiceAlert=${encodeURIComponent(voiceMessage)}`
-           });
+         if (minutesSinceLastAlert >= PUSH_COOLDOWN_MINUTES) {
+           try {
+             const subscriptionObj = JSON.parse(patient.pushSubscription);
+             const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and sit down immediately to prevent injury.`;
+             
+             const payload = JSON.stringify({
+               title: "⚠️ Urgent Knee Alert",
+               body: "Tap to hear urgent instructions.",
+               url: `/patient/${patient.id}/dashboard?voiceAlert=${encodeURIComponent(voiceMessage)}`
+             });
 
-           // 3. Fire the push!
-           await webpush.sendNotification(subscriptionObj, payload);
-           console.log("Successfully fired Push-to-Talk wake-up call to device!");
+             await webpush.sendNotification(subscriptionObj, payload);
+             console.log("Successfully fired Push-to-Talk wake-up call to device!");
 
-         } catch (pushErr) {
-           console.error("Failed to send web push. Subscription might be invalid or expired:", pushErr);
+           } catch (pushErr) {
+             console.error("Failed to send web push:", pushErr);
+           }
+         } else {
+             console.log(`Web Push skipped. Patient was just warned ${Math.round(minutesSinceLastAlert)} minutes ago.`);
          }
        }
     }
