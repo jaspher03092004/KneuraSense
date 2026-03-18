@@ -20,10 +20,10 @@ export function useMQTT(deviceMac) {
       return;
     }
 
-    const MQTT_HOST = 'd74c9cedfa0e44efa6fbbc6a42bef453.s1.eu.hivemq.cloud';
-    const MQTT_PORT = 8884;
-    const MQTT_USER = 'KneuraSense-esp32';
-    const MQTT_PASS = 'Kneurasense123';
+    const MQTT_HOST = process.env.NEXT_PUBLIC_MQTT_HOST;
+    const MQTT_PORT = Number(process.env.NEXT_PUBLIC_MQTT_PORT);
+    const MQTT_USER = process.env.NEXT_PUBLIC_MQTT_USER;
+    const MQTT_PASS = process.env.NEXT_PUBLIC_MQTT_PASS;
     
     const TOPIC = `esp32/${deviceMac}/data`; 
     console.log(`[MQTT Setup] Attempting to connect and subscribe to: ${TOPIC}`);

@@ -9,6 +9,11 @@ self.addEventListener('push', function (event) {
       badge: '/images/Logo.svg',
       vibrate: [300, 100, 400, 100, 500], // Aggressive vibration pattern
       requireInteraction: true, // Forces the user to dismiss or click it
+      
+      // SPAM PREVENTION ADDITIONS:
+      tag: `kneur-alert-${data.patientId || 'default'}`, // Replaces older notifications instead of stacking them
+      renotify: true, // Ensures the device still vibrates/chimes when an alert is replaced
+      
       data: {
         // We pass the specific instruction URL hidden inside the notification
         url: data.url, 

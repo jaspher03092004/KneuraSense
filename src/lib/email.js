@@ -1,8 +1,21 @@
 import { prisma } from "@/lib/prisma"; 
 import nodemailer from 'nodemailer';
 
+// Define your cooldown period (e.g., 15 minutes)
+const COOLDOWN_PERIOD_MS = 15 * 60 * 1000; 
+
 export async function sendCriticalAlertEmail(patient, riskScore, logData) {
   try {
+    // 1. Check the cooldown timer to prevent spamming
+    if (patient.lastCriticalAlertAt) {
+      const timeSinceLastAlert = Date.now() - new Date(patient.lastCriticalAlertAt).getTime();
+      
+      if (timeSinceLastAlert < COOLDOWN_PERIOD_MS) {
+        console.log(`Email Alert Aborted: Cooldown active for patient ${patient.id}.`);
+        return; // Exit early, skipping the email
+      }
+    }
+
     const clinician = await prisma.clinician.findUnique({
       where: { 
         clinician_id: patient.clinicianId, 
@@ -25,7 +38,8 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
     const mailOptions = {
       from: `"KneuraSense Alert" <${process.env.SMTP_USER}>`,
       to: clinician.email,
-      subject: `CRITICAL ALERT: High Risk Score Detected for ${patient.fullName}`,
+      // Subject changed from ALL CAPS to Title Case to lower spam score
+      subject: `Critical Alert: High Risk Score Detected for ${patient.fullName}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #fee2e2; border-radius: 10px; background-color: #fffafb;">
           <h2 style="color: #e11d48; border-bottom: 2px solid #fecdd3; padding-bottom: 10px;">Critical Patient Alert</h2>
@@ -46,8 +60,15 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
       `,
     };
 
+    // 2. Send the email
     await transporter.sendMail(mailOptions);
     console.log(`Critical alert email successfully sent to ${clinician.email}`);
+
+    // 3. Update the patient's last alert timestamp in the database to start the cooldown
+    await prisma.patient.update({
+      where: { id: patient.id },
+      data: { lastCriticalAlertAt: new Date() }
+    });
 
   } catch (err) {
     console.error("Failed to process alert emails:", err);

@@ -64,6 +64,7 @@ export type PatientMinAggregateOutputType = {
   deviceMac: string | null
   clinicianId: string | null
   pushSubscription: string | null
+  lastCriticalAlertAt: Date | null
 }
 
 export type PatientMaxAggregateOutputType = {
@@ -90,6 +91,7 @@ export type PatientMaxAggregateOutputType = {
   deviceMac: string | null
   clinicianId: string | null
   pushSubscription: string | null
+  lastCriticalAlertAt: Date | null
 }
 
 export type PatientCountAggregateOutputType = {
@@ -116,6 +118,7 @@ export type PatientCountAggregateOutputType = {
   deviceMac: number
   clinicianId: number
   pushSubscription: number
+  lastCriticalAlertAt: number
   _all: number
 }
 
@@ -158,6 +161,7 @@ export type PatientMinAggregateInputType = {
   deviceMac?: true
   clinicianId?: true
   pushSubscription?: true
+  lastCriticalAlertAt?: true
 }
 
 export type PatientMaxAggregateInputType = {
@@ -184,6 +188,7 @@ export type PatientMaxAggregateInputType = {
   deviceMac?: true
   clinicianId?: true
   pushSubscription?: true
+  lastCriticalAlertAt?: true
 }
 
 export type PatientCountAggregateInputType = {
@@ -210,6 +215,7 @@ export type PatientCountAggregateInputType = {
   deviceMac?: true
   clinicianId?: true
   pushSubscription?: true
+  lastCriticalAlertAt?: true
   _all?: true
 }
 
@@ -323,6 +329,7 @@ export type PatientGroupByOutputType = {
   deviceMac: string | null
   clinicianId: string | null
   pushSubscription: string | null
+  lastCriticalAlertAt: Date | null
   _count: PatientCountAggregateOutputType | null
   _avg: PatientAvgAggregateOutputType | null
   _sum: PatientSumAggregateOutputType | null
@@ -372,6 +379,7 @@ export type PatientWhereInput = {
   deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
   clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
   pushSubscription?: Prisma.StringNullableFilter<"Patient"> | string | null
+  lastCriticalAlertAt?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
   clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
@@ -401,6 +409,7 @@ export type PatientOrderByWithRelationInput = {
   deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
   clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
   pushSubscription?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastCriticalAlertAt?: Prisma.SortOrderInput | Prisma.SortOrder
   sensorLogs?: Prisma.SensorLogOrderByRelationAggregateInput
   interventions?: Prisma.InterventionOrderByRelationAggregateInput
   clinician?: Prisma.ClinicianOrderByWithRelationInput
@@ -433,6 +442,7 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   riskThreshold?: Prisma.IntFilter<"Patient"> | number
   clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
   pushSubscription?: Prisma.StringNullableFilter<"Patient"> | string | null
+  lastCriticalAlertAt?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
   clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
@@ -462,6 +472,7 @@ export type PatientOrderByWithAggregationInput = {
   deviceMac?: Prisma.SortOrderInput | Prisma.SortOrder
   clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
   pushSubscription?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastCriticalAlertAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.PatientCountOrderByAggregateInput
   _avg?: Prisma.PatientAvgOrderByAggregateInput
   _max?: Prisma.PatientMaxOrderByAggregateInput
@@ -496,6 +507,7 @@ export type PatientScalarWhereWithAggregatesInput = {
   deviceMac?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   clinicianId?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   pushSubscription?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  lastCriticalAlertAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Patient"> | Date | string | null
 }
 
 export type PatientCreateInput = {
@@ -521,6 +533,7 @@ export type PatientCreateInput = {
   riskThreshold?: number
   deviceMac?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
   clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
@@ -550,6 +563,7 @@ export type PatientUncheckedCreateInput = {
   deviceMac?: string | null
   clinicianId?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -577,6 +591,7 @@ export type PatientUpdateInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
   clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
@@ -606,6 +621,7 @@ export type PatientUncheckedUpdateInput = {
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -634,6 +650,7 @@ export type PatientCreateManyInput = {
   deviceMac?: string | null
   clinicianId?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
 }
 
 export type PatientUpdateManyMutationInput = {
@@ -659,6 +676,7 @@ export type PatientUpdateManyMutationInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type PatientUncheckedUpdateManyInput = {
@@ -685,6 +703,7 @@ export type PatientUncheckedUpdateManyInput = {
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type PatientListRelationFilter = {
@@ -721,6 +740,7 @@ export type PatientCountOrderByAggregateInput = {
   deviceMac?: Prisma.SortOrder
   clinicianId?: Prisma.SortOrder
   pushSubscription?: Prisma.SortOrder
+  lastCriticalAlertAt?: Prisma.SortOrder
 }
 
 export type PatientAvgOrderByAggregateInput = {
@@ -754,6 +774,7 @@ export type PatientMaxOrderByAggregateInput = {
   deviceMac?: Prisma.SortOrder
   clinicianId?: Prisma.SortOrder
   pushSubscription?: Prisma.SortOrder
+  lastCriticalAlertAt?: Prisma.SortOrder
 }
 
 export type PatientMinOrderByAggregateInput = {
@@ -780,6 +801,7 @@ export type PatientMinOrderByAggregateInput = {
   deviceMac?: Prisma.SortOrder
   clinicianId?: Prisma.SortOrder
   pushSubscription?: Prisma.SortOrder
+  lastCriticalAlertAt?: Prisma.SortOrder
 }
 
 export type PatientSumOrderByAggregateInput = {
@@ -852,6 +874,10 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type PatientCreateNestedOneWithoutSensorLogsInput = {
   create?: Prisma.XOR<Prisma.PatientCreateWithoutSensorLogsInput, Prisma.PatientUncheckedCreateWithoutSensorLogsInput>
   connectOrCreate?: Prisma.PatientCreateOrConnectWithoutSensorLogsInput
@@ -903,6 +929,7 @@ export type PatientCreateWithoutClinicianInput = {
   riskThreshold?: number
   deviceMac?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
 }
@@ -930,6 +957,7 @@ export type PatientUncheckedCreateWithoutClinicianInput = {
   riskThreshold?: number
   deviceMac?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
@@ -987,6 +1015,7 @@ export type PatientScalarWhereInput = {
   deviceMac?: Prisma.StringNullableFilter<"Patient"> | string | null
   clinicianId?: Prisma.StringNullableFilter<"Patient"> | string | null
   pushSubscription?: Prisma.StringNullableFilter<"Patient"> | string | null
+  lastCriticalAlertAt?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
 }
 
 export type PatientCreateWithoutSensorLogsInput = {
@@ -1012,6 +1041,7 @@ export type PatientCreateWithoutSensorLogsInput = {
   riskThreshold?: number
   deviceMac?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   interventions?: Prisma.InterventionCreateNestedManyWithoutPatientInput
   clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
@@ -1040,6 +1070,7 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   deviceMac?: string | null
   clinicianId?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   interventions?: Prisma.InterventionUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -1082,6 +1113,7 @@ export type PatientUpdateWithoutSensorLogsInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
   clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
@@ -1110,6 +1142,7 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -1136,6 +1169,7 @@ export type PatientCreateWithoutInterventionsInput = {
   riskThreshold?: number
   deviceMac?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   sensorLogs?: Prisma.SensorLogCreateNestedManyWithoutPatientInput
   clinician?: Prisma.ClinicianCreateNestedOneWithoutPatientsInput
 }
@@ -1164,6 +1198,7 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   deviceMac?: string | null
   clinicianId?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
   sensorLogs?: Prisma.SensorLogUncheckedCreateNestedManyWithoutPatientInput
 }
 
@@ -1206,6 +1241,7 @@ export type PatientUpdateWithoutInterventionsInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   clinician?: Prisma.ClinicianUpdateOneWithoutPatientsNestedInput
 }
@@ -1234,6 +1270,7 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
 }
 
@@ -1260,6 +1297,7 @@ export type PatientCreateManyClinicianInput = {
   riskThreshold?: number
   deviceMac?: string | null
   pushSubscription?: string | null
+  lastCriticalAlertAt?: Date | string | null
 }
 
 export type PatientUpdateWithoutClinicianInput = {
@@ -1285,6 +1323,7 @@ export type PatientUpdateWithoutClinicianInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sensorLogs?: Prisma.SensorLogUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUpdateManyWithoutPatientNestedInput
 }
@@ -1312,6 +1351,7 @@ export type PatientUncheckedUpdateWithoutClinicianInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   sensorLogs?: Prisma.SensorLogUncheckedUpdateManyWithoutPatientNestedInput
   interventions?: Prisma.InterventionUncheckedUpdateManyWithoutPatientNestedInput
 }
@@ -1339,6 +1379,7 @@ export type PatientUncheckedUpdateManyWithoutClinicianInput = {
   riskThreshold?: Prisma.IntFieldUpdateOperationsInput | number
   deviceMac?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   pushSubscription?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCriticalAlertAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1405,6 +1446,7 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   deviceMac?: boolean
   clinicianId?: boolean
   pushSubscription?: boolean
+  lastCriticalAlertAt?: boolean
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
   clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
@@ -1435,6 +1477,7 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   deviceMac?: boolean
   clinicianId?: boolean
   pushSubscription?: boolean
+  lastCriticalAlertAt?: boolean
   clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
@@ -1462,6 +1505,7 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   deviceMac?: boolean
   clinicianId?: boolean
   pushSubscription?: boolean
+  lastCriticalAlertAt?: boolean
   clinician?: boolean | Prisma.Patient$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["patient"]>
 
@@ -1489,9 +1533,10 @@ export type PatientSelectScalar = {
   deviceMac?: boolean
   clinicianId?: boolean
   pushSubscription?: boolean
+  lastCriticalAlertAt?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId" | "pushSubscription", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId" | "pushSubscription" | "lastCriticalAlertAt", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
@@ -1536,6 +1581,7 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     deviceMac: string | null
     clinicianId: string | null
     pushSubscription: string | null
+    lastCriticalAlertAt: Date | null
   }, ExtArgs["result"]["patient"]>
   composites: {}
 }
@@ -1985,6 +2031,7 @@ export interface PatientFieldRefs {
   readonly deviceMac: Prisma.FieldRef<"Patient", 'String'>
   readonly clinicianId: Prisma.FieldRef<"Patient", 'String'>
   readonly pushSubscription: Prisma.FieldRef<"Patient", 'String'>
+  readonly lastCriticalAlertAt: Prisma.FieldRef<"Patient", 'DateTime'>
 }
     
 

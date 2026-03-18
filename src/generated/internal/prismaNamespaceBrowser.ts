@@ -130,7 +130,8 @@ export const PatientScalarFieldEnum = {
   riskThreshold: 'riskThreshold',
   deviceMac: 'deviceMac',
   clinicianId: 'clinicianId',
-  pushSubscription: 'pushSubscription'
+  pushSubscription: 'pushSubscription',
+  lastCriticalAlertAt: 'lastCriticalAlertAt'
 } as const
 
 export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeof PatientScalarFieldEnum]
