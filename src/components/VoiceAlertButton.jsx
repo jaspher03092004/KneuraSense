@@ -44,6 +44,13 @@ export default function VoiceAlertButton({ patientId }) {
         }
 
         // EXPLICIT PERMISSION CHECK ADDED HERE
+        if (Notification.permission === 'denied') {
+           alert("Notifications are currently blocked. To enable voice alerts, please click the lock icon in your browser's address bar, allow notifications, and try again.");
+           setStatus("error");
+           setIsEnabled(false);
+           return;
+        }
+
         const permission = await Notification.requestPermission();
         if (permission !== 'granted') {
           throw new Error(`Notification permission status: ${permission}`);

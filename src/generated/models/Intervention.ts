@@ -513,10 +513,6 @@ export type InterventionUncheckedUpdateManyWithoutPatientNestedInput = {
   deleteMany?: Prisma.InterventionScalarWhereInput | Prisma.InterventionScalarWhereInput[]
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type InterventionCreateWithoutClinicianInput = {
   id?: string
   title: string
