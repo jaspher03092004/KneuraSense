@@ -53,7 +53,17 @@ export default async function HistoryPage({ params, searchParams }) {
 
   const patientInfo = await prisma.patient.findUnique({
     where: { id },
-    select: { fullName: true, riskThreshold: true }
+    select: { 
+      id: true,
+      fullName: true, // Patient model uses fullName
+      riskThreshold: true,
+      deviceMac: true,
+      clinician: {
+        select: {
+          full_name: true // Clinician model uses full_name!
+        }
+      }
+    }
   });
   if (!patientInfo) redirect('/login');
 
@@ -128,7 +138,14 @@ export default async function HistoryPage({ params, searchParams }) {
           </div>
           <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:items-center">
              <div className="w-full"><RefreshButton className="w-full" /></div>
-             <div className="w-full"><ExportButton logs={rawChartLogs} patientName={patientInfo.fullName} className="w-full" /></div>
+             <ExportButton 
+                logs={rawChartLogs} 
+                patientName={patientInfo?.fullName} 
+                patientId={patientInfo?.id} 
+                deviceMac={patientInfo?.deviceMac || "Not Assigned"} 
+                clinicianName={patientInfo?.clinician?.full_name ? `Dr. ${patientInfo.clinician.full_name}` : "Not Assigned"} 
+                className="w-full" 
+              />
           </div>
         </header>
 
