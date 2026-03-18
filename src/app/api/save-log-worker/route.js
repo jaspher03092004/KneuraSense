@@ -36,7 +36,8 @@ export async function POST(request) {
         fullName: true, 
         clinicianId: true, 
         riskThreshold: true,
-        pushSubscription: true // <-- Required for web push
+        pushSubscription: true, // <-- Required for web push
+        lastCriticalAlertAt: true
       }
     });
 
