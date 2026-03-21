@@ -102,50 +102,7 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
       }
     }
   }, [data.lat, data.lng]); 
-
-  // --- AUTO-SAVE TO SUPABASE ---
-  useEffect(() => {
-    let isSaving = false; // [OPTIMIZATION] Lock to prevent overlapping requests
-    
-    const saveInterval = setInterval(async () => {
-      if (isSaving) return;
-      
-      const currentData = dataRef.current;
-      const currentWeather = weatherRef.current; 
-      
-      if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
-        isSaving = true;
-        try {
-           await fetch('/api/save-log', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ 
-               patientId: patientId,
-               risk_score: currentData.risk_score,
-               bat: currentData.bat,
-               angle: currentData.angle,
-               thigh_pitch: currentData.thigh_pitch,
-               shank_pitch: currentData.shank_pitch,
-               skin_temp: currentData.skin_temp,
-               fsr: currentData.fsr,
-               lat: currentData.lat, 
-               lng: currentData.lng,
-               weatherTemp: currentWeather ? currentWeather.main.temp : null,
-               bpm: currentData.bpm,
-               ambient_temp: currentData.ambient_temp,
-               pressure: currentData.pressure
-             }),
-           });
-        } catch (err) { 
-          console.error("Auto-save failed:", err); 
-        } finally {
-          isSaving = false;
-        }
-      }
-    }, 10000); 
-    return () => clearInterval(saveInterval);
-  }, [deviceStatus, patientId]);
-
+  
   const timeString = lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString() : "--:--";
 
   return (

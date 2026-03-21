@@ -20,41 +20,7 @@ export default function GlobalPatientAlerts({ highStressAlerts, patientId, riskT
       Notification.requestPermission();
     }
   }, [highStressAlerts]);
-
-  // --- BACKGROUND AUTO-SAVE TO DATABASE ---
-  useEffect(() => {
-    const saveInterval = setInterval(async () => {
-      const currentData = dataRef.current;
-      
-      // Only save if online, patient is known, and we have valid data
-      if (deviceStatus === 'Online' && patientId && currentData.bat !== undefined) {
-        try {
-           await fetch('/api/save-log', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ 
-               patientId, 
-               risk_score: currentData.risk_score, 
-               bat: currentData.bat,
-               angle: currentData.angle, 
-               skin_temp: currentData.skin_temp, 
-               fsr: currentData.fsr,
-               lat: currentData.lat, 
-               lng: currentData.lng,
-               bpm: currentData.bpm, 
-               ambient_temp: currentData.ambient_temp, 
-               pressure: currentData.pressure
-             }),
-           });
-        } catch (err) { 
-          console.error("Auto-save failed:", err); 
-        }
-      }
-    }, 10000); // 10 seconds
-
-    return () => clearInterval(saveInterval);
-  }, [deviceStatus, patientId]);
-
+  
   // --- TRIGGER NOTIFICATIONS ---
   useEffect(() => {
     const currentScore = Number(data.risk_score);
