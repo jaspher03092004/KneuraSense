@@ -146,52 +146,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
     }
   };
 
-  // Database Auto-Save Interval
-  useEffect(() => {
-    if (!enableAutoSave) return;
-    
-    let isSaving = false; // [OPTIMIZATION] Prevent overlapping API requests
-
-    const saveInterval = setInterval(async () => {
-      if (isSaving) return;
-      
-      const currentData = dataRef.current;
-      const currentWeather = weatherRef.current; 
-      
-      if (deviceStatus === 'Online' && patientId && currentData.bat > 0) {
-        isSaving = true;
-        try {
-           await fetch('/api/save-log', {
-             method: 'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body: JSON.stringify({ 
-               patientId: patientId,
-               risk_score: currentData.risk_score,
-               bat: currentData.bat,
-               angle: currentData.angle,
-               thigh_pitch: currentData.thigh_pitch,
-               shank_pitch: currentData.shank_pitch,
-               skin_temp: currentData.skin_temp,
-               fsr: currentData.fsr,
-               lat: currentData.lat, 
-               lng: currentData.lng,
-               weatherTemp: currentWeather ? currentWeather.main.temp : null,
-               bpm: currentData.bpm,
-               ambient_temp: currentData.ambient_temp,
-               pressure: currentData.pressure
-             }),
-           });
-        } catch (err) {
-            console.error("Auto-save failed", err);
-        } finally {
-            isSaving = false;
-        }
-      }
-    }, 10000); 
-    
-    return () => clearInterval(saveInterval);
-  }, [deviceStatus, patientId, enableAutoSave]);
-
   const riskConfig = useMemo(() => {
     const currentScore = Number(data.risk_score);
     const threshold = Number(riskThreshold);
