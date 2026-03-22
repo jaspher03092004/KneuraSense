@@ -38,6 +38,8 @@ export async function POST(request) {
       return NextResponse.json({ success: false, error: "Unregistered device" }, { status: 404 });
     }
 
+    const logTimestamp = body.timestamp ? new Date(body.timestamp * 1000) : new Date();
+
     // CREATE THE LOG ENTRY
     const newLog = await prisma.sensorLog.create({
       data: {
@@ -55,6 +57,7 @@ export async function POST(request) {
         bpm:         (body.bpm !== undefined && body.bpm !== null) ? parseInt(body.bpm) : null,
         ambientTemp: (body.ambient_temp !== undefined && body.ambient_temp !== null) ? parseFloat(body.ambient_temp) : null,
         pressure:    (body.pressure !== undefined && body.pressure !== null) ? parseFloat(body.pressure) : null,
+        timestamp:   logTimestamp,
       },
     });
 
