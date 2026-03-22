@@ -86,8 +86,13 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
   }
 
   // --- CDSS DATA PROCESSING ---
+  // Helper for consistent PHT formatting
+  const timeOpts = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit' };
+  const dateOpts = { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
   const formattedChartData = chartData?.map(d => ({
-    time: `${d.hour}:00`,
+    // Use the raw timestamp and format it to PHT instead of using the raw UTC hour
+    time: new Date(d.timestamp).toLocaleTimeString('en-US', timeOpts),
     risk: d.risk,
     angle: d.angle,
     force: d.force,
@@ -116,7 +121,8 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
   const paginatedLogs = rawLogs?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
 
   const tableRows = paginatedLogs.map(log => ({
-    time: new Date(log.timestamp).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    // Format detailed logs table to PHT
+    time: new Date(log.timestamp).toLocaleString('en-US', dateOpts),
     score: log.riskScore,
     angle: `${log.angle?.toFixed(1) || 0}°`,
     force: `${log.force} N`,

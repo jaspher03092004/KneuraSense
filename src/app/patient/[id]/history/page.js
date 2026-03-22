@@ -97,28 +97,32 @@ export default async function HistoryPage({ params, searchParams }) {
 
   const safeChartLogs = downsamplePeaks(rawChartLogs, 100);
 
+  // Helper for consistent PHT formatting
+  const timeOpts = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit' };
+  const dateOpts = { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
   const chartData = safeChartLogs.map(log => ({
-    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    time: log.timestamp.toLocaleTimeString('en-US', timeOpts),
     score: log.riskScore,
     angle: log.angle,
     force: log.force,
   }));
 
   const terrainData = safeChartLogs.map(log => ({ 
-    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.angle 
+    time: log.timestamp.toLocaleTimeString('en-US', timeOpts), val: log.angle 
   }));
   const envData = safeChartLogs.map(log => ({ 
-    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.skinTemp 
+    time: log.timestamp.toLocaleTimeString('en-US', timeOpts), val: log.skinTemp 
   }));
   const bpmData = safeChartLogs.map(log => ({ 
-    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.bpm || 0 
+    time: log.timestamp.toLocaleTimeString('en-US', timeOpts), val: log.bpm || 0 
   }));
   const pressureData = safeChartLogs.map(log => ({ 
-    time: log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), val: log.pressure || 0 
+    time: log.timestamp.toLocaleTimeString('en-US', timeOpts), val: log.pressure || 0 
   }));
 
   const tableRows = paginatedLogs.map(log => ({
-    time: log.timestamp.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+    time: log.timestamp.toLocaleString('en-US', dateOpts),
     score: log.riskScore,
     angle: `${log.angle.toFixed(1)}°`,
     bpm: log.bpm && log.bpm > 0 ? `${log.bpm} bpm` : '--',
