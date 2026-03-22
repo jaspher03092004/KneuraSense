@@ -24,12 +24,30 @@ export async function clinicianRegisterPatient(formData) {
       return { success: false, error: 'This phone number is already registered in the system.' };
     }
 
-    // 2. Hash password
-    const passwordHash = await bcrypt.hash(data.password, 10);
+    // 2. Generate a highly unique MRN (e.g., MRN-84729104)
+    let generatedMrn;
+    let isUniqueMrn = false;
+    
+    while (!isUniqueMrn) {
+      // Generates an 8-digit random number
+      generatedMrn = `MRN-${Math.floor(10000000 + Math.random() * 90000000)}`;
+      
+      // Double check the database to ensure it hasn't been used
+      const existingRecord = await prisma.patient.findUnique({ where: { mrn: generatedMrn } });
+      
+      if (!existingRecord) {
+        isUniqueMrn = true;
+      }
+    }
 
-    // 3. Create the patient directly as verified
+    // 3. Hash password (use provided or generate a secure temporary one)
+    const passwordToHash = data.password || (Math.random().toString(36).slice(-10) + 'A1!z');
+    const passwordHash = await bcrypt.hash(passwordToHash, 10);
+
+    // 4. Create the patient directly as verified, inserting the auto-generated MRN
     await prisma.patient.create({
       data: {
+        mrn: generatedMrn,
         fullName: data.fullName,
         email: email,
         phoneNumber: phoneNumber,
@@ -39,7 +57,7 @@ export async function clinicianRegisterPatient(formData) {
         oaDiagnosis: data.oaDiagnosis === 'Yes',
         activityLevel: data.activityLevel,
         isVerified: true,
-        deviceMac: data.deviceMac, // Ensure this matches your form payload
+        deviceMac: data.deviceMac || null, // Handles empty strings smoothly
       }
     });
 

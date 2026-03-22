@@ -62,6 +62,7 @@ export default async function AllPatientsPage({ params }) {
 
     return {
       id: patient.id,
+      mrn: patient.mrn,
       name: patient.fullName,
       email: patient.email,
       initials,

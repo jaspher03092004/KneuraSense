@@ -43,6 +43,7 @@ model Clinician {
 
 model Patient {
   id            String   @id @default(uuid()) // FIXED: Auto-generates ID
+  mrn           String?  @unique
   fullName      String
   age           Int?
   gender        String?

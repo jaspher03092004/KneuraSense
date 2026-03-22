@@ -156,11 +156,11 @@ export default function PatientsClient({ clinicianId, patients }) {
       return;
     }
 
-    const headers = ['Patient ID', 'Name', 'Email', 'Age', 'Device MAC', 'Latest Risk Score', 'Last Sensor Sync'];
+    const headers = ['MRN', 'Name', 'Email', 'Age', 'Device MAC', 'Latest Risk Score', 'Last Sensor Sync'];
     const rows = filteredPatients.map(p => {
       const latestLog = p.sensorLogs?.[0];
       return [
-        p.id, 
+        p.mrn || 'N/A',
         `"${p.fullName}"`, 
         `"${p.email}"`, 
         p.age, 
@@ -610,13 +610,13 @@ export default function PatientsClient({ clinicianId, patients }) {
                     <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Register New Patient</h2>
                     <p className="text-[11px] md:text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Create a secure profile. An activation link will be emailed to the patient.</p>
                  </div>
-                 <button onClick={() => setShowRegisterModal(false)} className="p-2 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 rounded-md transition-colors text-slate-400 shrink-0">
+                 <button onClick={() => setShowRegisterModal(false)} className="p-2 -mr-2 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors text-slate-400 shrink-0">
                    <X size={18} />
                  </button>
                </div>
                
                {registrationMessage.text && (
-                <div className={`mb-4 p-3 rounded-md text-[11px] md:text-xs font-bold flex items-center gap-2 ${registrationMessage.type === 'error' ? 'bg-rose-50 text-rose-600 border border-rose-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+                <div className={`mb-4 p-3 rounded-md text-[11px] md:text-xs font-bold flex items-center gap-2 ${registrationMessage.type === 'error' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/30' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/30'}`}>
                   {registrationMessage.type === 'error' ? <AlertTriangle size={14} className="shrink-0"/> : <CheckCircle size={14} className="shrink-0"/>}
                   {registrationMessage.text}
                 </div>
@@ -625,30 +625,30 @@ export default function PatientsClient({ clinicianId, patients }) {
               <form onSubmit={handleSubmit(onRegisterSubmit)} className="space-y-3 text-left">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Full Name <span className="text-rose-500">*</span></label>
-                    <input type="text" {...register("fullName")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs" placeholder="John Doe" />
-                    {errors.fullName && <p className="text-[9px] text-rose-500 mt-1">{errors.fullName.message}</p>}
+                    <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Full Name <span className="text-rose-500 dark:text-rose-400">*</span></label>
+                    <input type="text" {...register("fullName")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs" placeholder="Juan Dela Cruz" />
+                    {errors.fullName && <p className="text-[9px] text-rose-500 dark:text-rose-400 mt-1">{errors.fullName.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Email Address <span className="text-rose-500">*</span></label>
-                    <input type="email" {...register("email")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs" placeholder="john@example.com" />
-                    {errors.email && <p className="text-[9px] text-rose-500 mt-1">{errors.email.message}</p>}
+                    <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Email Address <span className="text-rose-500 dark:text-rose-400">*</span></label>
+                    <input type="email" {...register("email")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs" placeholder="JuanDelaCruz@gmail.com" />
+                    {errors.email && <p className="text-[9px] text-rose-500 dark:text-rose-400 mt-1">{errors.email.message}</p>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone <span className="text-rose-500">*</span></label>
-                    <input type="tel" {...register("phoneNumber")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs" placeholder="+1 (555) 000-0000" />
+                    <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Phone <span className="text-rose-500 dark:text-rose-400">*</span></label>
+                    <input type="tel" {...register("phoneNumber")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs" placeholder="+63 9XXXXXXXXX" />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Age <span className="text-rose-500">*</span></label>
-                      <input type="number" {...register("age")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs" />
+                      <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Age <span className="text-rose-500 dark:text-rose-400">*</span></label>
+                      <input type="number" {...register("age")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs" />
                     </div>
                     <div>
-                      <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Gender <span className="text-rose-500">*</span></label>
-                      <select {...register("gender")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs">
+                      <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Gender <span className="text-rose-500 dark:text-rose-400">*</span></label>
+                      <select {...register("gender")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs [&>option]:bg-white dark:[&>option]:bg-slate-900">
                         <option value="">Select</option>
                         <option value="Male">Male</option>
                         <option value="Female">Female</option>
@@ -660,15 +660,15 @@ export default function PatientsClient({ clinicianId, patients }) {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">OA Diagnosis</label>
-                    <select {...register("oaDiagnosis")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs">
+                    <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">OA Diagnosis</label>
+                    <select {...register("oaDiagnosis")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs [&>option]:bg-white dark:[&>option]:bg-slate-900">
                       <option value="No">No</option>
                       <option value="Yes">Yes</option>
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Activity Level <span className="text-rose-500">*</span></label>
-                    <select {...register("activityLevel")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#2D5F8B] focus:ring-4 outline-none transition-all text-xs">
+                    <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Activity Level <span className="text-rose-500 dark:text-rose-400">*</span></label>
+                    <select {...register("activityLevel")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 focus:ring-1 focus:ring-[#2D5F8B] dark:focus:ring-blue-500 transition-all text-xs [&>option]:bg-white dark:[&>option]:bg-slate-900">
                       <option value="">Select</option>
                       <option value="Sedentary">Sedentary</option>
                       <option value="Light">Light</option>
@@ -679,22 +679,22 @@ export default function PatientsClient({ clinicianId, patients }) {
                 </div>
 
                 <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                  <label className="block text-[9px] font-black text-[#3A9D8C] dark:text-teal-500 uppercase tracking-widest mb-1">Assign Device MAC Address (Optional)</label>
+                  <label className="block text-[9px] font-black text-[#3A9D8C] dark:text-teal-500 uppercase tracking-widest mb-1">Assign Device MAC (Optional)</label>
                   <input 
                     type="text" 
                     {...register("deviceMac")} 
-                    className="w-full px-3 py-2 bg-white dark:bg-slate-950 rounded-md border border-slate-200 focus:border-[#3A9D8C] focus:ring-4 outline-none transition-all text-xs font-mono uppercase tracking-widest placeholder:tracking-normal" 
+                    className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#3A9D8C] dark:focus:border-teal-500 focus:ring-1 focus:ring-[#3A9D8C] dark:focus:ring-teal-500 transition-all text-xs font-mono uppercase tracking-widest placeholder:tracking-normal" 
                     placeholder="e.g. A1B2C3D4E5F6" 
                     maxLength={17}
                   />
-                  <p className="text-[9px] text-slate-400 mt-1">If issuing hardware now, enter the 12-character MAC address.</p>
+                  <p className="text-[9px] text-slate-400 dark:text-slate-500 mt-1">If issuing hardware now, enter the 12-character MAC address.</p>
                 </div>
 
                 <div className="flex flex-col md:flex-row gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <button type="button" onClick={() => { setShowRegisterModal(false); reset(); }} className="w-full md:flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 rounded-md text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 transition-colors order-2 md:order-1 text-xs">
+                  <button type="button" onClick={() => { setShowRegisterModal(false); reset(); }} className="w-full md:flex-1 px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-200 font-bold hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors order-2 md:order-1 text-xs">
                     Cancel
                   </button>
-                  <button type="submit" disabled={isSubmitting} className="w-full md:flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-900 dark:bg-blue-600 text-white font-bold rounded-md hover:bg-slate-800 disabled:opacity-70 transition-colors shadow-sm order-1 md:order-2 text-xs">
+                  <button type="submit" disabled={isSubmitting} className="w-full md:flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-[#2D5F8B] dark:bg-blue-600 text-white font-bold rounded-md hover:bg-[#22486b] dark:hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm order-1 md:order-2 text-xs">
                     {isSubmitting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Confirm & Register'}
                   </button>
                 </div>
