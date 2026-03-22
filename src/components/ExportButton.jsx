@@ -4,7 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { Download } from 'lucide-react';
 import BiomechanicalReportTemplate from './BiomechanicalReportTemplate';
 
-export default function ExportButton({ logs, patientName, clinicianName, deviceMac, patientId, className }) {
+export default function ExportButton({ logs, patientName, clinicianName, deviceMac, mrn, riskThreshold, className }) {
+  const threshold = riskThreshold || 75;
   const [isExporting, setIsExporting] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const reportRef = useRef();
@@ -53,7 +54,7 @@ export default function ExportButton({ logs, patientName, clinicianName, deviceM
   const metrics = {
     totalLogs: logs?.length || 0,
     meanRisk: logs?.length ? Math.round(logs.reduce((acc, log) => acc + (log.riskScore || 0), 0) / logs.length) : 0,
-    criticalCount: logs?.filter(log => log.riskScore >= 75).length || 0,
+    criticalCount: logs?.filter(log => log.riskScore >= threshold).length || 0,
     peakForce: logs?.length ? Math.max(...logs.map(log => log.force || 0)) : 0,
     meanSkinTemp: logs?.length ? (logs.reduce((acc, log) => acc + (log.skinTemp || 0), 0) / logs.length).toFixed(1) : "N/A",
     avgAmbientTemp: logs?.length ? (logs.reduce((acc, log) => acc + (log.ambientTemp || 0), 0) / logs.length).toFixed(1) : "N/A"
@@ -61,7 +62,7 @@ export default function ExportButton({ logs, patientName, clinicianName, deviceM
 
   const patientData = {
     name: patientName || "N/A",
-    id: patientId || ("KN-" + Math.floor(Math.random() * 90000 + 10000)),
+    id: mrn || "No MRN",
     deviceId: deviceMac || "Not Assigned",
     physician: clinicianName || "Not Assigned"
   };
@@ -85,6 +86,7 @@ export default function ExportButton({ logs, patientName, clinicianName, deviceM
             patientData={patientData} 
             metrics={metrics} 
             logs={logs} 
+            riskThreshold={threshold}
           />
         </div>
       )}

@@ -49,9 +49,9 @@ export default function AllPatientsClient({ patients, clinicianId, isCompact }) 
       return;
     }
 
-    const headers = ['Patient ID', 'Name', 'Email', 'Age', 'Status', 'Risk Score', 'Last Active'];
+    const headers = ['MRN', 'Name', 'Email', 'Age', 'Status', 'Risk Score', 'Last Active'];
     const rows = filteredPatients.map(p => [
-      p.id,
+      p.mrn || 'N/A',
       `"${p.name}"`,
       `"${p.email}"`,
       p.age,
@@ -171,7 +171,7 @@ export default function AllPatientsClient({ patients, clinicianId, isCompact }) 
                               </div>
                               <p className="text-[8px] font-medium text-slate-500 dark:text-slate-400 mt-0.5 truncate">{patient.email}</p>
                             </PrivacyMask>
-                            <p className="text-[9px] font-medium text-slate-400 mt-0.5 truncate">ID: {patient.id.substring(0, 8)}</p>
+                            <p className="text-[9px] font-medium text-slate-400 mt-0.5 truncate">{patient.mrn || 'No MRN'}</p>
                           </div>
                         </div>
                         <span className={`text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0 ${statusConfig.bg} ${statusConfig.text}`}>
@@ -224,7 +224,7 @@ export default function AllPatientsClient({ patients, clinicianId, isCompact }) 
                                     {patient.name}
                                   </div>
                                   <p className="text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">{patient.email}</p>
-                                  <p className="text-[9px] font-medium text-slate-400 mt-0.5">ID: {patient.id.substring(0, 8)}</p>
+                                  <p className="text-[9px] font-medium text-slate-400 mt-0.5">{patient.mrn || 'No MRN'}</p>
                                 </div>
                               </PrivacyMask>
                             </div>

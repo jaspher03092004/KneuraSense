@@ -1,7 +1,7 @@
 import React, { forwardRef, useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ReferenceLine } from 'recharts';
 
-const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, ref) => {
+const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, riskThreshold = 75 }, ref) => {
     
     // Format logs for the chart
     const chartData = useMemo(() => {
@@ -13,13 +13,13 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
         }));
     }, [logs]);
 
-    // Dynamically calculate Terrain Triggers from logs
+    // Dynamically calculate Terrain Triggers from logs using the dynamic riskThreshold
     const terrainStats = useMemo(() => {
         const stats = { stairs: 0, incline: 0, flat: 0, uneven: 0 };
         if (!logs) return stats;
         
         logs.forEach(log => {
-            if (log.riskScore >= 75) {
+            if (log.riskScore >= riskThreshold) {
                 const t = (log.terrain || 'flat').toLowerCase();
                 if (t.includes('stair')) stats.stairs++;
                 else if (t.includes('incline') || t.includes('slope')) stats.incline++;
@@ -28,7 +28,7 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
             }
         });
         return stats;
-    }, [logs]);
+    }, [logs, riskThreshold]);
 
     return (
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
@@ -36,30 +36,31 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
                 <style>{`
                     /* GLOBAL COMPACT STYLES FOR 1-PAGE FIT */
                     .form-container * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
-                    .form-container { width: 7.5in; background: #ffffff; color: #1a1a1a; }
+                    .form-container { width: 7.5in; background: #ffffff; color: #1a1a1a; padding: 15px; }
                     
                     /* Tighter Header */
                     .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 2px solid #1e293b; padding-bottom: 6px;}
                     .header-title-left { font-size: 14px; font-weight: 800; color: #1e293b; text-transform: uppercase; }
                     .header-title-right { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
                     
-                    /* REPLACED GRID WITH FLEX TO FIX HTML2PDF SCRAMBLING */
-                    .patient-info-grid { display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 15px; }
-                    .input-group { display: flex; flex-direction: column; width: 48%; margin-bottom: 8px; }
-                    .input-label { font-size: 8px; font-weight: 700; text-transform: uppercase; margin-bottom: 2px; color: #4b5563; }
+                    /* Patient Info Grid */
+                    .patient-info-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 0; margin-bottom: 15px; }
+                    .input-group { display: flex; flex-direction: column; width: 48%; }
+                    .input-label { font-size: 8px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: #4b5563; }
                     
-                    /* Added truncation for long UUIDs to prevent box breaking */
-                    .input-field { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 8px; font-size: 10px; font-weight: 600; color: #0f172a; min-height: 22px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    /* Slightly increased padding for better readability */
+                    .input-field { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 8px; font-size: 10px; font-weight: 600; color: #0f172a; min-height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
                     
-                    /* Tighter Sections */
-                    .section-wrapper { margin-bottom: 12px; width: 100%; }
-                    .section-header { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #1e293b; margin-bottom: 4px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px;}
+                    /* CORRECTED SECTION WRAPPER MARGINS */
+                    .section-wrapper { margin-top: 20px; margin-bottom: 25px; width: 100%; clear: both; }
                     
-                    /* Universal Compact Tables */
+                    .section-header { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;}
+                    
+                    /* Universal Compact Tables - Restored Original Dark Theme */
                     .form-container table { width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; table-layout: fixed; }
-                    .form-container th { background-color: #1e293b; color: #ffffff; font-size: 7px; font-weight: 700; text-transform: uppercase; text-align: center; padding: 4px 2px; border-right: 1px solid #334155; word-wrap: break-word; }
+                    .form-container th { background-color: #1e293b; color: #ffffff; font-size: 7px; font-weight: 700; text-transform: uppercase; text-align: center; padding: 6px 4px; border-right: 1px solid #334155; word-wrap: break-word; }
                     .form-container th:last-child { border-right: none; }
-                    .form-container td { padding: 4px 2px; font-size: 9px; color: #1a1a1a; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: middle; text-align: center; }
+                    .form-container td { padding: 6px 4px; font-size: 9px; color: #1a1a1a; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: middle; text-align: center; }
                     .form-container td:last-child { border-right: none; }
                     .form-container tr:nth-child(even) { background-color: #f8fafc; }
                     
@@ -69,12 +70,12 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
                     .status-critical { color: #b91c1c; font-weight: 700; }
                     .status-normal { color: #059669; font-weight: 700; }
                     
-                    /* REPLACED GRID WITH FLEX FOR THE BOTTOM TWO TABLES */
-                    .split-tables { display: flex; justify-content: space-between; width: 100%; }
-                    .split-tables .section-wrapper { width: 48%; }
+                    /* Split Tables for the bottom */
+                    .split-tables { display: flex; justify-content: space-between; width: 100%; gap: 15px; }
+                    .split-tables .section-wrapper { width: 48%; margin-bottom: 0; margin-top: 0; }
                     
                     /* Shorter Chart Box */
-                    .chart-box { border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; background-color: #ffffff; padding-top: 10px; width: 100%; height: 130px; overflow: hidden; }
+                    .chart-box { border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; background-color: #ffffff; padding-top: 10px; padding-bottom: 5px; width: 100%; height: 130px; overflow: hidden; }
                 `}</style>
 
                 <div className="header-section">
@@ -127,7 +128,7 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
                                 <td className={`metric-cell ${metrics?.criticalCount > 0 ? 'alert' : ''}`}>
                                     {metrics?.criticalCount || "0"}
                                 </td>
-                                <td className="metric-cell">{metrics?.peakForce || "N/A"}</td>
+                                <td className="metric-cell">{metrics?.peakForce != null ? `${metrics.peakForce} N` : "N/A"}</td>
                                 <td className="metric-cell">{metrics?.meanSkinTemp != null && metrics?.meanSkinTemp !== "N/A" ? `${metrics.meanSkinTemp}°C` : "N/A"}</td>
                                 <td className="metric-cell">{metrics?.totalLogs || "0"}</td>
                             </tr>
@@ -139,11 +140,11 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
                     <div className="section-header">Stress Kinetics Trend</div>
                     <div className="chart-box">
                         {chartData.length > 0 ? (
-                            <LineChart width={620} height={120} data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                            <LineChart width={620} height={110} data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                 <XAxis dataKey="time" tick={{ fontSize: 8, fill: '#64748b' }} axisLine={false} tickLine={false} minTickGap={40} />
                                 <YAxis domain={[0, 100]} tick={{ fontSize: 8, fill: '#64748b' }} axisLine={false} tickLine={false} width={25} />
-                                <ReferenceLine y={75} stroke="#f43f5e" strokeDasharray="3 3" />
+                                <ReferenceLine y={riskThreshold} stroke="#f43f5e" strokeDasharray="3 3" />
                                 <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={1.5} dot={false} isAnimationActive={false} />
                             </LineChart>
                         ) : (
@@ -169,7 +170,7 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
                         </thead>
                         <tbody>
                             {logs && logs.length > 0 ? logs.slice(0, 5).map((log, index) => {
-                                const isCritical = log.riskScore >= 75;
+                                const isCritical = log.riskScore >= riskThreshold;
                                 return (
                                     <tr key={index}>
                                         <td>{new Date(log.timestamp).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</td>
@@ -253,9 +254,9 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs }, 
                     </div>
                 </div>
 
-                <div style={{ marginTop: '10px', paddingTop: '8px', borderTop: '1px solid #cbd5e1', fontSize: '7px', color: '#64748b', textAlign: 'center', lineHeight: '1.4' }}>
+                <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #cbd5e1', fontSize: '7px', color: '#64748b', textAlign: 'center', lineHeight: '1.4' }}>
                     <strong>CONFIDENTIALITY NOTICE:</strong> This document contains protected health information intended only for the use of the named individual/entity. <br/>
-                    Generated by KneuraSense Edge AI Analytics Engine • Page 1 of 1
+                    Generated by KneuraSense Analytics Engine • Page 1 of 1
                 </div>
 
             </div>

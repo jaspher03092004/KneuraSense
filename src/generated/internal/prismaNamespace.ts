@@ -1074,6 +1074,7 @@ export type ClinicianScalarFieldEnum = (typeof ClinicianScalarFieldEnum)[keyof t
 
 export const PatientScalarFieldEnum = {
   id: 'id',
+  mrn: 'mrn',
   fullName: 'fullName',
   age: 'age',
   gender: 'gender',

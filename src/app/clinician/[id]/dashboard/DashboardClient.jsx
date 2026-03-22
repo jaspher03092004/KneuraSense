@@ -374,7 +374,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                               </div>
                               <p className="text-[9px] font-medium text-slate-500 dark:text-slate-400 mt-1 truncate">{patient.email}</p>
                             </PrivacyMask>
-                            <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
+                            <p className="text-[10px] font-medium text-slate-400 mt-0.5 truncate">{patient.mrn || 'No MRN'} • Age: {patient.age}</p>
                           </div>
                         </div>
                         <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-sm shrink-0 border border-transparent ${statusConfig.bg} ${statusConfig.text}`}>
@@ -476,7 +476,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
                                   <div className={`font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap ${isCompact ? 'text-xs' : 'text-sm'}`}>
                                     {patient.name}
                                   </div>
-                                  <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">ID: {patient.id.substring(0, 8)} • Age: {patient.age}</p>
+                                  <p className="text-[10px] font-medium text-slate-500 dark:text-slate-400 mt-0.5">{patient.mrn || 'No MRN'} • Age: {patient.age}</p>
                                 </div>
                               </PrivacyMask>
                             </div>

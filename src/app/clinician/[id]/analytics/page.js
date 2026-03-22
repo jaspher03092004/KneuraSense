@@ -15,7 +15,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
     where: {
       clinicianId: clinicianId
     },
-    select: { id: true, fullName: true, age: true, oaDiagnosis: true },
+    select: { id: true, mrn: true, fullName: true, age: true, oaDiagnosis: true },
     orderBy: { fullName: 'asc' }
   });
 
@@ -68,6 +68,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
   if (patient) {
     patientData = {
       name: patient.fullName,
+      mrn: patient.mrn,
       initials: patient.fullName.split(' ').map(n => n[0] || '').join('').substring(0, 2).toUpperCase(),
       id: patient.id,
       age: patient.age || "N/A",

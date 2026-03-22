@@ -55,6 +55,7 @@ export default async function HistoryPage({ params, searchParams }) {
     where: { id },
     select: { 
       id: true,
+      mrn: true,
       fullName: true, // Patient model uses fullName
       riskThreshold: true,
       deviceMac: true,
@@ -137,7 +138,12 @@ export default async function HistoryPage({ params, searchParams }) {
         {/* Header */}
         <header className="-mt-4 mb-4 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
           <div className="space-y-1">
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl">History & Trends</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white md:text-3xl flex items-center gap-3">
+              History & Trends
+              <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md text-slate-500 dark:text-slate-400 align-middle">
+                {patientInfo.mrn || 'No MRN'}
+              </span>
+            </h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">{patientInfo.fullName} • {rangeLabel}</p>
           </div>
           <div className="grid grid-cols-2 gap-2 w-full md:w-auto md:flex md:items-center">
@@ -145,9 +151,10 @@ export default async function HistoryPage({ params, searchParams }) {
              <ExportButton 
                 logs={rawChartLogs} 
                 patientName={patientInfo?.fullName} 
-                patientId={patientInfo?.id} 
+                mrn={patientInfo?.mrn}
                 deviceMac={patientInfo?.deviceMac || "Not Assigned"} 
                 clinicianName={patientInfo?.clinician?.full_name ? `Dr. ${patientInfo.clinician.full_name}` : "Not Assigned"} 
+                riskThreshold={threshold}
                 className="w-full" 
               />
           </div>
