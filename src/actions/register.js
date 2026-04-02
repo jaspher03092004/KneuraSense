@@ -144,39 +144,13 @@ export async function finalizeRegistration(formData, otp) {
           specialization,
           licenseNumber: licenseNumber,
           isVerified: true,
-          isApproved: false,
+          isApproved: false, // Remains false until admin approves
         },
       });
 
-      // A. Generate a secure 32-byte hex token
-      const approvalToken = crypto.randomBytes(32).toString('hex');
-
-      // B. Save it to the database
-      await prisma.adminApprovalToken.create({
-        data: {
-          clinicianId: newClinician.clinician_id, // Make sure to use newClinician here
-          token: approvalToken,
-        }
-      });
-
-      // C. Build the approval URL
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-      // Using .replace to strip any accidental trailing slashes from the .env variable
-      const safeBaseUrl = baseUrl.replace(/\/$/, ''); 
-      const approvalLink = `${safeBaseUrl}/api/approve-clinician?token=${approvalToken}`;
-
-      // D. Send email to the Admin
-      const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: { 
-          user: process.env.SMTP_USER, 
-          pass: process.env.SMTP_PASS 
-        },
-      });
-
+      // Send a notification email to the Admin
       const adminEmail = process.env.ADMIN_NOTIFICATION_EMAIL;
 
-      // Handle the error if the admin email is not defined
       if (!adminEmail) {
         console.error("CRITICAL ERROR: ADMIN_NOTIFICATION_EMAIL is not defined in environment variables.");
         // We return success to the user because their account was created and verified,
@@ -186,6 +160,18 @@ export async function finalizeRegistration(formData, otp) {
           message: 'Account created! Please wait for administrative approval.' 
         };
       }
+
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: { 
+          user: process.env.SMTP_USER, 
+          pass: process.env.SMTP_PASS 
+        },
+      });
+
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const safeBaseUrl = baseUrl.replace(/\/$/, ''); 
+      const adminDashboardLink = `${safeBaseUrl}/admin/dashboard`;
 
       await transporter.sendMail({
         from: `"KneuraSense Security" <${process.env.SMTP_USER}>`,
@@ -207,17 +193,13 @@ export async function finalizeRegistration(formData, otp) {
                 <p style="margin: 0; color: #334155; font-size: 15px;"><strong>Specialization:</strong> ${newClinician.specialization}</p>
               </div>
               
-              <p style="color: #475569; font-size: 16px; line-height: 1.6; text-align: center;">If you recognize and authorize this user, click the button below to grant them access to the platform:</p>
+              <p style="color: #475569; font-size: 16px; line-height: 1.6; text-align: center;">Please log in to the Admin Dashboard to review and approve this account:</p>
               
               <div style="text-align: center; margin: 35px 0;">
-                <a href="${approvalLink}" style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
-                  Approve Clinician Account
+                <a href="${adminDashboardLink}" style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 16px;">
+                  Go to Admin Dashboard
                 </a>
               </div>
-              
-              <p style="color: #64748b; font-size: 14px; line-height: 1.5; margin-bottom: 0; text-align: center;">
-                If you do not recognize this user, simply ignore this email. They cannot log in without your approval.
-              </p>
             </div>
 
             <img src="${safeBaseUrl}/images/email/Footer.png" alt="KneuraSense Footer" style="width: 100%; height: auto; display: block; border-top: 1px solid #f1f5f9;" />

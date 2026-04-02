@@ -17,12 +17,25 @@ export async function login(email, password, rememberMe = false) {
     let userId = null;
     let authError = null;
 
-    // 1. Fetch both potential accounts
+    // 1. Fetch all potential accounts
+    const admin = await prisma.admin.findUnique({ where: { email: lookupEmail } });
     const clinician = await prisma.clinician.findUnique({ where: { email: lookupEmail } });
     const patient = await prisma.patient.findUnique({ where: { email: lookupEmail } });
 
-    // 2. Validate Clinician first
-    if (clinician) {
+    // 2. Validate Admin first
+    if (admin) {
+      const passwordMatch = await bcrypt.compare(password, admin.passwordHash);
+      if (passwordMatch) {
+        user = admin;
+        role = 'admin';
+        userId = admin.id;
+      } else {
+        authError = 'Invalid email or password.';
+      }
+    }
+
+    // 3. If not an Admin, validate Clinician
+    if (!user && clinician) {
       const passwordMatch = await bcrypt.compare(password, clinician.password_hash);
       if (passwordMatch) {
         if (!clinician.isVerified) {
@@ -37,7 +50,7 @@ export async function login(email, password, rememberMe = false) {
       }
     }
 
-    // 3. If Clinician login didn't fully succeed (e.g., pending approval), try Patient
+    // 4. If neither Admin nor approved Clinician, validate Patient
     if (!user && patient) {
       const passwordMatch = await bcrypt.compare(password, patient.passwordHash);
       if (passwordMatch) {
@@ -54,12 +67,12 @@ export async function login(email, password, rememberMe = false) {
       }
     }
 
-    // 4. Prevent User Enumeration / Handle failed login
+    // 5. Prevent User Enumeration / Handle failed login
     if (!user) {
       return { success: false, error: authError || 'Invalid email or password.' };
     }
 
-    // 5. Safely encode JWT Secret
+    // 6. Safely encode JWT Secret
     const secretKey = process.env.JWT_SECRET;
     if (!secretKey) {
       console.error("CRITICAL SECURITY ERROR: JWT_SECRET is missing.");
@@ -68,7 +81,7 @@ export async function login(email, password, rememberMe = false) {
 
     const encodedSecret = new TextEncoder().encode(secretKey);
 
-    // 6. Create Secure Session (JWT)
+    // 7. Create Secure Session (JWT)
     const expiration = rememberMe ? '30d' : '24h';
     const cookieMaxAge = rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24;
 
@@ -78,7 +91,7 @@ export async function login(email, password, rememberMe = false) {
       .setExpirationTime(expiration)
       .sign(encodedSecret);
 
-    // 7. Set HTTP-Only Cookie
+    // 8. Set HTTP-Only Cookie
     const cookieStore = await cookies();
     cookieStore.set('auth_token', token, {
       httpOnly: true,

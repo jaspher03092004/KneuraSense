@@ -52,13 +52,15 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   AdminApprovalToken: 'AdminApprovalToken',
+  Admin: 'Admin',
   Clinician: 'Clinician',
   Patient: 'Patient',
   SensorLog: 'SensorLog',
   AuditLog: 'AuditLog',
   Intervention: 'Intervention',
   PasswordResetToken: 'PasswordResetToken',
-  EmailVerificationToken: 'EmailVerificationToken'
+  EmailVerificationToken: 'EmailVerificationToken',
+  HardwareDevice: 'HardwareDevice'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -85,6 +87,18 @@ export const AdminApprovalTokenScalarFieldEnum = {
 } as const
 
 export type AdminApprovalTokenScalarFieldEnum = (typeof AdminApprovalTokenScalarFieldEnum)[keyof typeof AdminApprovalTokenScalarFieldEnum]
+
+
+export const AdminScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  fullName: 'fullName',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdminScalarFieldEnum = (typeof AdminScalarFieldEnum)[keyof typeof AdminScalarFieldEnum]
 
 
 export const ClinicianScalarFieldEnum = {
@@ -210,6 +224,18 @@ export const EmailVerificationTokenScalarFieldEnum = {
 } as const
 
 export type EmailVerificationTokenScalarFieldEnum = (typeof EmailVerificationTokenScalarFieldEnum)[keyof typeof EmailVerificationTokenScalarFieldEnum]
+
+
+export const HardwareDeviceScalarFieldEnum = {
+  macAddress: 'macAddress',
+  status: 'status',
+  firmwareVer: 'firmwareVer',
+  lastOtaUpdate: 'lastOtaUpdate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type HardwareDeviceScalarFieldEnum = (typeof HardwareDeviceScalarFieldEnum)[keyof typeof HardwareDeviceScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -45,6 +45,11 @@ export { Prisma }
  */
 export type AdminApprovalToken = Prisma.AdminApprovalTokenModel
 /**
+ * Model Admin
+ * 
+ */
+export type Admin = Prisma.AdminModel
+/**
  * Model Clinician
  * 
  */
@@ -79,3 +84,8 @@ export type PasswordResetToken = Prisma.PasswordResetTokenModel
  * 
  */
 export type EmailVerificationToken = Prisma.EmailVerificationTokenModel
+/**
+ * Model HardwareDevice
+ * 
+ */
+export type HardwareDevice = Prisma.HardwareDeviceModel
