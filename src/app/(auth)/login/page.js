@@ -24,7 +24,10 @@ export default function LoginPage() {
       const result = await login(email, password, rememberMe);
 
       if (result.success) {
-        if (result.role === 'clinician') {
+        // ADDED ADMIN ROUTING HERE:
+        if (result.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (result.role === 'clinician') {
           router.push(`/clinician/${result.userId}/dashboard`);
         } else {
           router.push(`/patient/${result.userId}/dashboard`);

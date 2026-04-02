@@ -83,3 +83,52 @@ export async function sendCriticalAlertEmail(patient, riskScore, logData) {
     // await prisma.patient.update({ where: { id: patient.id }, data: { lastCriticalAlertAt: null } });
   }
 }
+
+// NEW: PASSWORD RESET EMAIL
+export async function sendPasswordResetEmail(email, token) {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    // Fallback to localhost if NEXT_PUBLIC_BASE_URL isn't set in your .env
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const resetLink = `${baseUrl}/reset-password?token=${token}`;
+
+    const mailOptions = {
+      from: `"KneuraSense Support" <${process.env.SMTP_USER}>`,
+      to: email,
+      subject: `KneuraSense - Password Reset Request`,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 10px; background-color: #f8fafc;">
+          <h2 style="color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">Password Reset Request</h2>
+          
+          <p style="color: #475569; font-size: 16px;">Hello,</p>
+          <p style="color: #475569; font-size: 16px;">We received a request to reset your KneuraSense password. Click the button below to set up a new password.</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${resetLink}" style="background-color: #2D5F8B; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px; display: inline-block;">Reset Password</a>
+          </div>
+          
+          <p style="color: #64748b; font-size: 14px; margin-top: 20px;">If the button doesn't work, copy and paste this link into your browser:</p>
+          <p style="color: #2D5F8B; font-size: 12px; word-break: break-all;">${resetLink}</p>
+          
+          <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="color: #94a3b8; font-size: 12px;">If you did not request a password reset, you can safely ignore this email. The link will expire in 24 hours.</p>
+        </div>
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log(`Password reset email successfully sent to ${email}`);
+    
+    return { success: true };
+  } catch (err) {
+    console.error("Failed to send password reset email:", err);
+    return { success: false, error: "Failed to send email." };
+  }
+}

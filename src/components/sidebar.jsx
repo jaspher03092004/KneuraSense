@@ -6,7 +6,8 @@ import { useTheme } from 'next-themes';
 import Image from 'next/image';
 import { 
   Activity, TrendingUp, ListTodo, BarChart3, ChevronDown, User, Settings,
-  HelpCircle, LogOut, Shield, FileText, Menu, X, Moon, Sun, Users
+  HelpCircle, LogOut, Shield, FileText, Menu, X, Moon, Sun, Users,
+  LayoutDashboard, ShieldAlert, Cpu // <-- Added Admin Icons
 } from 'lucide-react';
 
 const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
@@ -32,8 +33,10 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
   };
 
   const handleLogout = async () => {
-    console.log('Logging out...');
-    router.push('/login'); 
+    // Clear the auth cookie and redirect to login
+    document.cookie = "auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    router.push('/login');
+    router.refresh();
   };
 
   const handleNavigation = (path) => {
@@ -41,9 +44,22 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     setIsMobileOpen(false); 
   };
 
+  // --- ROLE CHECKS ---
+  const isAdmin = user?.role === 'ADMIN' || user?.role === 'admin';
   const isClinic = user?.role === 'CLINICIAN' || user?.role === 'Clinician';
 
-  // Patient menu items
+  // --- ADMIN MENU ITEMS ---
+  const adminMainMenuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/admin/dashboard' },
+    { icon: Cpu, label: 'Hardware Management', href: '/admin/devices' },
+  ];
+
+  const adminManagementItems = [
+    { icon: Users, label: 'User Management', href: '/admin/users' },
+    { icon: ShieldAlert, label: 'System Audit', href: '/admin/audit' },
+  ];
+
+  // --- PATIENT MENU ITEMS ---
   const patientMainMenuItems = [
     { icon: Activity, label: 'Live Dashboard', href: `/patient/${user?.id}/dashboard` },
     { icon: TrendingUp, label: 'History & Trends', href: `/patient/${user?.id}/history`},          
@@ -56,7 +72,7 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     { icon: HelpCircle, label: 'Help & Support', href: `/patient/${user?.id}/help`},
   ];
 
-  // Clinician menu items
+  // --- CLINICIAN MENU ITEMS ---
   const clinicianMainMenuItems = [
     { icon: Activity, label: 'Dashboard', href: `/clinician/${user?.id}/dashboard` },
     { icon: BarChart3, label: 'Data Analytics', href: `/clinician/${user?.id}/analytics` },          
@@ -71,11 +87,23 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
     { icon: HelpCircle, label: 'Help & Support', href: `/clinician/${user?.id}/help` },
   ];
 
-  const mainMenuItems = isClinic ? clinicianMainMenuItems : patientMainMenuItems;
-  const managementItems = isClinic ? clinicianManagementItems : patientManagementItems;
-  
-  const overviewLabel = isClinic ? 'OVERVIEW' : 'MONITORING';
-  const administrationLabel = isClinic ? 'ADMINISTRATION' : 'MANAGEMENT';
+  // --- DYNAMIC ROLE SELECTION ---
+  let mainMenuItems = patientMainMenuItems;
+  let managementItems = patientManagementItems;
+  let overviewLabel = 'MONITORING';
+  let administrationLabel = 'MANAGEMENT';
+
+  if (isAdmin) {
+    mainMenuItems = adminMainMenuItems;
+    managementItems = adminManagementItems;
+    overviewLabel = 'SYSTEM OVERVIEW';
+    administrationLabel = 'ADMINISTRATION';
+  } else if (isClinic) {
+    mainMenuItems = clinicianMainMenuItems;
+    managementItems = clinicianManagementItems;
+    overviewLabel = 'OVERVIEW';
+    administrationLabel = 'ADMINISTRATION';
+  }
 
   const isActive = (path) => pathname === path;
 
@@ -218,7 +246,6 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
 
           {/* BOTTOM SECTION: THEME TOGGLE & USER PROFILE */}
           <div className="mt-auto">
-            
             {/* Theme Toggle Button */}
             {mounted && (
               <button
@@ -242,7 +269,6 @@ const Sidebar = ({ isExpanded, setIsExpanded, user }) => {
 
             {/* USER PROFILE SECTION */}
             <div className="pt-4 border-t border-gray-200 dark:border-slate-800 relative">
-              
               {/* Dropdown Menu */}
               <div className={`absolute bottom-full left-0 w-full mb-2 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden transition-all duration-200 origin-bottom z-50 ${
                 (isDropdownOpen && isExpanded) || (isDropdownOpen && isMobileOpen) ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-2 pointer-events-none'
