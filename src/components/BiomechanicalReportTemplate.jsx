@@ -194,7 +194,7 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
 
                 <div className="split-tables">
                     <div className="section-wrapper">
-                        <div className="section-header">Terrain Triggers (Event Count)</div>
+                        <div className="section-header">Events Trigger</div>
                         <table>
                             <thead>
                                 <tr>

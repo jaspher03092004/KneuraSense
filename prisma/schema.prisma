@@ -85,6 +85,7 @@ model SensorLog {
   id          String   @id @default(uuid())
   patientId   String
   patient     Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  aiState     String?
   angle       Float
   thighPitch  Float?  
   shankPitch  Float?  

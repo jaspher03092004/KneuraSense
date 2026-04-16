@@ -6,7 +6,7 @@ import {
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
   Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2,
-  Target, X, Volume2,
+  Target, X, Volume2, Brain
 } from 'lucide-react';
 import { useMQTT } from '@/hooks/useMQTT';
 
@@ -64,19 +64,19 @@ SensorCard.displayName = 'SensorCard';
 
 // [OPTIMIZATION] Wrapped in React.memo
 const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false }) => (
-  <div className="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+  <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
     <div className="relative">
-      <Icon size={16} aria-hidden="true" className={isOnline ? "text-emerald-500" : "text-slate-400"} />
+      <Icon size={14} aria-hidden="true" className={isOnline ? "text-emerald-500" : "text-slate-400"} />
       {pulsing && isOnline && (
-        <span className="absolute -top-1 -right-1 flex h-2 w-2">
+        <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5">
            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
         </span>
       )}
     </div>
     <div className="flex flex-col">
-      <span className="text-[9px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider">{label}</span>
-      <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{value}</span>
+      <span className="text-[8px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider leading-none mb-0.5">{label}</span>
+      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-none">{value}</span>
     </div>
   </div>
 ));
@@ -251,30 +251,42 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
           </div>
         )}
         {/* Header */}
-        <header className="-mt-4 flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-2 border-b border-slate-200 dark:border-slate-800">
-          <div>
+        <header className="-mt-4 flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+          <div className="shrink-0">
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Live Telemetry</h1>
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          
+          {/* Controls Group */}
+          <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+             
+             {/* Calibration Button */}
              <div className="relative group flex items-center">
                <button 
                  onClick={() => setShowCalibrationModal(true)}
                  disabled={!isOnline}
-                 className="flex items-center gap-2 px-4 py-2.5 rounded-lg border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-bold text-xs uppercase tracking-wider transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-indigo-200 dark:border-indigo-900/50 bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 font-bold text-[10px] uppercase tracking-wider transition-all duration-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
                >
-                 <Target size={16} className={isOnline ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"} />
-                 Set Standing Baseline
+                 <Target size={14} className={isOnline ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"} />
+                 Set Baseline
                </button>
                
+               {/* Tooltip */}
                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 dark:bg-slate-700 text-white text-[10px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-center z-10 pointer-events-none shadow-lg">
                  Click this while standing perfectly straight to zero your joint angle to 0°.
                  <svg className="absolute text-slate-800 dark:text-slate-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                </div>
              </div>
 
-             <StatusBadge icon={Wifi} label="KneuraSense POD" value={deviceStatus} isOnline={isOnline} pulsing={isOnline} />
-             <StatusBadge icon={RefreshCw} label="Last Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />
+             {/* Stat Badges */}
+             <StatusBadge 
+               icon={Brain} 
+               label="AI State" 
+               value={data.ai_state ? data.ai_state.replace('_', ' ') : "Analyzing..."} 
+               isOnline={isOnline} 
+             />
+             <StatusBadge icon={Wifi} label="Device" value={deviceStatus} isOnline={isOnline} pulsing={isOnline} />
+             <StatusBadge icon={RefreshCw} label="Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />
           </div>
         </header>
 

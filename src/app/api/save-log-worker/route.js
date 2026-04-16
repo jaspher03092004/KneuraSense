@@ -43,7 +43,8 @@ export async function POST(request) {
     // CREATE THE LOG ENTRY
     const newLog = await prisma.sensorLog.create({
       data: {
-        patientId:   patient.id, 
+        patientId:   patient.id,
+        aiState:     (body.ai_state !== undefined) ? String(body.ai_state) : null, 
         angle:       (body.angle !== undefined) ? parseFloat(body.angle) : 0,
         thighPitch:  (body.thigh_pitch !== undefined) ? parseFloat(body.thigh_pitch) : null,
         shankPitch:  (body.shank_pitch !== undefined) ? parseFloat(body.shank_pitch) : null,

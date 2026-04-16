@@ -58,6 +58,12 @@ const CustomRiskTooltip = ({ active, payload, label, threshold = 75 }) => {
             <p className="text-[10px] font-black uppercase text-rose-500 dark:text-rose-400 mb-2 tracking-wider flex items-center gap-1">
               High Risk Event!
             </p>
+            {/* AI State Intelligence Displayed Here */}
+            {data.aiState && (
+              <p className="text-[10px] font-bold text-rose-600 dark:text-rose-300 mb-2">
+                Detected: {data.aiState.replace('_', ' ')}
+              </p>
+            )}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <p className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Angle</p>
