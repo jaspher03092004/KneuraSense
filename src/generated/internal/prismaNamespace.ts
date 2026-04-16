@@ -1268,6 +1268,7 @@ export type PatientScalarFieldEnum = (typeof PatientScalarFieldEnum)[keyof typeo
 export const SensorLogScalarFieldEnum = {
   id: 'id',
   patientId: 'patientId',
+  aiState: 'aiState',
   angle: 'angle',
   thighPitch: 'thighPitch',
   shankPitch: 'shankPitch',

@@ -217,7 +217,7 @@ export default async function HistoryPage({ params, searchParams }) {
 
             {/* Specialized Correlation Mini-Charts */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
-               <CorrelationCard title="Terrain (Angle)" icon={<Mountain size={16} />} color="blue" data={terrainData} unit="°" chartType="line" />
+               <CorrelationCard title="Knee Flexion" icon={<Mountain size={16} />} color="blue" data={terrainData} unit="°" chartType="line" />
                <CorrelationCard title="Heart Rate" icon={<HeartPulse size={16} />} color="rose" data={bpmData} unit=" bpm" chartType="area" />
                <CorrelationCard title="Skin Temp" icon={<Thermometer size={16} />} color="sky" data={envData} unit="°C" chartType="line" />
                <CorrelationCard title="Atmos Pressure" icon={<Wind size={16} />} color="slate" data={pressureData} unit=" hPa" chartType="bar" />

@@ -5,7 +5,7 @@ import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle,
+  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle, Brain
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -50,11 +50,11 @@ SensorCard.displayName = 'SensorCard';
 
 // [OPTIMIZATION] Wrapped in React.memo
 const StatusBadge = memo(({ icon: Icon, label, value, isOnline }) => (
-  <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm dark:shadow-none">
-    <Icon size={16} className={isOnline ? "text-emerald-500" : "text-slate-400 dark:text-slate-600"} />
+  <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+    <Icon size={14} className={isOnline ? "text-emerald-500" : "text-slate-400 dark:text-slate-600"} />
     <div className="flex flex-col">
-      <span className="text-[9px] uppercase font-bold text-slate-400 dark:text-slate-500 tracking-wider">{label}</span>
-      <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{value}</span>
+      <span className="text-[8px] uppercase font-black text-slate-400 dark:text-slate-500 tracking-wider leading-none mb-0.5">{label}</span>
+      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-none">{value}</span>
     </div>
   </div>
 ));
@@ -107,12 +107,19 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
 
   return (
     <div className="space-y-4 max-w-7xl mx-auto p-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800">
+        <div className="shrink-0">
           <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Patient Monitoring</h1>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Live telemetry for {patientName}</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        
+        <div className="flex flex-wrap items-center gap-2 xl:justify-end">
+           <StatusBadge 
+             icon={Brain} 
+             label="AI State" 
+             value={data.ai_state ? data.ai_state.replace('_', ' ') : "Analyzing..."} 
+             isOnline={deviceStatus === 'Online'} 
+           />
            <StatusBadge icon={Wifi} label="KneuraSense-001" value={deviceStatus} isOnline={deviceStatus === 'Online'} />
            <StatusBadge icon={RefreshCw} label="Last Sync" value={timeString} isOnline={deviceStatus === 'Online'} />
         </div>
