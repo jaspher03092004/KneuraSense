@@ -54,7 +54,7 @@ export async function POST(request) {
         riskScore:   riskScore,
         lat:         (body.lat !== undefined && body.lat !== null && body.lat !== "0") ? parseFloat(body.lat) : null,
         lng:         (body.lng !== undefined && body.lng !== null && body.lng !== "0") ? parseFloat(body.lng) : null,
-        weatherTemp: (body.weatherTemp !== undefined && body.weatherTemp !== null) ? parseFloat(body.weatherTemp) : null,
+        weatherTemp: (body.weatherTemp !== undefined && body.weatherTemp !== null) ? parseFloat(body.weatherTemp) : (body.ext_temp !== undefined && body.ext_temp !== null) ? parseFloat(body.ext_temp) : null,
         bpm:         (body.bpm !== undefined && body.bpm !== null) ? parseInt(body.bpm) : null,
         ambientTemp: (body.ambient_temp !== undefined && body.ambient_temp !== null) ? parseFloat(body.ambient_temp) : null,
         pressure:    (body.pressure !== undefined && body.pressure !== null) ? parseFloat(body.pressure) : null,
