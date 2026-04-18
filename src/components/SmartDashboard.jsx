@@ -9,6 +9,7 @@ import {
   Target, X, Volume2, Brain
 } from 'lucide-react';
 import { useMQTT } from '@/hooks/useMQTT';
+import LocationSync from '@/components/LocationSync'; // Ensure this component is restored
 
 const THEMES = {
   blue: "bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800/30",
@@ -18,7 +19,6 @@ const THEMES = {
   slate: "bg-slate-50/80 dark:bg-slate-800/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-700/50"
 };
 
-// [OPTIMIZATION] Wrapped in React.memo
 const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue", isLive = true }) => {
   const isAlert = status?.includes('High');
 
@@ -62,7 +62,6 @@ const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, col
 
 SensorCard.displayName = 'SensorCard';
 
-// [OPTIMIZATION] Wrapped in React.memo
 const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false }) => (
   <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
     <div className="relative">
@@ -86,8 +85,6 @@ StatusBadge.displayName = 'StatusBadge';
 export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75, voiceAlert }) {
   const { data, deviceStatus, lastPacketTime, sendCommand } = useMQTT(deviceMac);
   const [weather, setWeather] = useState(null);
-  
-  // Modal State
   const [showCalibrationModal, setShowCalibrationModal] = useState(false);
   const [calibrationPhase, setCalibrationPhase] = useState('idle'); 
   const [calibrationProgress, setCalibrationProgress] = useState(0);
@@ -95,43 +92,30 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   const dataRef = useRef(data); 
   const weatherRef = useRef(weather); 
   
-  // [OPTIMIZATION] Track last fetched coordinates
   const lastLatRef = useRef(null);
   const lastLngRef = useRef(null);
 
   useEffect(() => { dataRef.current = data; }, [data]);
   useEffect(() => { weatherRef.current = weather; }, [weather]);
 
-  // --- NEW: VOICE ALERT LISTENER ---
   useEffect(() => {
     if (voiceAlert && typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
-      
       const utterance = new SpeechSynthesisUtterance(voiceAlert);
       utterance.rate = 0.9;
       utterance.pitch = 1.1;
       utterance.volume = 1.0;
-
-      // Handle potential block
       utterance.onerror = (event) => {
         if (event.error === 'not-allowed') {
-          console.warn("Autoplay blocked. Showing manual play button.");
           setAudioBlocked(true);
         }
       };
-
-      // Attempt to speak immediately
       window.speechSynthesis.speak(utterance);
-
-      // Some browsers don't fire onerror immediately for autoplay blocks. 
-      // We can check the speaking state after a tiny delay.
       setTimeout(() => {
         if (!window.speechSynthesis.speaking) {
           setAudioBlocked(true);
         }
       }, 500);
-
-      // Clean up URL
       const url = new URL(window.location);
       url.searchParams.delete('voiceAlert');
       window.history.replaceState({}, '', url);
@@ -149,19 +133,16 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
   const riskConfig = useMemo(() => {
     const currentScore = Number(data.risk_score);
     const threshold = Number(riskThreshold);
-
     if (currentScore >= threshold) return { 
       isCritical: true, label: 'CRITICAL STRESS', textMain: 'text-rose-500 dark:text-rose-400',
       stroke: 'stroke-rose-500 dark:stroke-rose-400',
       badgeStyles: 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-500/20'
     };
-    
     if (currentScore >= (threshold - 15)) return { 
       isCritical: false, label: 'MODERATE LOAD', textMain: 'text-amber-500 dark:text-amber-400',
       stroke: 'stroke-amber-500 dark:stroke-amber-400',
       badgeStyles: 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-500/20'
     };
-    
     return { 
       isCritical: false, label: 'SAFE ZONE', textMain: 'text-emerald-500 dark:text-emerald-400',
       stroke: 'stroke-emerald-500 dark:stroke-emerald-400',
@@ -169,20 +150,15 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
     };
   }, [data.risk_score, riskThreshold]);
 
-  // Weather Fetch
   useEffect(() => {
     const lat = Number(data.lat);
     const lng = Number(data.lng);
-    
     if (lat && lng && lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)) {
-      // [OPTIMIZATION] Round to avoid fetch spam
       const roundedLat = lat.toFixed(2);
       const roundedLng = lng.toFixed(2);
-      
       if (lastLatRef.current !== roundedLat || lastLngRef.current !== roundedLng) {
         lastLatRef.current = roundedLat;
         lastLngRef.current = roundedLng;
-        
         const fetchWeather = async () => {
           try {
             const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${roundedLat}&lon=${roundedLng}&units=metric&appid=${process.env.NEXT_PUBLIC_OPENWEATHER_API_KEY}`);
@@ -196,18 +172,14 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   const isOnline = deviceStatus === 'Online';
 
-  // Calibration Execution Logic
   const executeCalibration = () => {
     if (!isOnline) return;
-    
     if (sendCommand("CALIBRATE")) {
       setCalibrationPhase('calibrating');
       setCalibrationProgress(0);
-
       const duration = 4000;
       const intervalTime = 50; 
       const step = (intervalTime / duration) * 100;
-
       const progressInterval = setInterval(() => {
         setCalibrationProgress(prev => {
           if (prev + step >= 100) {
@@ -217,7 +189,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
           return prev + step;
         });
       }, intervalTime);
-
       setTimeout(() => {
         clearInterval(progressInterval);
         setCalibrationPhase('success');
@@ -237,8 +208,10 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   return (
     <>
+      {/* LocationSync handles the GPS trigger to update device weather context */}
+      <LocationSync patientId={patientId} /> 
+      
       <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
-        {/* src/components/SmartDashboard.jsx */}
         {audioBlocked && (
           <div className="fixed inset-x-4 top-20 z-[100] animate-in slide-in-from-top-4 duration-500">
             <button 
@@ -257,10 +230,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mt-1">Real-time monitoring for {patientName}</p>
           </div>
           
-          {/* Controls Group */}
           <div className="flex flex-wrap items-center gap-2 xl:justify-end">
-             
-             {/* Calibration Button */}
              <div className="relative group flex items-center">
                <button 
                  onClick={() => setShowCalibrationModal(true)}
@@ -270,15 +240,12 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                  <Target size={14} className={isOnline ? "text-indigo-600 dark:text-indigo-400" : "text-slate-400"} />
                  Set Baseline
                </button>
-               
-               {/* Tooltip */}
                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 dark:bg-slate-700 text-white text-[10px] rounded-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 text-center z-10 pointer-events-none shadow-lg">
                  Click this while standing perfectly straight to zero your joint angle to 0°.
                  <svg className="absolute text-slate-800 dark:text-slate-700 h-2 w-full left-0 top-full" x="0px" y="0px" viewBox="0 0 255 255" xmlSpace="preserve"><polygon className="fill-current" points="0,0 127.5,127.5 255,0"/></svg>
                </div>
              </div>
 
-             {/* Stat Badges */}
              <StatusBadge 
                icon={Brain} 
                label="AI State" 
@@ -290,7 +257,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
           </div>
         </header>
 
-        {/* Main Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
           <article className="lg:col-span-5 xl:col-span-4 bg-white dark:bg-slate-900 rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border border-slate-200 dark:border-slate-800 p-8 flex flex-col items-center justify-center relative overflow-hidden">
              <div className="w-full text-center mb-8">
@@ -360,12 +326,12 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
               <Cloud size={18} className="text-slate-400 dark:text-slate-500" />
               <div>
-                 <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Environment Context</p>
-                 <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                   {weather ? `${weather.name} • ${Math.round(weather.main.temp)}°C` : (Number(data.lat) !== 0 ? "Acquiring GPS..." : "Indoor Mode Active")}
-                 </p>
+                  <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Environment Context</p>
+                  <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                    {data.ext_temp ? `Weather • ${data.ext_temp}°C` : "Syncing..."}
+                  </p>
               </div>
-           </div>
+            </div>
         </footer>
       </section>
 
@@ -384,26 +350,19 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                 </button>
               )}
             </div>
-
             <div className="p-6">
               {calibrationPhase === 'idle' && (
                 <div className="space-y-4">
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    To ensure accurate joint kinematics, both the thigh and shank sensors must be zeroed to establish a baseline.
-                  </p>
-                  
+                  <p className="text-sm text-slate-600 dark:text-slate-300">To ensure accurate joint kinematics, both the thigh and shank sensors must be zeroed to establish a baseline.</p>
                   <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-xl p-4 flex gap-3">
                     <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
                       <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300">Patient Preparation</h4>
-                      <p className="text-sm text-amber-700 dark:text-amber-400/90 mt-1">
-                        Instruct the patient to stand perfectly straight with their weight evenly distributed. They must remain completely still for 5 seconds after initiating.
-                      </p>
+                      <p className="text-sm text-amber-700 dark:text-amber-400/90 mt-1">Instruct the patient to stand perfectly straight with their weight evenly distributed. They must remain completely still for 5 seconds after initiating.</p>
                     </div>
                   </div>
                 </div>
               )}
-
               {calibrationPhase === 'calibrating' && (
                 <div className="py-6 text-center space-y-6">
                   <div className="relative w-20 h-20 mx-auto">
@@ -421,7 +380,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                   </div>
                 </div>
               )}
-
               {calibrationPhase === 'success' && (
                 <div className="py-6 text-center space-y-4 animate-in fade-in slide-in-from-bottom-2">
                   <div className="mx-auto w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center mb-2">
@@ -434,21 +392,10 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                 </div>
               )}
             </div>
-
             {calibrationPhase === 'idle' && (
               <div className="p-5 bg-slate-50 dark:bg-slate-800/50 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
-                <button 
-                  onClick={closeCalibrationModal}
-                  className="px-4 py-2 rounded-lg font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button 
-                  onClick={executeCalibration}
-                  className="px-6 py-2 rounded-lg font-bold text-sm bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors flex items-center gap-2"
-                >
-                  Start Calibration
-                </button>
+                <button onClick={closeCalibrationModal} className="px-4 py-2 rounded-lg font-bold text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">Cancel</button>
+                <button onClick={executeCalibration} className="px-6 py-2 rounded-lg font-bold text-sm bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm transition-colors flex items-center gap-2">Start Calibration</button>
               </div>
             )}
           </div>
