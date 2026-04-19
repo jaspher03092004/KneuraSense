@@ -134,7 +134,7 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-1">Joint Kinematics</h3>
                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" />
-                  <SensorCard icon={Database} title="Applied Force" subTitle="Load" value={data.fsr} unit="N" status={data.fsr > 1000 ? "High Load" : "Normal"} colorTheme="amber" />
+                  <SensorCard icon={Database} title="Applied Force" subTitle="Load" value={data.fsr} unit="N" status={data.fsr > 3000 ? "High Load" : "Normal"} colorTheme="amber" />
                </div>
              </div>
 

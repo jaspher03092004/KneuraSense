@@ -30,7 +30,7 @@ export async function checkAndSendAlerts(patient, riskScore, newLog, threshold) 
     if (patient.pushSubscription) {
       try {
         const subscriptionObj = JSON.parse(patient.pushSubscription);
-        const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and sit down immediately to prevent injury.`;
+        const voiceMessage = `Warning ${patient.fullName.split(' ')[0]}. Your knee risk score is critically high at ${riskScore}. Please stop your current activity and rest immediately to prevent injury.`;
         
         const payload = JSON.stringify({
           title: "⚠️ Urgent Knee Alert",

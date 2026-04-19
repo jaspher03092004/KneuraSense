@@ -291,7 +291,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Joint Kinematics</h3>
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                   <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Current Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" isLive={isOnline} />
-                  <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 1000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
+                  <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 3000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
                </div>
              </section>
 
