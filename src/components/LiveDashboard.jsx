@@ -19,7 +19,7 @@ const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, col
     amber: "bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400",
     slate: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
   };
-  const isAlert = status === 'High Risk' || status === 'High Flexion' || status === 'High Load';
+  const isAlert = status?.includes('High') || status?.includes('Risk');
 
   return (
     <div className="bg-white dark:bg-slate-900 rounded-lg p-4 flex flex-col justify-between h-full min-h-[130px] border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md dark:shadow-none transition-shadow duration-200">
@@ -64,6 +64,9 @@ StatusBadge.displayName = 'StatusBadge';
 // --- Main Component (Saves to DB) ---
 export default function LiveDashboard({ patientName, patientId, deviceMac }) {
   const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
+
+  const isOnline = deviceStatus === 'Online';
+
   const dataRef = useRef(data); 
 
   useEffect(() => { dataRef.current = data; }, [data]);
@@ -141,10 +144,10 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
              <div>
                <h3 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2 px-1">Vitals & Environment</h3>
                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                  <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="Pulse" value={data.bpm} unit="bpm" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" />
-                  <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp} unit="°C" colorTheme="emerald" />
-                  <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp} unit="°C" colorTheme="slate" />
-                  <SensorCard icon={Wind} title="Pressure" subTitle="Atmos" value={data.pressure} unit="hPa" colorTheme="slate" />
+                  <SensorCard icon={HeartPulse} title="Heart Rate"  subTitle="BPM"  value={data.bpm || "--"} unit=""  status={data.bpm > 120 ? "High Exertion" : (data.bpm > 0 ? "Normal Range" : "Calculating")} colorTheme="rose" />
+                  <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"}  unit="°C" status={data.skin_temp ? (data.skin_temp > 34.5 ? "Inflammation Risk" : "Normal") : "--"} colorTheme="emerald" />
+                  <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" status={data.ambient_temp ? (data.ambient_temp < 15 ? "Stiffness Risk" : "Optimal") : "--"} colorTheme="slate" />
+                  <SensorCard icon={Wind} title="Pressure"  subTitle="Atmos" value={data.pressure || "--"} unit="hPa" status={data.pressure ? (data.pressure < 1005 ? "Expansion Risk" : "Normal") : "--"} colorTheme="slate" />
                </div>
              </div>
           </div>

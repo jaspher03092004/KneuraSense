@@ -3,12 +3,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   getHardwareFleet, unpairDevice, registerNewDevice, 
-  updateDeviceStatus, manualPairDevice, triggerOTAUpdate 
+  updateDeviceStatus, manualPairDevice, triggerOTAUpdate,
+  deleteHardwareDevice
 } from '@/actions/admin';
 import { 
   Cpu, BatteryWarning, Wifi, WifiOff, Package, Wrench, Activity,
   Search, Unlink, ShieldCheck, X, AlertTriangle, Loader2, Hash,
-  Plus, Link2, RefreshCw, UploadCloud
+  Plus, Link2, RefreshCw, UploadCloud, Trash2
 } from 'lucide-react';
 
 export default function HardwareManagement() {
@@ -24,6 +25,7 @@ export default function HardwareManagement() {
   const [pairForm, setPairForm] = useState({ patientId: '', macAddress: '' });
   const [addDeviceModal, setAddDeviceModal] = useState(false);
   const [newMac, setNewMac] = useState('');
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, macAddress: '' });
 
   const fetchData = async () => {
     setLoading(true);
@@ -116,8 +118,20 @@ export default function HardwareManagement() {
     const result = await triggerOTAUpdate(macAddress);
     if (result.success) {
       alert(result.message);
-      fetchData(); // Refresh to see new version
+      fetchData(); 
     } else alert(result.error);
+  };
+
+  const handleDeleteDevice = async () => {
+    setActionLoading(true);
+    const result = await deleteHardwareDevice(deleteModal.macAddress);
+    if (result.success) {
+      await fetchData();
+      setDeleteModal({ isOpen: false, macAddress: '' });
+    } else {
+      alert(result.error);
+    }
+    setActionLoading(false);
   };
 
   if (loading) return <div className="p-6 sm:p-10 animate-pulse bg-slate-50 h-full" />;
@@ -232,7 +246,7 @@ export default function HardwareManagement() {
                   <th className="px-4 sm:px-6 py-3 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[9px] sm:text-[10px]">Current Status</th>
                   <th className="px-4 sm:px-6 py-3 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[9px] sm:text-[10px]">Firmware</th>
                   <th className="px-4 sm:px-6 py-3 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[9px] sm:text-[10px]">Date Added</th>
-                  <th className="px-4 sm:px-6 py-3 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[9px] sm:text-[10px] text-right">Toggle Status</th>
+                  <th className="px-4 sm:px-6 py-3 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest text-[9px] sm:text-[10px] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
@@ -250,14 +264,23 @@ export default function HardwareManagement() {
                       <td className="px-4 sm:px-6 py-3 sm:py-4"><span className="font-mono text-[9px] font-bold text-slate-500">v{item.firmwareVer}</span></td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-[11px] font-medium text-slate-500">{new Date(item.createdAt).toLocaleDateString()}</td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
-                        {item.status !== 'ASSIGNED' && (
+                        <div className="flex justify-end gap-1.5 ml-auto w-fit">
+                          {item.status !== 'ASSIGNED' && (
+                            <button 
+                              onClick={() => handleStatusChange(item.macAddress, item.status === 'IN_STOCK' ? 'MAINTENANCE' : 'IN_STOCK')}
+                              className="px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-600 rounded-md hover:bg-slate-50 border border-slate-200 dark:border-slate-700 shadow-sm transition-all text-[10px] font-bold flex items-center gap-1.5"
+                            >
+                              <RefreshCw className="w-3.5 h-3.5" /> Set {item.status === 'IN_STOCK' ? 'Maintenance' : 'Stock'}
+                            </button>
+                          )}
                           <button 
-                            onClick={() => handleStatusChange(item.macAddress, item.status === 'IN_STOCK' ? 'MAINTENANCE' : 'IN_STOCK')}
-                            className="px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-600 rounded-md hover:bg-slate-50 border border-slate-200 dark:border-slate-700 shadow-sm transition-all text-[10px] font-bold flex items-center gap-1.5 ml-auto"
+                            onClick={() => setDeleteModal({ isOpen: true, macAddress: item.macAddress })}
+                            className="px-2.5 py-1.5 bg-white dark:bg-slate-900 text-rose-500 rounded-md hover:bg-rose-50 border border-slate-200 dark:border-slate-700 shadow-sm transition-all text-[10px] font-bold flex items-center gap-1.5"
+                            title="Permanently Delete"
                           >
-                            <RefreshCw className="w-3.5 h-3.5" /> Set {item.status === 'IN_STOCK' ? 'Maintenance' : 'Stock'}
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -341,6 +364,28 @@ export default function HardwareManagement() {
                   {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Unpair Device"}
                 </button>
                 <button onClick={() => setUnpairModal({ isOpen: false, patientId: null, macAddress: '', patientName: '' })} className="px-4 py-2 bg-slate-100 text-slate-600 rounded-md text-xs font-bold hover:bg-slate-200">Cancel</button>
+              </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- DELETE CONFIRMATION MODAL --- */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => !actionLoading && setDeleteModal({ isOpen: false, macAddress: '' })}></div>
+          <div className="bg-white dark:bg-slate-900 rounded-lg shadow-2xl p-5 max-w-sm w-full relative border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95">
+             <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-rose-100 text-rose-600 rounded-md"><Trash2 className="w-5 h-5" /></div>
+                <div><h2 className="text-lg font-extrabold text-slate-900 dark:text-white leading-tight">Delete Device</h2></div>
+              </div>
+              <p className="text-xs text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">
+                Are you sure you want to permanently delete <span className="font-mono font-bold bg-slate-100 dark:bg-slate-800 px-1 rounded">{deleteModal.macAddress}</span> from the inventory? This action cannot be undone.
+              </p>
+              <div className="flex gap-2">
+                <button onClick={handleDeleteDevice} disabled={actionLoading} className="flex-1 py-2 bg-rose-600 text-white rounded-md text-xs font-bold hover:bg-rose-700 flex justify-center">
+                  {actionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Permanently Delete"}
+                </button>
+                <button onClick={() => setDeleteModal({ isOpen: false, macAddress: '' })} className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-md text-xs font-bold hover:bg-slate-200 dark:hover:bg-slate-700">Cancel</button>
               </div>
           </div>
         </div>
