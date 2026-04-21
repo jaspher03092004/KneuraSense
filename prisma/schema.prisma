@@ -107,7 +107,7 @@ model SensorLog {
 
 model AuditLog {
   id          String   @id @default(uuid())
-  clinicianId String
+  clinicianId String?
   action      String   // e.g., "EXPORT_DATA", "UPDATE_SETTINGS", "VIEW_PATIENT"
   targetType  String?  // e.g., "Patient", "System"
   targetId    String?  // The ID of the patient or resource affected
@@ -115,7 +115,7 @@ model AuditLog {
   ipAddress   String?  
   createdAt   DateTime @default(now())
   // Create a relation back to the Clinician
-  clinician   Clinician @relation(fields: [clinicianId], references: [clinician_id], onDelete: Cascade)
+  clinician   Clinician? @relation(fields: [clinicianId], references: [clinician_id], onDelete: Cascade)
 }
 
 // NOTE: You will also need to add `auditLogs AuditLog[]` to your Clinician model:

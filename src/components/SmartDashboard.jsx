@@ -20,7 +20,7 @@ const THEMES = {
 };
 
 const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue", isLive = true }) => {
-  const isAlert = status?.includes('High');
+  const isAlert = status?.includes('High') || status?.includes('Risk');
 
   return (
     <article className="bg-white dark:bg-slate-900 rounded-lg p-5 flex flex-col justify-between h-full min-h-[160px] border border-slate-200 dark:border-slate-800 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.05)] hover:shadow-md transition-all duration-300 group">
@@ -291,17 +291,17 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Joint Kinematics</h3>
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
                   <SensorCard icon={MoveDiagonal} title="Knee Flexion" subTitle="Current Angle" value={data.angle} unit="°" status={data.angle > 110 ? "High Flexion" : "Normal"} colorTheme="blue" isLive={isOnline} />
-                  <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 3000 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
+                  <SensorCard icon={Database} title="Applied Force" subTitle="Patellar Load" value={data.fsr} unit=" N" status={data.fsr > 2500 ? "High Load" : "Normal Range"} colorTheme="amber" isLive={isOnline} />
                </div>
              </section>
 
              <section>
                <h3 className="text-xs font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-3 px-1">Vitals & Environment</h3>
                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-                  <SensorCard icon={HeartPulse} title="Heart Rate" subTitle="BPM" value={data.bpm || "--"} unit="" status={data.bpm > 0 ? "Reading" : "Calculating"} colorTheme="rose" isLive={isOnline && data.bpm > 0} />
-                  <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"} unit="°C" colorTheme="emerald" isLive={isOnline} />
-                  <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" colorTheme="slate" isLive={isOnline} />
-                  <SensorCard icon={Wind} title="Pressure" subTitle="Atmos" value={data.pressure ? Math.round(data.pressure) : "--"} unit=" hPa" colorTheme="slate" isLive={isOnline} />
+                  <SensorCard icon={HeartPulse} title="Heart Rate"  subTitle="BPM"  value={data.bpm || "--"} unit=""  status={data.bpm > 120 ? "High Exertion" : (data.bpm > 0 ? "Normal Range" : "Calculating")} colorTheme="rose" isLive={isOnline && data.bpm > 0} />
+                  <SensorCard icon={Thermometer} title="Skin Temp" subTitle="Surface" value={data.skin_temp || "--"}  unit="°C" status={data.skin_temp ? (data.skin_temp > 34.5 ? "Inflammation Risk" : "Normal") : "--"} colorTheme="emerald"  isLive={isOnline} />
+                  <SensorCard icon={Thermometer} title="Air Temp" subTitle="Ambient" value={data.ambient_temp || "--"} unit="°C" status={data.ambient_temp ? (data.ambient_temp < 15 ? "Stiffness Risk" : "Optimal") : "--"} colorTheme="slate" isLive={isOnline} />
+                 <SensorCard icon={Wind}  title="Pressure" subTitle="Atmos" value={data.pressure ? Math.round(data.pressure) : "--"} unit=" hPa"  status={data.pressure ? (data.pressure < 1005 ? "Expansion Risk" : "Normal Range") : "--"}  colorTheme="slate" isLive={isOnline} />
                </div>
              </section>
           </div>

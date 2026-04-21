@@ -167,7 +167,7 @@ export type AuditLogGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type AuditLogGroupByOutputType = {
   id: string
-  clinicianId: string
+  clinicianId: string | null
   action: string
   targetType: string | null
   targetId: string | null
@@ -199,19 +199,19 @@ export type AuditLogWhereInput = {
   OR?: Prisma.AuditLogWhereInput[]
   NOT?: Prisma.AuditLogWhereInput | Prisma.AuditLogWhereInput[]
   id?: Prisma.StringFilter<"AuditLog"> | string
-  clinicianId?: Prisma.StringFilter<"AuditLog"> | string
+  clinicianId?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   action?: Prisma.StringFilter<"AuditLog"> | string
   targetType?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   targetId?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   details?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AuditLog"> | Date | string
-  clinician?: Prisma.XOR<Prisma.ClinicianScalarRelationFilter, Prisma.ClinicianWhereInput>
+  clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
 }
 
 export type AuditLogOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  clinicianId?: Prisma.SortOrder
+  clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
   action?: Prisma.SortOrder
   targetType?: Prisma.SortOrderInput | Prisma.SortOrder
   targetId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -226,19 +226,19 @@ export type AuditLogWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AuditLogWhereInput | Prisma.AuditLogWhereInput[]
   OR?: Prisma.AuditLogWhereInput[]
   NOT?: Prisma.AuditLogWhereInput | Prisma.AuditLogWhereInput[]
-  clinicianId?: Prisma.StringFilter<"AuditLog"> | string
+  clinicianId?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   action?: Prisma.StringFilter<"AuditLog"> | string
   targetType?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   targetId?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   details?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   ipAddress?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   createdAt?: Prisma.DateTimeFilter<"AuditLog"> | Date | string
-  clinician?: Prisma.XOR<Prisma.ClinicianScalarRelationFilter, Prisma.ClinicianWhereInput>
+  clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
 }, "id">
 
 export type AuditLogOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  clinicianId?: Prisma.SortOrder
+  clinicianId?: Prisma.SortOrderInput | Prisma.SortOrder
   action?: Prisma.SortOrder
   targetType?: Prisma.SortOrderInput | Prisma.SortOrder
   targetId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -255,7 +255,7 @@ export type AuditLogScalarWhereWithAggregatesInput = {
   OR?: Prisma.AuditLogScalarWhereWithAggregatesInput[]
   NOT?: Prisma.AuditLogScalarWhereWithAggregatesInput | Prisma.AuditLogScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AuditLog"> | string
-  clinicianId?: Prisma.StringWithAggregatesFilter<"AuditLog"> | string
+  clinicianId?: Prisma.StringNullableWithAggregatesFilter<"AuditLog"> | string | null
   action?: Prisma.StringWithAggregatesFilter<"AuditLog"> | string
   targetType?: Prisma.StringNullableWithAggregatesFilter<"AuditLog"> | string | null
   targetId?: Prisma.StringNullableWithAggregatesFilter<"AuditLog"> | string | null
@@ -272,12 +272,12 @@ export type AuditLogCreateInput = {
   details?: string | null
   ipAddress?: string | null
   createdAt?: Date | string
-  clinician: Prisma.ClinicianCreateNestedOneWithoutAuditLogsInput
+  clinician?: Prisma.ClinicianCreateNestedOneWithoutAuditLogsInput
 }
 
 export type AuditLogUncheckedCreateInput = {
   id?: string
-  clinicianId: string
+  clinicianId?: string | null
   action: string
   targetType?: string | null
   targetId?: string | null
@@ -294,12 +294,12 @@ export type AuditLogUpdateInput = {
   details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   ipAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  clinician?: Prisma.ClinicianUpdateOneRequiredWithoutAuditLogsNestedInput
+  clinician?: Prisma.ClinicianUpdateOneWithoutAuditLogsNestedInput
 }
 
 export type AuditLogUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clinicianId?: Prisma.StringFieldUpdateOperationsInput | string
+  clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -310,7 +310,7 @@ export type AuditLogUncheckedUpdateInput = {
 
 export type AuditLogCreateManyInput = {
   id?: string
-  clinicianId: string
+  clinicianId?: string | null
   action: string
   targetType?: string | null
   targetId?: string | null
@@ -331,7 +331,7 @@ export type AuditLogUpdateManyMutationInput = {
 
 export type AuditLogUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  clinicianId?: Prisma.StringFieldUpdateOperationsInput | string
+  clinicianId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   action?: Prisma.StringFieldUpdateOperationsInput | string
   targetType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -476,7 +476,7 @@ export type AuditLogScalarWhereInput = {
   OR?: Prisma.AuditLogScalarWhereInput[]
   NOT?: Prisma.AuditLogScalarWhereInput | Prisma.AuditLogScalarWhereInput[]
   id?: Prisma.StringFilter<"AuditLog"> | string
-  clinicianId?: Prisma.StringFilter<"AuditLog"> | string
+  clinicianId?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   action?: Prisma.StringFilter<"AuditLog"> | string
   targetType?: Prisma.StringNullableFilter<"AuditLog"> | string | null
   targetId?: Prisma.StringNullableFilter<"AuditLog"> | string | null
@@ -536,7 +536,7 @@ export type AuditLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   details?: boolean
   ipAddress?: boolean
   createdAt?: boolean
-  clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
+  clinician?: boolean | Prisma.AuditLog$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["auditLog"]>
 
 export type AuditLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -548,7 +548,7 @@ export type AuditLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   details?: boolean
   ipAddress?: boolean
   createdAt?: boolean
-  clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
+  clinician?: boolean | Prisma.AuditLog$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["auditLog"]>
 
 export type AuditLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -560,7 +560,7 @@ export type AuditLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   details?: boolean
   ipAddress?: boolean
   createdAt?: boolean
-  clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
+  clinician?: boolean | Prisma.AuditLog$clinicianArgs<ExtArgs>
 }, ExtArgs["result"]["auditLog"]>
 
 export type AuditLogSelectScalar = {
@@ -576,23 +576,23 @@ export type AuditLogSelectScalar = {
 
 export type AuditLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clinicianId" | "action" | "targetType" | "targetId" | "details" | "ipAddress" | "createdAt", ExtArgs["result"]["auditLog"]>
 export type AuditLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
+  clinician?: boolean | Prisma.AuditLog$clinicianArgs<ExtArgs>
 }
 export type AuditLogIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
+  clinician?: boolean | Prisma.AuditLog$clinicianArgs<ExtArgs>
 }
 export type AuditLogIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  clinician?: boolean | Prisma.ClinicianDefaultArgs<ExtArgs>
+  clinician?: boolean | Prisma.AuditLog$clinicianArgs<ExtArgs>
 }
 
 export type $AuditLogPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AuditLog"
   objects: {
-    clinician: Prisma.$ClinicianPayload<ExtArgs>
+    clinician: Prisma.$ClinicianPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    clinicianId: string
+    clinicianId: string | null
     action: string
     targetType: string | null
     targetId: string | null
@@ -993,7 +993,7 @@ readonly fields: AuditLogFieldRefs;
  */
 export interface Prisma__AuditLogClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  clinician<T extends Prisma.ClinicianDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ClinicianDefaultArgs<ExtArgs>>): Prisma.Prisma__ClinicianClient<runtime.Types.Result.GetResult<Prisma.$ClinicianPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  clinician<T extends Prisma.AuditLog$clinicianArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AuditLog$clinicianArgs<ExtArgs>>): Prisma.Prisma__ClinicianClient<runtime.Types.Result.GetResult<Prisma.$ClinicianPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1424,6 +1424,25 @@ export type AuditLogDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many AuditLogs to delete.
    */
   limit?: number
+}
+
+/**
+ * AuditLog.clinician
+ */
+export type AuditLog$clinicianArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Clinician
+   */
+  select?: Prisma.ClinicianSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Clinician
+   */
+  omit?: Prisma.ClinicianOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ClinicianInclude<ExtArgs> | null
+  where?: Prisma.ClinicianWhereInput
 }
 
 /**

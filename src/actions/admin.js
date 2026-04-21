@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { jwtVerify } from 'jose';
 import crypto from 'crypto';
 import { sendPasswordResetEmail } from '@/lib/email'; // <-- NEW IMPORT
@@ -21,6 +21,17 @@ async function verifyAdmin() {
   }
 
   return payload.userId;
+}
+
+async function getClientIp() {
+  const headersList = await headers();
+  const forwardedFor = headersList.get('x-forwarded-for');
+  const realIp = headersList.get('x-real-ip'); 
+
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+  return realIp || 'Unknown IP';
 }
 
 // --- CLINICIAN APPROVAL WORKFLOW ---
@@ -232,7 +243,6 @@ export async function registerNewDevice(macAddress) {
   try {
     const adminId = await verifyAdmin();
     
-    // Ensure uppercase and trimmed
     const cleanMac = macAddress.toUpperCase().trim();
 
     const existing = await prisma.hardwareDevice.findUnique({ where: { macAddress: cleanMac } });
@@ -242,13 +252,22 @@ export async function registerNewDevice(macAddress) {
       data: { macAddress: cleanMac, status: 'IN_STOCK', firmwareVer: '1.0.0' }
     });
 
+    // FIX: Safely create the Audit Log without the strict clinicianId
     await prisma.auditLog.create({
-      data: { clinicianId: adminId, action: 'REGISTER_DEVICE', targetType: 'Hardware', targetId: cleanMac, details: `Added to inventory.` }
+      data: { 
+        action: 'REGISTER_DEVICE', 
+        targetType: 'Hardware', 
+        targetId: cleanMac, 
+        details: `Added to inventory by Admin ${adminId}.` 
+      }
     });
 
     return { success: true, message: "Device successfully added to inventory." };
   } catch (error) {
-    return { success: false, error: "Failed to register new device." };
+    // Log the actual error to your terminal so you can see it
+    console.error("Registration Error:", error); 
+    // Return the specific error message to the frontend instead of a generic one
+    return { success: false, error: `Failed to register: ${error.message}` };
   }
 }
 
@@ -385,8 +404,8 @@ export async function getSystemAuditLogs() {
       orderBy: { createdAt: 'desc' },
       take: 500,
       include: {
-        clinician: { select: { full_name: true, email: true } },
-        patient: { select: { fullName: true } }
+        // Only include clinician, since that is the only relation defined in the schema
+        clinician: { select: { full_name: true, email: true } }
       }
     });
 
@@ -402,6 +421,7 @@ export async function getSystemAuditLogs() {
 
     return { success: true, data: { logs, stats: { totalLogs, criticalActions, loginEvents } } };
   } catch (error) {
+    console.error("Audit Log Error:", error);
     return { success: false, error: "Failed to fetch system audit logs." };
   }
 }
@@ -520,5 +540,36 @@ export async function adminTriggerPasswordReset(email) {
   } catch (error) {
     console.error("Password reset error:", error);
     return { success: false, error: "Failed to initiate password reset." };
+  }
+}
+
+export async function deleteHardwareDevice(macAddress) {
+  try {
+    const adminId = await verifyAdmin();
+    const userIp = await getClientIp(); // <-- 1. Get the IP
+
+    const existingHardware = await prisma.hardwareDevice.findUnique({ where: { macAddress } });
+    if (existingHardware?.status === 'ASSIGNED') {
+      return { success: false, error: "Cannot delete an assigned device. Unpair it first." };
+    }
+
+    await prisma.hardwareDevice.delete({
+      where: { macAddress }
+    });
+
+    await prisma.auditLog.create({
+      data: { 
+        action: 'DELETE_DEVICE', 
+        targetType: 'Hardware', 
+        targetId: macAddress, 
+        details: `Permanently deleted from inventory by Admin ${adminId}.`,
+        ipAddress: userIp // <-- 2. Save the IP to the database
+      }
+    });
+
+    return { success: true, message: "Device permanently deleted." };
+  } catch (error) {
+    console.error("Delete Error:", error); 
+    return { success: false, error: `Failed to delete: ${error.message}` };
   }
 }

@@ -585,10 +585,12 @@ export type ClinicianCreateNestedOneWithoutAuditLogsInput = {
   connect?: Prisma.ClinicianWhereUniqueInput
 }
 
-export type ClinicianUpdateOneRequiredWithoutAuditLogsNestedInput = {
+export type ClinicianUpdateOneWithoutAuditLogsNestedInput = {
   create?: Prisma.XOR<Prisma.ClinicianCreateWithoutAuditLogsInput, Prisma.ClinicianUncheckedCreateWithoutAuditLogsInput>
   connectOrCreate?: Prisma.ClinicianCreateOrConnectWithoutAuditLogsInput
   upsert?: Prisma.ClinicianUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.ClinicianWhereInput | boolean
+  delete?: Prisma.ClinicianWhereInput | boolean
   connect?: Prisma.ClinicianWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClinicianUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.ClinicianUpdateWithoutAuditLogsInput>, Prisma.ClinicianUncheckedUpdateWithoutAuditLogsInput>
 }
