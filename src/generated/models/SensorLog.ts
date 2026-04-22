@@ -75,6 +75,8 @@ export type SensorLogMinAggregateOutputType = {
   bpm: number | null
   ambientTemp: number | null
   pressure: number | null
+  wifiSsid: string | null
+  offlineMode: boolean | null
   timestamp: Date | null
 }
 
@@ -95,6 +97,8 @@ export type SensorLogMaxAggregateOutputType = {
   bpm: number | null
   ambientTemp: number | null
   pressure: number | null
+  wifiSsid: string | null
+  offlineMode: boolean | null
   timestamp: Date | null
 }
 
@@ -115,6 +119,8 @@ export type SensorLogCountAggregateOutputType = {
   bpm: number
   ambientTemp: number
   pressure: number
+  wifiSsid: number
+  offlineMode: number
   timestamp: number
   _all: number
 }
@@ -169,6 +175,8 @@ export type SensorLogMinAggregateInputType = {
   bpm?: true
   ambientTemp?: true
   pressure?: true
+  wifiSsid?: true
+  offlineMode?: true
   timestamp?: true
 }
 
@@ -189,6 +197,8 @@ export type SensorLogMaxAggregateInputType = {
   bpm?: true
   ambientTemp?: true
   pressure?: true
+  wifiSsid?: true
+  offlineMode?: true
   timestamp?: true
 }
 
@@ -209,6 +219,8 @@ export type SensorLogCountAggregateInputType = {
   bpm?: true
   ambientTemp?: true
   pressure?: true
+  wifiSsid?: true
+  offlineMode?: true
   timestamp?: true
   _all?: true
 }
@@ -316,6 +328,8 @@ export type SensorLogGroupByOutputType = {
   bpm: number | null
   ambientTemp: number | null
   pressure: number | null
+  wifiSsid: string | null
+  offlineMode: boolean
   timestamp: Date
   _count: SensorLogCountAggregateOutputType | null
   _avg: SensorLogAvgAggregateOutputType | null
@@ -359,6 +373,8 @@ export type SensorLogWhereInput = {
   bpm?: Prisma.IntNullableFilter<"SensorLog"> | number | null
   ambientTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   pressure?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  wifiSsid?: Prisma.StringNullableFilter<"SensorLog"> | string | null
+  offlineMode?: Prisma.BoolFilter<"SensorLog"> | boolean
   timestamp?: Prisma.DateTimeFilter<"SensorLog"> | Date | string
   patient?: Prisma.XOR<Prisma.PatientScalarRelationFilter, Prisma.PatientWhereInput>
 }
@@ -380,6 +396,8 @@ export type SensorLogOrderByWithRelationInput = {
   bpm?: Prisma.SortOrderInput | Prisma.SortOrder
   ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   pressure?: Prisma.SortOrderInput | Prisma.SortOrder
+  wifiSsid?: Prisma.SortOrderInput | Prisma.SortOrder
+  offlineMode?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
   patient?: Prisma.PatientOrderByWithRelationInput
 }
@@ -404,6 +422,8 @@ export type SensorLogWhereUniqueInput = Prisma.AtLeast<{
   bpm?: Prisma.IntNullableFilter<"SensorLog"> | number | null
   ambientTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   pressure?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  wifiSsid?: Prisma.StringNullableFilter<"SensorLog"> | string | null
+  offlineMode?: Prisma.BoolFilter<"SensorLog"> | boolean
   timestamp?: Prisma.DateTimeFilter<"SensorLog"> | Date | string
   patient?: Prisma.XOR<Prisma.PatientScalarRelationFilter, Prisma.PatientWhereInput>
 }, "id">
@@ -425,6 +445,8 @@ export type SensorLogOrderByWithAggregationInput = {
   bpm?: Prisma.SortOrderInput | Prisma.SortOrder
   ambientTemp?: Prisma.SortOrderInput | Prisma.SortOrder
   pressure?: Prisma.SortOrderInput | Prisma.SortOrder
+  wifiSsid?: Prisma.SortOrderInput | Prisma.SortOrder
+  offlineMode?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
   _count?: Prisma.SensorLogCountOrderByAggregateInput
   _avg?: Prisma.SensorLogAvgOrderByAggregateInput
@@ -453,6 +475,8 @@ export type SensorLogScalarWhereWithAggregatesInput = {
   bpm?: Prisma.IntNullableWithAggregatesFilter<"SensorLog"> | number | null
   ambientTemp?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
   pressure?: Prisma.FloatNullableWithAggregatesFilter<"SensorLog"> | number | null
+  wifiSsid?: Prisma.StringNullableWithAggregatesFilter<"SensorLog"> | string | null
+  offlineMode?: Prisma.BoolWithAggregatesFilter<"SensorLog"> | boolean
   timestamp?: Prisma.DateTimeWithAggregatesFilter<"SensorLog"> | Date | string
 }
 
@@ -472,6 +496,8 @@ export type SensorLogCreateInput = {
   bpm?: number | null
   ambientTemp?: number | null
   pressure?: number | null
+  wifiSsid?: string | null
+  offlineMode?: boolean
   timestamp?: Date | string
   patient: Prisma.PatientCreateNestedOneWithoutSensorLogsInput
 }
@@ -493,6 +519,8 @@ export type SensorLogUncheckedCreateInput = {
   bpm?: number | null
   ambientTemp?: number | null
   pressure?: number | null
+  wifiSsid?: string | null
+  offlineMode?: boolean
   timestamp?: Date | string
 }
 
@@ -512,6 +540,8 @@ export type SensorLogUpdateInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   patient?: Prisma.PatientUpdateOneRequiredWithoutSensorLogsNestedInput
 }
@@ -533,6 +563,8 @@ export type SensorLogUncheckedUpdateInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -553,6 +585,8 @@ export type SensorLogCreateManyInput = {
   bpm?: number | null
   ambientTemp?: number | null
   pressure?: number | null
+  wifiSsid?: string | null
+  offlineMode?: boolean
   timestamp?: Date | string
 }
 
@@ -572,6 +606,8 @@ export type SensorLogUpdateManyMutationInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -592,6 +628,8 @@ export type SensorLogUncheckedUpdateManyInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -622,6 +660,8 @@ export type SensorLogCountOrderByAggregateInput = {
   bpm?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrder
   pressure?: Prisma.SortOrder
+  wifiSsid?: Prisma.SortOrder
+  offlineMode?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -658,6 +698,8 @@ export type SensorLogMaxOrderByAggregateInput = {
   bpm?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrder
   pressure?: Prisma.SortOrder
+  wifiSsid?: Prisma.SortOrder
+  offlineMode?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -678,6 +720,8 @@ export type SensorLogMinOrderByAggregateInput = {
   bpm?: Prisma.SortOrder
   ambientTemp?: Prisma.SortOrder
   pressure?: Prisma.SortOrder
+  wifiSsid?: Prisma.SortOrder
+  offlineMode?: Prisma.SortOrder
   timestamp?: Prisma.SortOrder
 }
 
@@ -771,6 +815,8 @@ export type SensorLogCreateWithoutPatientInput = {
   bpm?: number | null
   ambientTemp?: number | null
   pressure?: number | null
+  wifiSsid?: string | null
+  offlineMode?: boolean
   timestamp?: Date | string
 }
 
@@ -790,6 +836,8 @@ export type SensorLogUncheckedCreateWithoutPatientInput = {
   bpm?: number | null
   ambientTemp?: number | null
   pressure?: number | null
+  wifiSsid?: string | null
+  offlineMode?: boolean
   timestamp?: Date | string
 }
 
@@ -839,6 +887,8 @@ export type SensorLogScalarWhereInput = {
   bpm?: Prisma.IntNullableFilter<"SensorLog"> | number | null
   ambientTemp?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
   pressure?: Prisma.FloatNullableFilter<"SensorLog"> | number | null
+  wifiSsid?: Prisma.StringNullableFilter<"SensorLog"> | string | null
+  offlineMode?: Prisma.BoolFilter<"SensorLog"> | boolean
   timestamp?: Prisma.DateTimeFilter<"SensorLog"> | Date | string
 }
 
@@ -858,6 +908,8 @@ export type SensorLogCreateManyPatientInput = {
   bpm?: number | null
   ambientTemp?: number | null
   pressure?: number | null
+  wifiSsid?: string | null
+  offlineMode?: boolean
   timestamp?: Date | string
 }
 
@@ -877,6 +929,8 @@ export type SensorLogUpdateWithoutPatientInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -896,6 +950,8 @@ export type SensorLogUncheckedUpdateWithoutPatientInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -915,6 +971,8 @@ export type SensorLogUncheckedUpdateManyWithoutPatientInput = {
   bpm?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   ambientTemp?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   pressure?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  wifiSsid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  offlineMode?: Prisma.BoolFieldUpdateOperationsInput | boolean
   timestamp?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -937,6 +995,8 @@ export type SensorLogSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   bpm?: boolean
   ambientTemp?: boolean
   pressure?: boolean
+  wifiSsid?: boolean
+  offlineMode?: boolean
   timestamp?: boolean
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sensorLog"]>
@@ -958,6 +1018,8 @@ export type SensorLogSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   bpm?: boolean
   ambientTemp?: boolean
   pressure?: boolean
+  wifiSsid?: boolean
+  offlineMode?: boolean
   timestamp?: boolean
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sensorLog"]>
@@ -979,6 +1041,8 @@ export type SensorLogSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   bpm?: boolean
   ambientTemp?: boolean
   pressure?: boolean
+  wifiSsid?: boolean
+  offlineMode?: boolean
   timestamp?: boolean
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["sensorLog"]>
@@ -1000,10 +1064,12 @@ export type SensorLogSelectScalar = {
   bpm?: boolean
   ambientTemp?: boolean
   pressure?: boolean
+  wifiSsid?: boolean
+  offlineMode?: boolean
   timestamp?: boolean
 }
 
-export type SensorLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "aiState" | "angle" | "thighPitch" | "shankPitch" | "force" | "skinTemp" | "battery" | "riskScore" | "lat" | "lng" | "weatherTemp" | "bpm" | "ambientTemp" | "pressure" | "timestamp", ExtArgs["result"]["sensorLog"]>
+export type SensorLogOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "patientId" | "aiState" | "angle" | "thighPitch" | "shankPitch" | "force" | "skinTemp" | "battery" | "riskScore" | "lat" | "lng" | "weatherTemp" | "bpm" | "ambientTemp" | "pressure" | "wifiSsid" | "offlineMode" | "timestamp", ExtArgs["result"]["sensorLog"]>
 export type SensorLogInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   patient?: boolean | Prisma.PatientDefaultArgs<ExtArgs>
 }
@@ -1036,6 +1102,8 @@ export type $SensorLogPayload<ExtArgs extends runtime.Types.Extensions.InternalA
     bpm: number | null
     ambientTemp: number | null
     pressure: number | null
+    wifiSsid: string | null
+    offlineMode: boolean
     timestamp: Date
   }, ExtArgs["result"]["sensorLog"]>
   composites: {}
@@ -1477,6 +1545,8 @@ export interface SensorLogFieldRefs {
   readonly bpm: Prisma.FieldRef<"SensorLog", 'Int'>
   readonly ambientTemp: Prisma.FieldRef<"SensorLog", 'Float'>
   readonly pressure: Prisma.FieldRef<"SensorLog", 'Float'>
+  readonly wifiSsid: Prisma.FieldRef<"SensorLog", 'String'>
+  readonly offlineMode: Prisma.FieldRef<"SensorLog", 'Boolean'>
   readonly timestamp: Prisma.FieldRef<"SensorLog", 'DateTime'>
 }
     

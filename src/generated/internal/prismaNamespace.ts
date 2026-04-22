@@ -1282,6 +1282,8 @@ export const SensorLogScalarFieldEnum = {
   bpm: 'bpm',
   ambientTemp: 'ambientTemp',
   pressure: 'pressure',
+  wifiSsid: 'wifiSsid',
+  offlineMode: 'offlineMode',
   timestamp: 'timestamp'
 } as const
 

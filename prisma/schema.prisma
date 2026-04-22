@@ -99,6 +99,8 @@ model SensorLog {
   bpm         Int?     // Heart Rate from MAX30102
   ambientTemp Float?   // Ambient Temp from BMP280
   pressure    Float?   // Atmospheric Pressure from BMP280
+  wifiSsid    String?
+  offlineMode Boolean  @default(false)
   timestamp   DateTime @default(now())
   @@index([patientId])
 }

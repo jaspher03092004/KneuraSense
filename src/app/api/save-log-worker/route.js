@@ -59,6 +59,8 @@ export async function POST(request) {
         ambientTemp: (body.ambient_temp !== undefined && body.ambient_temp !== null) ? parseFloat(body.ambient_temp) : null,
         pressure:    (body.pressure !== undefined && body.pressure !== null) ? parseFloat(body.pressure) : null,
         timestamp:   logTimestamp,
+        wifiSsid:    (body.wifi_ssid !== undefined) ? String(body.wifi_ssid) : null,
+        offlineMode: (body.offline_mode !== undefined && body.offline_mode === true) ? true : false,
       },
     });
 
