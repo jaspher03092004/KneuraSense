@@ -6,10 +6,11 @@ import {
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
   Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2,
-  Target, X, Volume2, Brain
+  Target, X, Volume2, Brain,
+  WifiOff, HardDrive // <-- Added new icon imports
 } from 'lucide-react';
 import { useMQTT } from '@/hooks/useMQTT';
-import LocationSync from '@/components/LocationSync'; // Ensure this component is restored
+import LocationSync from '@/components/LocationSync';
 
 const THEMES = {
   blue: "bg-blue-50/80 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-800/30",
@@ -81,6 +82,49 @@ const StatusBadge = memo(({ icon: Icon, label, value, isOnline, pulsing = false 
 ));
 
 StatusBadge.displayName = 'StatusBadge';
+
+// --- NEW SMART DASHBOARD NETWORK INDICATOR ---
+function NetworkIndicator({ deviceStatus, data }) {
+  if (deviceStatus === "Offline") {
+    return (
+      <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-red-200 dark:border-red-900/50 shadow-sm transition-colors duration-300">
+        <WifiOff size={14} className="text-red-500" />
+        <div className="flex flex-col text-left">
+          <span className="text-[8px] uppercase font-black text-red-500 tracking-wider leading-none mb-0.5">Network Status</span>
+          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-none">Disconnected</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.offline_mode) {
+    return (
+      <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-amber-200 dark:border-amber-900/50 shadow-sm transition-colors duration-300">
+        <HardDrive size={14} className="text-amber-500" />
+        <div className="flex flex-col text-left">
+          <span className="text-[8px] uppercase font-black text-amber-500 tracking-wider leading-none mb-0.5">Syncing Status</span>
+          <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-none">Offline Data</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-emerald-200 dark:border-emerald-900/50 shadow-sm transition-colors duration-300">
+      <div className="relative">
+        <Wifi size={14} className="text-emerald-500" />
+        <span className="absolute -top-1 -right-1 flex h-1.5 w-1.5">
+           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+           <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+        </span>
+      </div>
+      <div className="flex flex-col text-left">
+        <span className="text-[8px] uppercase font-black text-emerald-500 tracking-wider leading-none mb-0.5">Connected To</span>
+        <span className="text-[11px] font-bold text-slate-700 dark:text-slate-200 leading-none">{data.wifi_ssid || "Unknown Network"}</span>
+      </div>
+    </div>
+  );
+}
 
 export default function SmartDashboard({ patientName, patientId, deviceMac, enableAutoSave = false, riskThreshold = 75, voiceAlert }) {
   const { data, deviceStatus, lastPacketTime, sendCommand } = useMQTT(deviceMac);
@@ -208,7 +252,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   return (
     <>
-      {/* LocationSync handles the GPS trigger to update device weather context */}
       <LocationSync patientId={patientId} /> 
       
       <section className="space-y-6 w-full" aria-label="Patient Telemetry Dashboard">
@@ -223,7 +266,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
             </button>
           </div>
         )}
-        {/* Header */}
         <header className="-mt-4 flex flex-col xl:flex-row xl:items-end justify-between gap-4 pb-3 border-b border-slate-200 dark:border-slate-800">
           <div className="shrink-0">
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">Live Telemetry</h1>
@@ -252,7 +294,10 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                value={data.ai_state ? data.ai_state.replace('_', ' ') : "Analyzing..."} 
                isOnline={isOnline} 
              />
-             <StatusBadge icon={Wifi} label="Device" value={deviceStatus} isOnline={isOnline} pulsing={isOnline} />
+             
+             {/* --- SWAPPED OLD BADGE FOR NEW NETWORK INDICATOR --- */}
+             <NetworkIndicator deviceStatus={deviceStatus} data={data} />
+             
              <StatusBadge icon={RefreshCw} label="Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />
           </div>
         </header>

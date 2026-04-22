@@ -6,7 +6,8 @@ import LocationSync from '@/components/LocationSync';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle, Brain
+  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle, Brain,
+  WifiOff, HardDrive 
 } from 'lucide-react';
 
 // --- Helper Components ---
@@ -61,6 +62,43 @@ const StatusBadge = memo(({ icon: Icon, label, value, isOnline }) => (
 ));
 StatusBadge.displayName = 'StatusBadge';
 
+// --- New Network Indicator Component ---
+function NetworkIndicator({ deviceStatus, data }) {
+  if (deviceStatus === "Offline") {
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-md border border-red-200 shadow-sm transition-colors duration-300">
+        <WifiOff size={14} />
+        <div className="flex flex-col text-left">
+          <span className="text-[8px] uppercase font-black text-red-500 tracking-wider leading-none mb-0.5">Network Status</span>
+          <span className="text-[11px] font-bold text-red-700 leading-none">Disconnected</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.offline_mode) {
+    return (
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-md border border-amber-200 shadow-sm transition-colors duration-300">
+        <HardDrive size={14} />
+        <div className="flex flex-col text-left">
+          <span className="text-[8px] uppercase font-black text-amber-500 tracking-wider leading-none mb-0.5">Syncing Status</span>
+          <span className="text-[11px] font-bold text-amber-700 leading-none">Offline Data</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-md border border-emerald-200 shadow-sm transition-colors duration-300">
+      <Wifi size={14} />
+      <div className="flex flex-col text-left">
+        <span className="text-[8px] uppercase font-black text-emerald-500 tracking-wider leading-none mb-0.5">Connected To</span>
+        <span className="text-[11px] font-bold text-emerald-700 leading-none">{data.wifi_ssid || "Unknown Network"}</span>
+      </div>
+    </div>
+  );
+}
+
 // --- Main Component (Saves to DB) ---
 export default function LiveDashboard({ patientName, patientId, deviceMac }) {
   const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
@@ -92,7 +130,10 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
                value={data.ai_state ? data.ai_state.replace('_', ' ') : "Analyzing..."} 
                isOnline={deviceStatus === 'Online'} 
              />
-             <StatusBadge icon={Wifi} label="KneuraSense-001" value={deviceStatus} isOnline={deviceStatus === 'Online'} />
+             
+             {/* Replaced generic KneuraSense-001 badge with the new dynamic Network Indicator */}
+             <NetworkIndicator deviceStatus={deviceStatus} data={data} />
+             
              <StatusBadge icon={RefreshCw} label="Last Sync" value={timeString} isOnline={deviceStatus === 'Online'} />
           </div>
         </div>
