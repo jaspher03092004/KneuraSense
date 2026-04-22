@@ -3,10 +3,11 @@
 import { 
   AreaChart, Area, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, ReferenceLine, LineChart, Line,
-  BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis, ComposedChart
+  BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis, ComposedChart,
+  Legend // <-- NEW IMPORT
 } from 'recharts';
 
-// SHARED HELPER COMPONENTS
+// SHARED HELPER COMPONENTS & DYNAMIC COLORS
 const EmptyChart = () => (
   <div className="h-full flex items-center justify-center text-[10px] text-slate-300 dark:text-slate-600">Collecting Data...</div>
 );
@@ -21,6 +22,41 @@ const CriticalEventDot = (props) => {
   return null;
 };
 
+// DYNAMIC COLOR ASSIGNMENT (Zero Hardcoding)
+const STATE_PALETTE = [
+  '#0ea5e9', // Sky Blue
+  '#10b981', // Emerald
+  '#f59e0b', // Amber
+  '#8b5cf6', // Violet
+  '#d946ef', // Fuchsia
+  '#14b8a6', // Teal
+  '#f43f5e', // Rose
+  '#84cc16'  // Lime
+];
+
+const assignedColors = new Map();
+
+const getAiStateColor = (state) => {
+  if (!state) return '#94a3b8'; // Default slate for null/undefined
+  
+  const normalizedState = String(state).toUpperCase();
+  
+  if (!assignedColors.has(normalizedState)) {
+    const nextColor = STATE_PALETTE[assignedColors.size % STATE_PALETTE.length];
+    assignedColors.set(normalizedState, nextColor);
+  }
+  
+  return assignedColors.get(normalizedState);
+};
+
+// Helper to format raw AI states into clean Title Case for the Legends
+const formatStateName = (state) => {
+  if (!state) return 'Unknown';
+  return String(state)
+    .toLowerCase()
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
+};
 
 // TOOLTIPS
 const CustomTooltip = ({ active, payload, unit }) => {
@@ -58,10 +94,9 @@ const CustomRiskTooltip = ({ active, payload, label, threshold = 75 }) => {
             <p className="text-[10px] font-black uppercase text-rose-500 dark:text-rose-400 mb-2 tracking-wider flex items-center gap-1">
               High Risk Event!
             </p>
-            {/* AI State Intelligence Displayed Here */}
             {data.aiState && (
               <p className="text-[10px] font-bold text-rose-600 dark:text-rose-300 mb-2">
-                Detected: {data.aiState.replace('_', ' ')}
+                Detected: {formatStateName(data.aiState)}
               </p>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -82,7 +117,6 @@ const CustomRiskTooltip = ({ active, payload, label, threshold = 75 }) => {
   return null;
 };
 
-// FIXED: Moved outside the component to prevent re-renders and ESLint errors
 const CustomScatterTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     const p = payload[0].payload;
@@ -98,7 +132,7 @@ const CustomScatterTooltip = ({ active, payload }) => {
   return null;
 };
 
-// 1. ORIGINAL CHARTS (Kept for Patient Views)
+// 1. ORIGINAL PATIENT CHARTS
 
 export default function HistoryCharts({ data, riskThreshold = 75 }) {
   if (!data || data.length === 0) return <EmptyChart />;
@@ -181,7 +215,8 @@ export function MiniBarChart({ data, stroke, unit }) {
   );
 }
 
-// 2. NEW CLINICIAN CDSS CHARTS
+// 2. CLINICIAN CDSS CHARTS
+
 export function RiskDonutChart({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
   return (
@@ -259,6 +294,113 @@ export function BiomechanicalScatterChart({ data }) {
           ))}
         </Scatter>
       </ScatterChart>
+    </ResponsiveContainer>
+  );
+}
+
+// 3. AI STATE (ACTIVITY) CHARTS - FULLY DYNAMIC
+
+export function ActivityDistributionChart({ data }) {
+  if (!data || data.length === 0) return <EmptyChart />;
+
+  const formattedData = data.map(d => ({
+    ...d,
+    displayName: formatStateName(d.state)
+  }));
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={formattedData}
+          innerRadius="45%" // Slightly smaller to give more room for legend
+          outerRadius="75%"
+          paddingAngle={4}
+          dataKey="count"
+          nameKey="displayName" 
+          stroke="none"
+        >
+          {formattedData.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={getAiStateColor(entry.state)} />
+          ))}
+        </Pie>
+        <Tooltip 
+          formatter={(value, name) => [`${value} logs`, name]}
+          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+          itemStyle={{ fontWeight: 'bold' }}
+        />
+        {/* COMPACT LEGEND */}
+        <Legend 
+          verticalAlign="bottom" 
+          align="center"
+          layout="horizontal"
+          iconSize={8}
+          iconType="circle"
+          wrapperStyle={{ 
+            fontSize: '9px', 
+            fontWeight: 'bold', 
+            paddingTop: '10px',
+            bottom: 0,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '2px' 
+          }}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+}
+
+export function ActivityTimelineChart({ data }) {
+  if (!data || data.length === 0) return <EmptyChart />;
+
+  const dynamicStates = Array.from(
+    new Set(data.flatMap(Object.keys).filter(key => key !== 'time'))
+  );
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      {/* Adjusted bottom margin to prevent overlap with the chart content */}
+      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
+        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+        <XAxis dataKey="time" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
+        <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
+        <Tooltip 
+          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+          cursor={{ fill: '#cbd5e1', opacity: 0.1 }}
+          labelStyle={{ fontWeight: 'bold', color: '#64748b', marginBottom: '4px' }}
+        />
+        
+        {/* COMPACT LEGEND */}
+        <Legend 
+          verticalAlign="bottom" 
+          align="center"
+          layout="horizontal"
+          iconSize={8}
+          iconType="circle"
+          wrapperStyle={{ 
+            fontSize: '9px', 
+            fontWeight: 'bold', 
+            paddingTop: '15px',
+            bottom: -5,
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            gap: '2px'
+          }}
+        />
+
+        {dynamicStates.map((stateKey) => (
+          <Bar 
+            key={stateKey} 
+            dataKey={stateKey} 
+            stackId="a" 
+            fill={getAiStateColor(stateKey)} 
+            name={formatStateName(stateKey)}
+          />
+        ))}
+      </BarChart>
     </ResponsiveContainer>
   );
 }

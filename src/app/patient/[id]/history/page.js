@@ -1,13 +1,19 @@
 import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
-import HistoryCharts, { MiniLineChart, MiniAreaChart, MiniBarChart } from '@/components/HistoryCharts';
+import HistoryCharts, { 
+  MiniLineChart, 
+  MiniAreaChart, 
+  MiniBarChart,
+  ActivityDistributionChart, // NEW
+  ActivityTimelineChart      // NEW
+} from '@/components/HistoryCharts';
 import RefreshButton from '@/components/RefreshButton';
 import ExportButton from '@/components/ExportButton';
 import Link from 'next/link';
 import { 
   Bell, Activity, Mountain, Footprints, 
   SearchX, Thermometer, HeartPulse, Wind, 
-  ChevronLeft, ChevronRight, Calendar
+  ChevronLeft, ChevronRight, Calendar, Zap, Clock // Added Zap & Clock
 } from 'lucide-react';
 
 function downsamplePeaks(logs, maxPoints = 100) {
@@ -56,12 +62,12 @@ export default async function HistoryPage({ params, searchParams }) {
     select: { 
       id: true,
       mrn: true,
-      fullName: true, // Patient model uses fullName
+      fullName: true, 
       riskThreshold: true,
       deviceMac: true,
       clinician: {
         select: {
-          full_name: true // Clinician model uses full_name!
+          full_name: true 
         }
       }
     }
@@ -122,8 +128,39 @@ export default async function HistoryPage({ params, searchParams }) {
     time: log.timestamp.toLocaleTimeString('en-US', timeOpts), val: log.pressure || 0 
   }));
 
+  // ==========================================
+  // NEW: AI STATE DATA TRANSFORMATION
+  // ==========================================
+  
+  const aiStateCounts = {};
+  rawChartLogs.forEach(log => {
+    const state = log.aiState || 'UNKNOWN';
+    aiStateCounts[state] = (aiStateCounts[state] || 0) + 1;
+  });
+
+  const formattedActivityDistributionData = Object.keys(aiStateCounts).map(state => ({
+    state: state,
+    count: aiStateCounts[state]
+  }));
+
+  const timelineBuckets = {};
+  rawChartLogs.forEach(log => {
+    const timeKey = log.timestamp.toLocaleTimeString('en-US', timeOpts);
+    const state = log.aiState || 'UNKNOWN';
+
+    if (!timelineBuckets[timeKey]) {
+      timelineBuckets[timeKey] = { time: timeKey };
+    }
+    timelineBuckets[timeKey][state] = (timelineBuckets[timeKey][state] || 0) + 1;
+  });
+
+  const formattedActivityTimelineData = Object.values(timelineBuckets);
+
+  // ==========================================
+
   const tableRows = paginatedLogs.map(log => ({
     time: log.timestamp.toLocaleString('en-US', dateOpts),
+    activity: log.aiState?.replace('_', ' ') || 'Unknown', // Added Activity
     score: log.riskScore,
     angle: `${log.angle.toFixed(1)}°`,
     bpm: log.bpm && log.bpm > 0 ? `${log.bpm} bpm` : '--',
@@ -175,7 +212,7 @@ export default async function HistoryPage({ params, searchParams }) {
               <span className="text-slate-300 dark:text-slate-600 text-xs font-bold shrink-0">to</span>
               <input type="date" name="end" required defaultValue={end || ''} className="text-[13px] text-slate-600 dark:text-slate-300 bg-transparent outline-none cursor-pointer w-full sm:w-auto dark:[color-scheme:dark]" />
             </div>
-            <button type="submit" className="bg-slate-900 dark:bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-2 rounded-xl md:rounded-full hover:bg-slate-800 dark:hover:bg-blue-700 transition-colors shrink-0 w-full sm:w-auto text-center">
+            <button type="submit" className="bg-slate-900 dark:bg-blue-600 text-white text-[11px] font-bold uppercase tracking-wider px-3 py-2 rounded-xl md:rounded-full hover:bg-slate-800 dark:bg-blue-700 transition-colors shrink-0 w-full sm:w-auto text-center">
               Apply Filter
             </button>
           </form>
@@ -215,6 +252,31 @@ export default async function HistoryPage({ params, searchParams }) {
               </div>
             </section>
 
+            {/* NEW AI STATE ACTIVITY ANALYSIS */}
+            <section className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+              {/* Left: Activity Distribution */}
+              <div className="rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm lg:col-span-1 flex flex-col transition-colors duration-300">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-2">
+                  <Zap size={16} className="text-slate-400 dark:text-slate-500" /> Detected Activity
+                </h3>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-3">Breakdown of your movement states.</p>
+                <div className="flex-1 relative min-h-[180px]">
+                  <ActivityDistributionChart data={formattedActivityDistributionData} />
+                </div>
+              </div>
+
+              {/* Right: Activity Timeline */}
+              <div className="rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm lg:col-span-2 flex flex-col transition-colors duration-300">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-2">
+                  <Clock size={16} className="text-slate-400 dark:text-slate-500" /> Activity Timeline
+                </h3>
+                <p className="text-[10px] text-slate-500 dark:text-slate-400 mb-3">Frequency of specific activities over the selected period.</p>
+                <div className="flex-1 min-h-[180px]">
+                  <ActivityTimelineChart data={formattedActivityTimelineData} />
+                </div>
+              </div>
+            </section>
+
             {/* Specialized Correlation Mini-Charts */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-3">
                <CorrelationCard title="Knee Flexion" icon={<Mountain size={16} />} color="blue" data={terrainData} unit="°" chartType="line" />
@@ -241,6 +303,11 @@ export default async function HistoryPage({ params, searchParams }) {
                       }`}>
                         {row.status}
                       </span>
+                    </div>
+                    {/* Display Activity in Mobile View */}
+                    <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded-lg mb-2">
+                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Activity</p>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-300 capitalize">{row.activity.toLowerCase()}</p>
                     </div>
                     <div className="grid grid-cols-2 gap-2">
                       <div className="flex justify-between items-center bg-slate-50 dark:bg-slate-800 px-2 py-1.5 rounded-lg">
@@ -269,7 +336,7 @@ export default async function HistoryPage({ params, searchParams }) {
                 <table className="w-full text-left">
                   <thead className="bg-slate-50/50 dark:bg-slate-800/50">
                     <tr>
-                      {['Time', 'Score', 'Angle', 'Heart Rate', 'Skin Temp', 'Status'].map(h => (
+                      {['Time', 'Activity', 'Score', 'Angle', 'Heart Rate', 'Skin Temp', 'Status'].map(h => (
                         <th key={h} className="px-4 py-2.5 text-[10px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{h}</th>
                       ))}
                     </tr>
@@ -278,6 +345,7 @@ export default async function HistoryPage({ params, searchParams }) {
                     {tableRows.map((row, i) => (
                       <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                         <td className="px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{row.time}</td>
+                        <td className="px-4 py-2.5 text-sm font-bold text-slate-500 dark:text-slate-400 capitalize">{row.activity.toLowerCase()}</td>
                         <td className="px-4 py-2.5 font-mono font-bold text-slate-900 dark:text-slate-100">{row.score}</td>
                         <td className="px-4 py-2.5 text-sm text-slate-600 dark:text-slate-400">{row.angle}</td>
                         <td className="px-4 py-2.5 text-sm font-semibold text-rose-600 dark:text-rose-400">{row.bpm}</td>
