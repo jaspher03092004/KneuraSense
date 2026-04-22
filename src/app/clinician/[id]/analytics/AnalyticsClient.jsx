@@ -2,7 +2,14 @@
 
 import { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { RiskDonutChart, OveruseComposedChart, BiomechanicalScatterChart, MiniLineChart } from '@/components/HistoryCharts';
+import { 
+  RiskDonutChart, 
+  OveruseComposedChart, 
+  BiomechanicalScatterChart, 
+  MiniLineChart,
+  ActivityDistributionChart,
+  ActivityTimelineChart
+} from '@/components/HistoryCharts';
 import ExportButton from '@/components/ExportButton';
 import { 
   Activity, Mountain, ChevronLeft, ChevronRight, User, AlertTriangle, Zap, Users, Thermometer, Target, Clock, ActivitySquare, Calendar
@@ -22,9 +29,8 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
   const itemsPerPage = 10;
 
   const handlePeriodChange = (newPeriod) => {
-    // Navigates and drops the start/end custom dates when a quick button is clicked
     router.push(`/clinician/${clinicianId}/analytics?patientId=${patientId}&period=${newPeriod}`);
-    setCurrentPage(1); // Reset to page 1 on filter change
+    setCurrentPage(1); 
   };
 
   const handleCustomDateSubmit = (e) => {
@@ -33,7 +39,6 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
     const sDate = formData.get('start');
     const eDate = formData.get('end');
     if (sDate && eDate) {
-      // Navigates with the custom date range instead of a quick period
       router.push(`/clinician/${clinicianId}/analytics?patientId=${patientId}&start=${sDate}&end=${eDate}`);
       setCurrentPage(1);
     }
@@ -85,19 +90,19 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
     );
   }
 
-  // --- CDSS DATA PROCESSING ---
-  // Helper for consistent PHT formatting
+  // --- DATA PROCESSING ---
   const timeOpts = { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit' };
   const dateOpts = { timeZone: 'Asia/Manila', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
+  // 1. Existing Physiological & Biomechanical Data
   const formattedChartData = chartData?.map(d => ({
-    // Use the raw timestamp and format it to PHT instead of using the raw UTC hour
     time: new Date(d.timestamp).toLocaleTimeString('en-US', timeOpts),
     risk: d.risk,
     angle: d.angle,
     force: d.force,
     skinTemp: d.skinTemp,
-    bpm: d.bpm
+    bpm: d.bpm,
+    aiState: d.aiState 
   })) || [];
 
   const hasData = formattedChartData.length > 0;
@@ -108,6 +113,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
   const safeCount = formattedChartData.filter(d => d.risk < 40).length;
   const warningCount = formattedChartData.filter(d => d.risk >= 40 && d.risk < 70).length;
   const criticalCount = formattedChartData.filter(d => d.risk >= 70).length;
+  
   const distributionData = [
     { name: 'Safe (<40)', value: safeCount, fill: '#10b981' }, 
     { name: 'Warning (40-69)', value: warningCount, fill: '#f59e0b' }, 
@@ -116,19 +122,53 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
 
   const skinTempData = formattedChartData.map(d => ({ time: d.time, val: d.skinTemp }));
   
+  // ==========================================
+  // AI STATE DATA TRANSFORMATION
+  // ==========================================
+  
+  // Transform data for the Donut Chart (Totals)
+  const aiStateCounts = {};
+  rawLogs?.forEach(log => {
+    const state = log.aiState || 'UNKNOWN';
+    aiStateCounts[state] = (aiStateCounts[state] || 0) + 1;
+  });
+  
+  const formattedActivityDistributionData = Object.keys(aiStateCounts).map(state => ({
+    state: state,
+    count: aiStateCounts[state]
+  }));
+
+  // Transform data for the Timeline Bar Chart (Over time)
+  const timelineBuckets = {};
+  rawLogs?.forEach(log => {
+    const timeKey = new Date(log.timestamp).toLocaleTimeString('en-US', timeOpts);
+    const state = log.aiState || 'UNKNOWN';
+
+    if (!timelineBuckets[timeKey]) {
+      timelineBuckets[timeKey] = { time: timeKey };
+    }
+    
+    // Increment the count for this specific state at this specific time
+    timelineBuckets[timeKey][state] = (timelineBuckets[timeKey][state] || 0) + 1;
+  });
+  
+  const formattedActivityTimelineData = Object.values(timelineBuckets);
+
+  // ==========================================
+
   const totalLogsCount = rawLogs?.length || 0;
   const totalPages = Math.ceil(totalLogsCount / itemsPerPage);
   const paginatedLogs = rawLogs?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage) || [];
 
   const tableRows = paginatedLogs.map(log => ({
-    // Format detailed logs table to PHT
     time: new Date(log.timestamp).toLocaleString('en-US', dateOpts),
     score: log.riskScore,
     angle: `${log.angle?.toFixed(1) || 0}°`,
     force: `${log.force} N`,
     bpm: log.bpm && log.bpm > 0 ? `${log.bpm} bpm` : '--',
     temp: `${log.skinTemp?.toFixed(1) || 0}°C`,
-    status: log.riskScore > 70 ? 'High' : log.riskScore > 40 ? 'Medium' : 'Low'
+    status: log.riskScore > 70 ? 'High' : log.riskScore > 40 ? 'Medium' : 'Low',
+    activity: log.aiState?.replace('_', ' ') || 'Unknown'
   }));
   
   return (
@@ -235,7 +275,34 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
           </div>
         </section>
 
-        {/* ROW 3: BIOMECHANICAL & PHYSIOLOGICAL DEEP DIVE */}
+        {/* ROW 3: AI STATE ACTIVITY ANALYSIS (WITH FIXED HEIGHTS) */}
+        <section className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-3">
+          {/* Left: Activity Distribution */}
+          <div className="rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm lg:col-span-1 flex flex-col">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-1.5">
+              <Zap size={14} className="text-slate-400 dark:text-slate-500" /> Detected Activity
+            </h3>
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 mb-3">Breakdown of patient movement states.</p>
+            {/* FIXED HEIGHT CONTAINER */}
+            <div className="h-[250px] w-full relative">
+              <ActivityDistributionChart data={formattedActivityDistributionData} />
+            </div>
+          </div>
+
+          {/* Right: Activity Timeline */}
+          <div className="rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm lg:col-span-2 flex flex-col">
+            <h3 className="text-xs font-bold text-slate-800 dark:text-slate-200 mb-1 flex items-center gap-1.5">
+              <Clock size={14} className="text-slate-400 dark:text-slate-500" /> Activity Timeline
+            </h3>
+            <p className="text-[9px] text-slate-500 dark:text-slate-400 mb-3">Frequency of specific activities mapped over the selected period.</p>
+            {/* FIXED HEIGHT CONTAINER */}
+            <div className="h-[250px] w-full relative">
+               <ActivityTimelineChart data={formattedActivityTimelineData} />
+            </div>
+          </div>
+        </section>
+
+        {/* ROW 4: BIOMECHANICAL & PHYSIOLOGICAL DEEP DIVE */}
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
           {/* Scatter Plot */}
           <div className="rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 shadow-sm">
@@ -262,7 +329,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
           </div>
         </section>
 
-        {/* ROW 4: DETAILED LOGS */}
+        {/* ROW 5: DETAILED LOGS */}
         <section className="overflow-hidden rounded-lg border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
           <div className="border-b border-slate-50 dark:border-slate-800 p-3 flex justify-between items-center">
             <h3 className="text-xs md:text-sm font-bold text-slate-800 dark:text-slate-200">Raw Telemetry Auditing</h3>
@@ -273,7 +340,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
             <table className="w-full text-left">
               <thead className="bg-slate-50/50 dark:bg-slate-800/50 border-y border-slate-100 dark:border-slate-800">
                 <tr>
-                  {['Time', 'Risk Score', 'Flexion', 'Load', 'Heart Rate', 'Skin Temp', 'Status'].map(h => (
+                  {['Time', 'Activity', 'Risk Score', 'Flexion', 'Load', 'Heart Rate', 'Skin Temp', 'Status'].map(h => (
                     <th key={h} className="px-4 py-2.5 text-[9px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500">{h}</th>
                   ))}
                 </tr>
@@ -282,6 +349,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
                 {tableRows.map((row, i) => (
                   <tr key={i} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
                     <td className="px-4 py-2.5 text-[11px] font-bold text-slate-700 dark:text-slate-300 whitespace-nowrap">{row.time}</td>
+                    <td className="px-4 py-2.5 text-[11px] font-bold text-slate-500 dark:text-slate-400 capitalize">{row.activity.toLowerCase()}</td>
                     <td className="px-4 py-2.5 font-mono text-xs font-bold text-slate-900 dark:text-slate-100">{row.score}</td>
                     <td className="px-4 py-2.5 text-[11px] text-slate-600 dark:text-slate-400">{row.angle}</td>
                     <td className="px-4 py-2.5 text-[11px] text-sky-600 dark:text-sky-400 font-semibold">{row.force}</td>
