@@ -6,8 +6,8 @@ import {
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
   Cloud, HeartPulse, Wind, AlertTriangle, CheckCircle2,
-  Target, X, Volume2, Brain,
-  WifiOff, HardDrive // <-- Added new icon imports
+  Target, X, Volume2, 
+  WifiOff, HardDrive 
 } from 'lucide-react';
 import { useMQTT } from '@/hooks/useMQTT';
 import LocationSync from '@/components/LocationSync';
@@ -288,14 +288,6 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
                </div>
              </div>
 
-             <StatusBadge 
-               icon={Brain} 
-               label="AI State" 
-               value={data.ai_state ? data.ai_state.replace('_', ' ') : "Analyzing..."} 
-               isOnline={isOnline} 
-             />
-             
-             {/* --- SWAPPED OLD BADGE FOR NEW NETWORK INDICATOR --- */}
              <NetworkIndicator deviceStatus={deviceStatus} data={data} />
              
              <StatusBadge icon={RefreshCw} label="Sync" value={lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'}) : "--:--"} isOnline={isOnline} />

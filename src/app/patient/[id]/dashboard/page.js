@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { redirect } from 'next/navigation';
 import SmartDashboard from '@/components/SmartDashboard';
 import CarePlanCard from '@/components/CarePlanCard'; 
+import LiveAiState from '@/components/LiveAiState';
 import { ClipboardList } from 'lucide-react';
 import InterventionAcknowledgmentModal from '@/components/InterventionAcknowledgmentModal'; 
 
@@ -58,12 +59,16 @@ export default async function PatientDashboard({ params, searchParams }) {
             deviceMac={patient.deviceMac}
             enableAutoSave={true} 
             riskThreshold={patient.riskThreshold}
-            voiceAlert={voiceAlert} // <--- Pass the extracted message down to the client
+            voiceAlert={voiceAlert} // Pass the extracted message down to the client
           />
         </div>
 
-        <aside className="xl:col-span-4 2xl:col-span-3">
-          <div className="h-full flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
+        <aside className="xl:col-span-4 2xl:col-span-3 flex flex-col gap-4">
+          
+          {/* Animated AI State placed above the Care Plan */}
+          <LiveAiState deviceMac={patient.deviceMac} />
+
+          <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
             <header className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 p-5 shrink-0 flex items-center gap-3">
                <div className="bg-blue-100 text-blue-500 p-2 rounded-lg">
                  <ClipboardList size={18} strokeWidth={2.5} />
