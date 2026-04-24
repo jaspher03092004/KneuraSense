@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 export default async function PatientsPage({ params }) {
   const { id } = await params;
 
+  // ADD THE AWAIT HERE
   const clinician = await prisma.clinician.findUnique({
     where: { clinician_id: id }
   });

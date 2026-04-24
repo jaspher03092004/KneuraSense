@@ -14,6 +14,7 @@ import {
 import Link from 'next/link';
 import LiveDashboard from '@/components/LiveDashboard';
 import ClinicalThresholdManager from '@/components/ClinicalThresholdManager';
+import STSClinicalTest from '@/components/SLETClinicalTest'; // <-- Added STS Test Component Import
 
 export default function PatientsClient({ clinicianId, patients }) {
   const router = useRouter();
@@ -31,6 +32,10 @@ export default function PatientsClient({ clinicianId, patients }) {
   const [targetClinicianEmail, setTargetClinicianEmail] = useState('');
   const [isReleasing, setIsReleasing] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
+
+  // -- NEW: STS Test State --
+  const [showStsModal, setShowStsModal] = useState(false);
+  const [selectedPatientForSts, setSelectedPatientForSts] = useState(null);
   
   // -- Filter State --
   const [riskFilter, setRiskFilter] = useState('all'); // 'all', 'high', 'normal', 'low'
@@ -455,6 +460,13 @@ export default function PatientsClient({ clinicianId, patients }) {
                     >
                       Threshold
                     </button>
+                    {/* --- NEW: STS Test Button --- */}
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setSelectedPatientForSts(patient); setShowStsModal(true); }}
+                      className="flex-1 text-[10px] font-bold px-2 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors border border-emerald-100 dark:border-emerald-500/20"
+                    >
+                      SLET Test
+                    </button>
                     <button 
                       onClick={(e) => handleOpenTransfer(e, patient)}
                       className="p-1.5 bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 rounded-md hover:bg-rose-100 dark:hover:bg-rose-500/20 transition-colors border border-rose-100 dark:border-rose-500/30 shadow-sm"
@@ -752,6 +764,38 @@ export default function PatientsClient({ clinicianId, patients }) {
                 <ClinicalThresholdManager 
                   clinicianId={clinicianId}
                   patient={selectedPatientForThreshold}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- STS CLINICAL TEST MODAL --- */}
+        {showStsModal && selectedPatientForSts && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
+            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => { setShowStsModal(false); setSelectedPatientForSts(null); }}></div>
+            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full relative border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
+              <div className="flex justify-between items-center p-4 md:p-5 border-b border-slate-100 dark:border-slate-800">
+                <div className="min-w-0">
+                  <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">
+                    {selectedPatientForSts.fullName} - Symptom-Limited Exercise Test
+                  </h2>
+                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">
+                    Live biomechanical analysis via MQTT telemetry
+                  </p>
+                </div>
+                <button 
+                  onClick={() => { setShowStsModal(false); setSelectedPatientForSts(null); }} 
+                  className="p-1.5 -mr-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md transition-colors text-slate-400 shrink-0"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <div className="p-4 md:p-5 bg-slate-50 dark:bg-slate-950/50 rounded-b-lg">
+                <STSClinicalTest 
+                deviceMac={selectedPatientForSts.deviceMac} 
+                patientId={selectedPatientForSts.id}
+                clinicianId={clinicianId}
                 />
               </div>
             </div>

@@ -86,8 +86,8 @@ export default function LoginPage() {
           </div>
 
           {/* Testimonial / Social Proof element */}
-          <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-xl">
-            <p className="text-sm text-slate-200 font-medium italic leading-relaxed">
+          <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/10 rounded-lg p-4 shadow-md">
+            <p className="text-sm text-slate-200 font-medium italic leading-snug">
               &quot;Designed specifically for individuals at risk of knee osteoarthritis to maintain mobility and independence.&quot;
             </p>
           </div>
