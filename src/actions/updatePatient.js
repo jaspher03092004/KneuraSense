@@ -9,15 +9,27 @@ export async function updatePatientProfile(formData) {
   // Extract and Format Values
   const rawData = {
     fullName: formData.get('fullName'),
-    age: parseInt(formData.get('age')), // Convert text to number
     phoneNumber: formData.get('phoneNumber'),
     occupation: formData.get('occupation'),
-    
-    // Medical / Lifestyle Fields
+    gender: formData.get('gender'),
+    emergencyContactName: formData.get('emergencyContactName'),
+    emergencyContactPhone: formData.get('emergencyContactPhone'),
     affectedKnee: formData.get('affectedKnee'),
     activityLevel: formData.get('activityLevel'),
-    // Note: We usually keep 'oaDiagnosis' read-only for patients
   };
+
+  // Handle Date of Birth mapping
+  const dob = formData.get('dateOfBirth');
+  if (dob) {
+    rawData.dateOfBirth = new Date(dob);
+  }
+
+  // Parse Floats for biometrics
+  const height = formData.get('heightCm');
+  if (height) rawData.heightCm = parseFloat(height);
+
+  const weight = formData.get('weightKg');
+  if (weight) rawData.weightKg = parseFloat(weight);
 
   try {
     await prisma.patient.update({

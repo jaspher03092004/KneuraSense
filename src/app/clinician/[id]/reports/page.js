@@ -3,7 +3,8 @@ import ExportButton from '@/components/ExportButton';
 import { Users, Activity, FileDown } from 'lucide-react';
 
 export default async function ReportsPage({ params }) {
-  const { id } = params;
+  // Await the params Promise here
+  const { id } = await params;
 
   // Fetch interventions made by this clinician to get their active patients
   const interventions = await prisma.intervention.findMany({
