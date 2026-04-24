@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { checkCriticalAlerts } from '@/actions/checkCriticalAlerts';
+import mqtt from 'mqtt';
+import { getClinicianAlertConfig } from '@/actions/getClinicianAlertConfig';
 import { AlertTriangle, X, Users, ArrowRight } from 'lucide-react';
 
 export default function GlobalClinicianAlerts({ clinicianId }) {
@@ -10,51 +11,97 @@ export default function GlobalClinicianAlerts({ clinicianId }) {
   const [hasRequestedPermission, setHasRequestedPermission] = useState(false);
 
   useEffect(() => {
-    const fetchAlerts = async () => {
-      const { alertsEnabled, patients } = await checkCriticalAlerts(clinicianId);
+    let client = null;
 
-      if (!alertsEnabled) return;
+    const setupMQTTAlerts = async () => {
+      // 1. Fetch config ONCE from the DB
+      const { alertsEnabled, patients } = await getClinicianAlertConfig(clinicianId);
 
-      // Ask for browser permission once if enabled
+      if (!alertsEnabled || patients.length === 0) return;
+
+      // Ask for browser notification permission once if enabled
       if (!hasRequestedPermission && "Notification" in window && Notification.permission === "default") {
         Notification.requestPermission();
         setHasRequestedPermission(true);
       }
 
-      // Filter out patients we've already alerted about in this session
-      const newHighRisk = patients.filter(p => !alertedPatientIds.current.has(p.id));
+      // Create a map for quick patient lookup when an MQTT message arrives
+      const patientMap = {};
+      patients.forEach(p => {
+        if (p.deviceMac) patientMap[p.deviceMac] = p;
+      });
 
-      if (newHighRisk.length > 0) {
-        // Add to tracked list to prevent duplicate alerts
-        newHighRisk.forEach(p => alertedPatientIds.current.add(p.id));
+      // 2. Connect to HiveMQ
+      const MQTT_HOST = process.env.NEXT_PUBLIC_MQTT_HOST;
+      const MQTT_PORT = Number(process.env.NEXT_PUBLIC_MQTT_PORT);
+      const MQTT_USER = process.env.NEXT_PUBLIC_MQTT_USER;
+      const MQTT_PASS = process.env.NEXT_PUBLIC_MQTT_PASS;
 
-        // 1. Show UI Toast with count and names
-        setAlertToast({
-          title: 'Critical Risk Alert',
-          count: newHighRisk.length,
-          names: newHighRisk.map(p => p.name).join(', ')
+      client = mqtt.connect(`wss://${MQTT_HOST}:${MQTT_PORT}/mqtt`, {
+        clientId: 'clinician_alert_' + Math.random().toString(16).substring(2, 8),
+        username: MQTT_USER,
+        password: MQTT_PASS,
+        clean: true,
+      });
+
+      client.on('connect', () => {
+        console.log("[Global Alerts] Connected to MQTT broker");
+        // 3. Subscribe to all assigned patients' data topics
+        Object.keys(patientMap).forEach(mac => {
+          client.subscribe(`esp32/${mac}/data`);
         });
+      });
 
-        // 2. Show Native Browser Push Notification
-        if ("Notification" in window && Notification.permission === "granted") {
-          const names = newHighRisk.map(p => p.name).join(', ');
-          const title = newHighRisk.length === 1 ? 'Patient Alert: High Risk' : 'Multiple Patients: High Risk';
-          const body = newHighRisk.length === 1 
-            ? `${newHighRisk[0].name} reached a critical risk score!`
-            : `${newHighRisk.length} patients (${names}) reached a critical risk score!`;
+      client.on('message', (topic, message) => {
+        try {
+          // Extract MAC address from topic string "esp32/MAC_ADDRESS/data"
+          const mac = topic.split('/')[1];
+          const patient = patientMap[mac];
 
-          new Notification(title, { body, icon: "/favicon.ico" });
+          if (patient) {
+            const payload = JSON.parse(message.toString());
+            const threshold = patient.riskThreshold ?? 75;
+
+            // 4. Trigger alert if risk score is high
+            if (payload.risk_score >= threshold && !alertedPatientIds.current.has(patient.id)) {
+              
+              // Add to tracked list to prevent duplicate alerts
+              alertedPatientIds.current.add(patient.id);
+
+              // Show UI Toast
+              setAlertToast({
+                title: 'Critical Risk Alert',
+                count: 1, // MQTT alerts happen per individual patient device
+                names: patient.fullName
+              });
+
+              // Show Native Browser Push Notification
+              if ("Notification" in window && Notification.permission === "granted") {
+                new Notification('Patient Alert: High Risk', { 
+                  body: `${patient.fullName} reached a critical risk score!`, 
+                  icon: "/favicon.ico" 
+                });
+              }
+
+              // Auto-hide toast after 15 seconds
+              setTimeout(() => setAlertToast(null), 15000);
+            }
+          }
+        } catch (err) {
+          console.error("[Global Alerts] Parse error:", err);
         }
-
-        // Auto-hide toast after 15 seconds
-        setTimeout(() => setAlertToast(null), 15000);
-      }
+      });
     };
 
-    // Check immediately on load, then every 5 seconds
-    fetchAlerts();
-    const interval = setInterval(fetchAlerts, 5000);
-    return () => clearInterval(interval);
+    setupMQTTAlerts();
+
+    // Cleanup MQTT connection when the component unmounts
+    return () => {
+      if (client) {
+        console.log("[Global Alerts] Disconnecting from MQTT broker");
+        client.end();
+      }
+    };
   }, [clinicianId, hasRequestedPermission]);
 
   if (!alertToast) return null;
