@@ -1,17 +1,16 @@
 'use client';
 
-import React, { useEffect, useRef, memo } from 'react';
+import React, { useEffect, useRef, memo, useMemo } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import LocationSync from '@/components/LocationSync';
 import { 
   Activity, Thermometer, MoveDiagonal, 
   Battery, Wifi, RefreshCw, Database, 
-  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle, Brain,
+  Bluetooth, Cloud, HeartPulse, Wind, AlertCircle, CheckCircle2, Brain,
   WifiOff, HardDrive 
 } from 'lucide-react';
 
 // --- Helper Components ---
-// [OPTIMIZATION] Wrapped in React.memo to prevent unnecessary re-renders
 const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, colorTheme = "blue" }) => {
   const themes = {
     blue: "bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400",
@@ -50,7 +49,6 @@ const SensorCard = memo(({ icon: Icon, title, subTitle, value, unit, status, col
 });
 SensorCard.displayName = 'SensorCard';
 
-// [OPTIMIZATION] Wrapped in React.memo
 const StatusBadge = memo(({ icon: Icon, label, value, isOnline }) => (
   <div className="flex items-center gap-2 bg-white dark:bg-slate-900 px-3 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
     <Icon size={14} className={isOnline ? "text-emerald-500" : "text-slate-400 dark:text-slate-600"} />
@@ -62,7 +60,7 @@ const StatusBadge = memo(({ icon: Icon, label, value, isOnline }) => (
 ));
 StatusBadge.displayName = 'StatusBadge';
 
-// --- New Network Indicator Component ---
+// --- Network Indicator Component ---
 function NetworkIndicator({ deviceStatus, data }) {
   if (deviceStatus === "Offline") {
     return (
@@ -99,8 +97,8 @@ function NetworkIndicator({ deviceStatus, data }) {
   );
 }
 
-// --- Main Component (Saves to DB) ---
-export default function LiveDashboard({ patientName, patientId, deviceMac }) {
+// --- Main Component ---
+export default function LiveDashboard({ patientName, patientId, deviceMac, riskThreshold = 75 }) {
   const { data, deviceStatus, lastPacketTime } = useMQTT(deviceMac);
 
   const isOnline = deviceStatus === 'Online';
@@ -111,9 +109,29 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
   
   const timeString = lastPacketTime ? new Date(lastPacketTime).toLocaleTimeString() : "--:--";
 
+  // Use the same risk configuration logic from SmartDashboard
+  const riskConfig = useMemo(() => {
+    const currentScore = Number(data.risk_score || 0);
+    const threshold = Number(riskThreshold);
+    if (currentScore >= threshold) return { 
+      isCritical: true, label: 'CRITICAL STRESS', 
+      stroke: 'text-rose-500',
+      badgeStyles: 'bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800'
+    };
+    if (currentScore >= (threshold - 15)) return { 
+      isCritical: false, label: 'MODERATE LOAD', 
+      stroke: 'text-amber-500',
+      badgeStyles: 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800'
+    };
+    return { 
+      isCritical: false, label: 'SAFE ZONE', 
+      stroke: 'text-emerald-500',
+      badgeStyles: 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+    };
+  }, [data.risk_score, riskThreshold]);
+
   return (
     <>
-      {/* Triggers the phone's GPS to sync with the backend */}
       <LocationSync patientId={patientId} />
 
       <div className="space-y-4 max-w-7xl mx-auto p-4">
@@ -131,7 +149,6 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
                isOnline={deviceStatus === 'Online'} 
              />
              
-             {/* Replaced generic KneuraSense-001 badge with the new dynamic Network Indicator */}
              <NetworkIndicator deviceStatus={deviceStatus} data={data} />
              
              <StatusBadge icon={RefreshCw} label="Last Sync" value={timeString} isOnline={deviceStatus === 'Online'} />
@@ -151,23 +168,18 @@ export default function LiveDashboard({ patientName, patientId, deviceMac }) {
                 <svg className="w-full h-full overflow-visible" viewBox="0 0 200 110" preserveAspectRatio="xMidYMax meet">
                   <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" className="stroke-slate-100 dark:stroke-slate-700" strokeWidth="16" strokeLinecap="round" />
                   <path d="M 20 100 A 80 80 0 0 1 180 100" fill="none" 
-                    className={`transition-all duration-500 ease-out ${
-                      data.risk_score > 70 ? 'text-rose-500' : data.risk_score > 40 ? 'text-amber-500' : 'text-emerald-500'
-                    }`}
+                    className={`transition-all duration-500 ease-out ${riskConfig.stroke}`}
                     stroke="currentColor" strokeWidth="16" strokeLinecap="round" strokeDasharray="251.2"
-                    strokeDashoffset={251.2 - (data.risk_score / 100) * 251.2}
+                    strokeDashoffset={251.2 - ((data.risk_score || 0) / 100) * 251.2}
                   />
                 </svg>
              </div>
              
              <div className="mt-4 text-center">
-                <h1 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{data.risk_score}</h1>
-                <span className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 text-xs font-bold rounded-full border ${
-                    data.risk_score > 70 ? 'bg-rose-50 dark:bg-rose-950 text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-800' : 
-                    data.risk_score > 40 ? 'bg-amber-50 dark:bg-amber-950 text-amber-600 dark:text-amber-400 border-amber-200 dark:border-amber-800' : 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                }`}>
-                  {data.risk_score > 70 && <AlertCircle size={12} />}
-                  {data.risk_score > 70 ? 'CRITICAL STRESS' : data.risk_score > 40 ? 'MODERATE LOAD' : 'SAFE ZONE'}
+                <h1 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter">{data.risk_score || 0}</h1>
+                <span className={`inline-flex items-center gap-1.5 mt-2 px-3 py-1 text-xs font-bold rounded-full border ${riskConfig.badgeStyles}`}>
+                  {riskConfig.isCritical ? <AlertCircle size={12} /> : <CheckCircle2 size={12} />}
+                  {riskConfig.label}
                 </span>
              </div>
           </div>

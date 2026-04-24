@@ -174,53 +174,7 @@ export default function ClinicianSettingsForm({ clinician }) {
           </div>
         </div>
       </section>
-
-      {/* Display Preferences */}
-      <section className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
-        <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/50">
-          <h3 className="font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
-            <Eye size={16} className="text-purple-500 dark:text-purple-400" /> Display Preferences
-          </h3>
-        </div>
-        
-        <div className="p-6 space-y-6">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h4 className="font-bold text-slate-900 dark:text-slate-200">Compact Dashboard View</h4>
-              <p className="text-sm text-slate-500 dark:text-slate-400">Display denser data tables on the main dashboard</p>
-            </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={compactView} onChange={(e) => setCompactView(e.target.checked)} />
-              <div className="w-11 h-6 bg-slate-200 dark:bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-500"></div>
-            </label>
-          </div>
-
-          <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex flex-col gap-4">
-             {saveStatus.success && (
-                <div className="p-3 bg-green-50 text-green-700 border border-green-100 rounded-lg text-sm flex items-center gap-2">
-                  <CheckCircle size={16}/> Preferences saved successfully.
-                </div>
-             )}
-             {saveStatus.error && (
-                <div className="p-3 bg-red-50 text-red-700 border border-red-100 rounded-lg text-sm flex items-center gap-2">
-                  <AlertCircle size={16}/> {saveStatus.error}
-                </div>
-             )}
-             
-             <div className="flex justify-end">
-                <button 
-                  onClick={handleSavePreferences}
-                  disabled={saveStatus.loading}
-                  className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-cyan-600 text-white font-bold hover:bg-cyan-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                    {saveStatus.loading ? <Loader2 size={18} className="animate-spin"/> : <Save size={18} />}
-                    {saveStatus.loading ? 'Saving...' : 'Save Preferences'}
-                </button>
-             </div>
-          </div>
-        </div>
-      </section>
-
+      
       {/* Danger Zone Section */}
       <section className="bg-rose-50 dark:bg-rose-950/20 rounded-2xl shadow-sm border border-rose-200 dark:border-rose-900/50 overflow-hidden transition-colors duration-300">
         <div className="p-4 border-b border-rose-100 dark:border-rose-900/50 bg-rose-50/50 dark:bg-rose-900/30 transition-colors duration-300">

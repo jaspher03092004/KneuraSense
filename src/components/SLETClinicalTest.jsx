@@ -21,7 +21,7 @@ export default function STSClinicalTest({ deviceMac, patientId, clinicianId }) {
 
   // --- 60% Angle / 40% FSR Calculation ---
   const liveStrainScore = Math.min(100, Math.round(
-    (Math.abs(data.angle) / 120) * 60 + (data.fsr / 1000) * 40
+    (Math.abs(data.angle) / 120) * 60 + (data.fsr / 3000) * 40
   )) || 0;
 
   // 1. Derive peak score directly during render (Best Practice)
