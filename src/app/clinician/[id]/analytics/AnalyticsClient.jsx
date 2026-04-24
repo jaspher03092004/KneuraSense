@@ -14,6 +14,7 @@ import ExportButton from '@/components/ExportButton';
 import { 
   Activity, Mountain, ChevronLeft, ChevronRight, User, AlertTriangle, Zap, Users, Thermometer, Target, Clock, ActivitySquare, Calendar
 } from 'lucide-react';
+import { calculateAge } from '@/lib/utils';
 
 export default function AnalyticsClient({ clinicianId, patientData, chartData, rawLogs, allPatients }) {
   const router = useRouter();
@@ -79,7 +80,7 @@ export default function AnalyticsClient({ clinicianId, patientData, chartData, r
                 </div>
                 <h3 className="font-bold text-sm text-slate-900 dark:text-white mb-0.5 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors truncate">{p.fullName}</h3>
                 <div className="flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400 mt-3 pt-3 border-t border-slate-50 dark:border-slate-800/50">
-                  <span className="font-semibold">Age: {p.age || 'N/A'}</span>
+                  <span className="font-semibold">Age: {calculateAge(p.dateOfBirth)}</span>
                   <span className="truncate max-w-[100px] font-mono text-[9px]">{p.mrn || 'No MRN'}</span>
                 </div>
               </div>

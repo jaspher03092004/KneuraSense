@@ -132,3 +132,51 @@ export async function sendPasswordResetEmail(email, token) {
     return { success: false, error: "Failed to send email." };
   }
 }
+
+export async function sendActivationEmail(email, token, name) {
+  try {
+    // 1. Initialize transporter using your working SMTP variables
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    });
+
+    // 2. Ensure base URL is set (use NEXT_PUBLIC_APP_URL as per your logic)
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+    const activationUrl = `${baseUrl}/activate-account?token=${token}`;
+
+    const mailOptions = {
+      from: `"KneuraSense" <${process.env.SMTP_USER}>`, // Match SMTP_USER
+      to: email,
+      subject: 'Activate Your KneuraSense Account',
+      html: `
+        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #2D5F8B;">Welcome to KneuraSense, ${name}!</h2>
+          <p style="color: #475569; font-size: 16px;">Your healthcare provider has created a profile for you. To begin monitoring your knee health, please activate your account and set your password by clicking the button below:</p>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${activationUrl}" style="display: inline-block; padding: 12px 28px; background-color: #2D5F8B; color: white; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px;">Activate Account</a>
+          </div>
+          
+          <p style="color: #64748b; font-size: 14px;">If the button doesn't work, copy and paste this link:</p>
+          <p style="color: #2D5F8B; font-size: 12px; word-break: break-all;">${activationUrl}</p>
+          
+          <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 20px 0;" />
+          <p style="font-size: 12px; color: #94a3b8;">This link will expire in 24 hours. If you didn't expect this email, please ignore it.</p>
+        </div>
+      `
+    };
+
+    // 3. Actually SEND the mail
+    const info = await transporter.sendMail(mailOptions);
+    console.log(`Activation email sent successfully to ${email}: ${info.messageId}`);
+    return { success: true };
+    
+  } catch (err) {
+    console.error("Failed to send activation email:", err);
+    return { success: false, error: err.message };
+  }
+}

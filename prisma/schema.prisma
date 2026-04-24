@@ -54,16 +54,23 @@ model Patient {
   id            String   @id @default(uuid()) // FIXED: Auto-generates ID
   mrn           String?  @unique
   fullName      String
-  age           Int?
+  dateOfBirth           DateTime
   gender        String?
+  heightCm              Float?   // Ensure this is here
+  weightKg              Float?
   phoneNumber   String   @unique
   email         String   @unique @db.Citext
-  passwordHash  String
+  passwordHash  String?
+  activationToken       String?   @unique
+  activationExpires     DateTime?
+  emergencyContactName  String?
+  emergencyContactPhone String?
   oaDiagnosis   Boolean  @default(false)
   affectedKnee  String?
-  painSeverity  Int?
   occupation    String?
   activityLevel String?
+  consentGiven          Boolean  @default(false)
+  consentTimestamp      DateTime?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   sensorLogs    SensorLog[]

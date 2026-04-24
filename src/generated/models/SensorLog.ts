@@ -791,7 +791,7 @@ export type FloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
+export type NullableIntFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
   decrement?: number

@@ -11,11 +11,18 @@ export default async function AnalyticsPage({ params, searchParams }) {
   const start = resolvedSearchParams.start;
   const end = resolvedSearchParams.end;
 
+  // 1. Updated Select: Changed 'age' to 'dateOfBirth'
   const allPatients = await prisma.patient.findMany({
     where: {
       clinicianId: clinicianId
     },
-    select: { id: true, mrn: true, fullName: true, age: true, oaDiagnosis: true },
+    select: { 
+      id: true, 
+      mrn: true, 
+      fullName: true, 
+      dateOfBirth: true, // Required for dynamic age calculation in UI
+      oaDiagnosis: true 
+    },
     orderBy: { fullName: 'asc' }
   });
 
@@ -30,19 +37,17 @@ export default async function AnalyticsPage({ params, searchParams }) {
     if (patient) {
       const now = new Date();
       let startDate = new Date();
-      let endDate = new Date(); // Added to track the end of the range
+      let endDate = new Date();
 
-      // Check if custom start and end dates were provided
       if (start && end) {
         startDate = new Date(start);
         endDate = new Date(end);
-        endDate.setHours(23, 59, 59); // Set to end of the day
+        endDate.setHours(23, 59, 59);
       } else if (period === '7d') {
         startDate.setDate(now.getDate() - 7);
       } else if (period === '30d') {
         startDate.setDate(now.getDate() - 30);
       } else {
-        // Default to 24 hours
         startDate.setHours(now.getHours() - 24);
       }
 
@@ -51,7 +56,7 @@ export default async function AnalyticsPage({ params, searchParams }) {
           patientId: patient.id,
           timestamp: {
             gte: startDate,
-            lte: endDate // Now limits to endDate instead of strictly "now"
+            lte: endDate
           }
         },
         orderBy: { timestamp: 'desc' },
@@ -61,7 +66,6 @@ export default async function AnalyticsPage({ params, searchParams }) {
     }
   }
 
-  // ... (rest of the data formatting code remains exactly the same) ...
   let patientData = null;
   let chartData = [];
 
@@ -71,9 +75,11 @@ export default async function AnalyticsPage({ params, searchParams }) {
       mrn: patient.mrn,
       initials: patient.fullName.split(' ').map(n => n[0] || '').join('').substring(0, 2).toUpperCase(),
       id: patient.id,
-      age: patient.age || "N/A",
+      // 2. Fixed mapping: Pass the actual dateOfBirth value
+      dateOfBirth: patient.dateOfBirth,
       diagnosis: patient.oaDiagnosis ? `Knee OA (${patient.affectedKnee || 'Unknown'} Knee)` : "No OA",
-      history: `Pain Severity: ${patient.painSeverity || 'N/A'}/10. Activity: ${patient.activityLevel || 'N/A'}`,
+      // 3. Removed painSeverity reference as it no longer exists in schema
+      history: `Activity: ${patient.activityLevel || 'N/A'}. Occupation: ${patient.occupation || 'N/A'}`,
       avgRisk: sensorLogs.length > 0 
         ? Math.round(sensorLogs.reduce((acc, log) => acc + log.riskScore, 0) / sensorLogs.length) 
         : 0

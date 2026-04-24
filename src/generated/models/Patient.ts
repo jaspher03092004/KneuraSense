@@ -27,15 +27,15 @@ export type AggregatePatient = {
 }
 
 export type PatientAvgAggregateOutputType = {
-  age: number | null
-  painSeverity: number | null
+  heightCm: number | null
+  weightKg: number | null
   vibrationIntensity: number | null
   riskThreshold: number | null
 }
 
 export type PatientSumAggregateOutputType = {
-  age: number | null
-  painSeverity: number | null
+  heightCm: number | null
+  weightKg: number | null
   vibrationIntensity: number | null
   riskThreshold: number | null
 }
@@ -44,16 +44,23 @@ export type PatientMinAggregateOutputType = {
   id: string | null
   mrn: string | null
   fullName: string | null
-  age: number | null
+  dateOfBirth: Date | null
   gender: string | null
+  heightCm: number | null
+  weightKg: number | null
   phoneNumber: string | null
   email: string | null
   passwordHash: string | null
+  activationToken: string | null
+  activationExpires: Date | null
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
   oaDiagnosis: boolean | null
   affectedKnee: string | null
-  painSeverity: number | null
   occupation: string | null
   activityLevel: string | null
+  consentGiven: boolean | null
+  consentTimestamp: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   isVerified: boolean | null
@@ -72,16 +79,23 @@ export type PatientMaxAggregateOutputType = {
   id: string | null
   mrn: string | null
   fullName: string | null
-  age: number | null
+  dateOfBirth: Date | null
   gender: string | null
+  heightCm: number | null
+  weightKg: number | null
   phoneNumber: string | null
   email: string | null
   passwordHash: string | null
+  activationToken: string | null
+  activationExpires: Date | null
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
   oaDiagnosis: boolean | null
   affectedKnee: string | null
-  painSeverity: number | null
   occupation: string | null
   activityLevel: string | null
+  consentGiven: boolean | null
+  consentTimestamp: Date | null
   createdAt: Date | null
   updatedAt: Date | null
   isVerified: boolean | null
@@ -100,16 +114,23 @@ export type PatientCountAggregateOutputType = {
   id: number
   mrn: number
   fullName: number
-  age: number
+  dateOfBirth: number
   gender: number
+  heightCm: number
+  weightKg: number
   phoneNumber: number
   email: number
   passwordHash: number
+  activationToken: number
+  activationExpires: number
+  emergencyContactName: number
+  emergencyContactPhone: number
   oaDiagnosis: number
   affectedKnee: number
-  painSeverity: number
   occupation: number
   activityLevel: number
+  consentGiven: number
+  consentTimestamp: number
   createdAt: number
   updatedAt: number
   isVerified: number
@@ -127,15 +148,15 @@ export type PatientCountAggregateOutputType = {
 
 
 export type PatientAvgAggregateInputType = {
-  age?: true
-  painSeverity?: true
+  heightCm?: true
+  weightKg?: true
   vibrationIntensity?: true
   riskThreshold?: true
 }
 
 export type PatientSumAggregateInputType = {
-  age?: true
-  painSeverity?: true
+  heightCm?: true
+  weightKg?: true
   vibrationIntensity?: true
   riskThreshold?: true
 }
@@ -144,16 +165,23 @@ export type PatientMinAggregateInputType = {
   id?: true
   mrn?: true
   fullName?: true
-  age?: true
+  dateOfBirth?: true
   gender?: true
+  heightCm?: true
+  weightKg?: true
   phoneNumber?: true
   email?: true
   passwordHash?: true
+  activationToken?: true
+  activationExpires?: true
+  emergencyContactName?: true
+  emergencyContactPhone?: true
   oaDiagnosis?: true
   affectedKnee?: true
-  painSeverity?: true
   occupation?: true
   activityLevel?: true
+  consentGiven?: true
+  consentTimestamp?: true
   createdAt?: true
   updatedAt?: true
   isVerified?: true
@@ -172,16 +200,23 @@ export type PatientMaxAggregateInputType = {
   id?: true
   mrn?: true
   fullName?: true
-  age?: true
+  dateOfBirth?: true
   gender?: true
+  heightCm?: true
+  weightKg?: true
   phoneNumber?: true
   email?: true
   passwordHash?: true
+  activationToken?: true
+  activationExpires?: true
+  emergencyContactName?: true
+  emergencyContactPhone?: true
   oaDiagnosis?: true
   affectedKnee?: true
-  painSeverity?: true
   occupation?: true
   activityLevel?: true
+  consentGiven?: true
+  consentTimestamp?: true
   createdAt?: true
   updatedAt?: true
   isVerified?: true
@@ -200,16 +235,23 @@ export type PatientCountAggregateInputType = {
   id?: true
   mrn?: true
   fullName?: true
-  age?: true
+  dateOfBirth?: true
   gender?: true
+  heightCm?: true
+  weightKg?: true
   phoneNumber?: true
   email?: true
   passwordHash?: true
+  activationToken?: true
+  activationExpires?: true
+  emergencyContactName?: true
+  emergencyContactPhone?: true
   oaDiagnosis?: true
   affectedKnee?: true
-  painSeverity?: true
   occupation?: true
   activityLevel?: true
+  consentGiven?: true
+  consentTimestamp?: true
   createdAt?: true
   updatedAt?: true
   isVerified?: true
@@ -315,16 +357,23 @@ export type PatientGroupByOutputType = {
   id: string
   mrn: string | null
   fullName: string
-  age: number | null
+  dateOfBirth: Date
   gender: string | null
+  heightCm: number | null
+  weightKg: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash: string | null
+  activationToken: string | null
+  activationExpires: Date | null
+  emergencyContactName: string | null
+  emergencyContactPhone: string | null
   oaDiagnosis: boolean
   affectedKnee: string | null
-  painSeverity: number | null
   occupation: string | null
   activityLevel: string | null
+  consentGiven: boolean
+  consentTimestamp: Date | null
   createdAt: Date
   updatedAt: Date
   isVerified: boolean
@@ -366,16 +415,23 @@ export type PatientWhereInput = {
   id?: Prisma.StringFilter<"Patient"> | string
   mrn?: Prisma.StringNullableFilter<"Patient"> | string | null
   fullName?: Prisma.StringFilter<"Patient"> | string
-  age?: Prisma.IntNullableFilter<"Patient"> | number | null
+  dateOfBirth?: Prisma.DateTimeFilter<"Patient"> | Date | string
   gender?: Prisma.StringNullableFilter<"Patient"> | string | null
+  heightCm?: Prisma.FloatNullableFilter<"Patient"> | number | null
+  weightKg?: Prisma.FloatNullableFilter<"Patient"> | number | null
   phoneNumber?: Prisma.StringFilter<"Patient"> | string
   email?: Prisma.StringFilter<"Patient"> | string
-  passwordHash?: Prisma.StringFilter<"Patient"> | string
+  passwordHash?: Prisma.StringNullableFilter<"Patient"> | string | null
+  activationToken?: Prisma.StringNullableFilter<"Patient"> | string | null
+  activationExpires?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
+  emergencyContactName?: Prisma.StringNullableFilter<"Patient"> | string | null
+  emergencyContactPhone?: Prisma.StringNullableFilter<"Patient"> | string | null
   oaDiagnosis?: Prisma.BoolFilter<"Patient"> | boolean
   affectedKnee?: Prisma.StringNullableFilter<"Patient"> | string | null
-  painSeverity?: Prisma.IntNullableFilter<"Patient"> | number | null
   occupation?: Prisma.StringNullableFilter<"Patient"> | string | null
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
+  consentGiven?: Prisma.BoolFilter<"Patient"> | boolean
+  consentTimestamp?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolFilter<"Patient"> | boolean
@@ -397,16 +453,23 @@ export type PatientOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   mrn?: Prisma.SortOrderInput | Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  age?: Prisma.SortOrderInput | Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  heightCm?: Prisma.SortOrderInput | Prisma.SortOrder
+  weightKg?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  passwordHash?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  activationToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  activationExpires?: Prisma.SortOrderInput | Prisma.SortOrder
+  emergencyContactName?: Prisma.SortOrderInput | Prisma.SortOrder
+  emergencyContactPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   oaDiagnosis?: Prisma.SortOrder
   affectedKnee?: Prisma.SortOrderInput | Prisma.SortOrder
-  painSeverity?: Prisma.SortOrderInput | Prisma.SortOrder
   occupation?: Prisma.SortOrderInput | Prisma.SortOrder
   activityLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  consentGiven?: Prisma.SortOrder
+  consentTimestamp?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
@@ -429,19 +492,26 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   mrn?: string
   phoneNumber?: string
   email?: string
+  activationToken?: string
   deviceMac?: string
   AND?: Prisma.PatientWhereInput | Prisma.PatientWhereInput[]
   OR?: Prisma.PatientWhereInput[]
   NOT?: Prisma.PatientWhereInput | Prisma.PatientWhereInput[]
   fullName?: Prisma.StringFilter<"Patient"> | string
-  age?: Prisma.IntNullableFilter<"Patient"> | number | null
+  dateOfBirth?: Prisma.DateTimeFilter<"Patient"> | Date | string
   gender?: Prisma.StringNullableFilter<"Patient"> | string | null
-  passwordHash?: Prisma.StringFilter<"Patient"> | string
+  heightCm?: Prisma.FloatNullableFilter<"Patient"> | number | null
+  weightKg?: Prisma.FloatNullableFilter<"Patient"> | number | null
+  passwordHash?: Prisma.StringNullableFilter<"Patient"> | string | null
+  activationExpires?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
+  emergencyContactName?: Prisma.StringNullableFilter<"Patient"> | string | null
+  emergencyContactPhone?: Prisma.StringNullableFilter<"Patient"> | string | null
   oaDiagnosis?: Prisma.BoolFilter<"Patient"> | boolean
   affectedKnee?: Prisma.StringNullableFilter<"Patient"> | string | null
-  painSeverity?: Prisma.IntNullableFilter<"Patient"> | number | null
   occupation?: Prisma.StringNullableFilter<"Patient"> | string | null
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
+  consentGiven?: Prisma.BoolFilter<"Patient"> | boolean
+  consentTimestamp?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolFilter<"Patient"> | boolean
@@ -456,22 +526,29 @@ export type PatientWhereUniqueInput = Prisma.AtLeast<{
   sensorLogs?: Prisma.SensorLogListRelationFilter
   interventions?: Prisma.InterventionListRelationFilter
   clinician?: Prisma.XOR<Prisma.ClinicianNullableScalarRelationFilter, Prisma.ClinicianWhereInput> | null
-}, "id" | "mrn" | "phoneNumber" | "email" | "deviceMac">
+}, "id" | "mrn" | "phoneNumber" | "email" | "activationToken" | "deviceMac">
 
 export type PatientOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   mrn?: Prisma.SortOrderInput | Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  age?: Prisma.SortOrderInput | Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrderInput | Prisma.SortOrder
+  heightCm?: Prisma.SortOrderInput | Prisma.SortOrder
+  weightKg?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
-  passwordHash?: Prisma.SortOrder
+  passwordHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  activationToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  activationExpires?: Prisma.SortOrderInput | Prisma.SortOrder
+  emergencyContactName?: Prisma.SortOrderInput | Prisma.SortOrder
+  emergencyContactPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   oaDiagnosis?: Prisma.SortOrder
   affectedKnee?: Prisma.SortOrderInput | Prisma.SortOrder
-  painSeverity?: Prisma.SortOrderInput | Prisma.SortOrder
   occupation?: Prisma.SortOrderInput | Prisma.SortOrder
   activityLevel?: Prisma.SortOrderInput | Prisma.SortOrder
+  consentGiven?: Prisma.SortOrder
+  consentTimestamp?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
@@ -498,16 +575,23 @@ export type PatientScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Patient"> | string
   mrn?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   fullName?: Prisma.StringWithAggregatesFilter<"Patient"> | string
-  age?: Prisma.IntNullableWithAggregatesFilter<"Patient"> | number | null
+  dateOfBirth?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   gender?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  heightCm?: Prisma.FloatNullableWithAggregatesFilter<"Patient"> | number | null
+  weightKg?: Prisma.FloatNullableWithAggregatesFilter<"Patient"> | number | null
   phoneNumber?: Prisma.StringWithAggregatesFilter<"Patient"> | string
   email?: Prisma.StringWithAggregatesFilter<"Patient"> | string
-  passwordHash?: Prisma.StringWithAggregatesFilter<"Patient"> | string
+  passwordHash?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  activationToken?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  activationExpires?: Prisma.DateTimeNullableWithAggregatesFilter<"Patient"> | Date | string | null
+  emergencyContactName?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  emergencyContactPhone?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   oaDiagnosis?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
   affectedKnee?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
-  painSeverity?: Prisma.IntNullableWithAggregatesFilter<"Patient"> | number | null
   occupation?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
   activityLevel?: Prisma.StringNullableWithAggregatesFilter<"Patient"> | string | null
+  consentGiven?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
+  consentTimestamp?: Prisma.DateTimeNullableWithAggregatesFilter<"Patient"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolWithAggregatesFilter<"Patient"> | boolean
@@ -526,16 +610,23 @@ export type PatientCreateInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -556,16 +647,23 @@ export type PatientUncheckedCreateInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -586,16 +684,23 @@ export type PatientUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -616,16 +721,23 @@ export type PatientUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -646,16 +758,23 @@ export type PatientCreateManyInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -674,16 +793,23 @@ export type PatientUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -701,16 +827,23 @@ export type PatientUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -739,16 +872,23 @@ export type PatientCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mrn?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  age?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  heightCm?: Prisma.SortOrder
+  weightKg?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  activationToken?: Prisma.SortOrder
+  activationExpires?: Prisma.SortOrder
+  emergencyContactName?: Prisma.SortOrder
+  emergencyContactPhone?: Prisma.SortOrder
   oaDiagnosis?: Prisma.SortOrder
   affectedKnee?: Prisma.SortOrder
-  painSeverity?: Prisma.SortOrder
   occupation?: Prisma.SortOrder
   activityLevel?: Prisma.SortOrder
+  consentGiven?: Prisma.SortOrder
+  consentTimestamp?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
@@ -764,8 +904,8 @@ export type PatientCountOrderByAggregateInput = {
 }
 
 export type PatientAvgOrderByAggregateInput = {
-  age?: Prisma.SortOrder
-  painSeverity?: Prisma.SortOrder
+  heightCm?: Prisma.SortOrder
+  weightKg?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   riskThreshold?: Prisma.SortOrder
 }
@@ -774,16 +914,23 @@ export type PatientMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mrn?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  age?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  heightCm?: Prisma.SortOrder
+  weightKg?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  activationToken?: Prisma.SortOrder
+  activationExpires?: Prisma.SortOrder
+  emergencyContactName?: Prisma.SortOrder
+  emergencyContactPhone?: Prisma.SortOrder
   oaDiagnosis?: Prisma.SortOrder
   affectedKnee?: Prisma.SortOrder
-  painSeverity?: Prisma.SortOrder
   occupation?: Prisma.SortOrder
   activityLevel?: Prisma.SortOrder
+  consentGiven?: Prisma.SortOrder
+  consentTimestamp?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
@@ -802,16 +949,23 @@ export type PatientMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   mrn?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  age?: Prisma.SortOrder
+  dateOfBirth?: Prisma.SortOrder
   gender?: Prisma.SortOrder
+  heightCm?: Prisma.SortOrder
+  weightKg?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  activationToken?: Prisma.SortOrder
+  activationExpires?: Prisma.SortOrder
+  emergencyContactName?: Prisma.SortOrder
+  emergencyContactPhone?: Prisma.SortOrder
   oaDiagnosis?: Prisma.SortOrder
   affectedKnee?: Prisma.SortOrder
-  painSeverity?: Prisma.SortOrder
   occupation?: Prisma.SortOrder
   activityLevel?: Prisma.SortOrder
+  consentGiven?: Prisma.SortOrder
+  consentTimestamp?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   isVerified?: Prisma.SortOrder
@@ -827,8 +981,8 @@ export type PatientMinOrderByAggregateInput = {
 }
 
 export type PatientSumOrderByAggregateInput = {
-  age?: Prisma.SortOrder
-  painSeverity?: Prisma.SortOrder
+  heightCm?: Prisma.SortOrder
+  weightKg?: Prisma.SortOrder
   vibrationIntensity?: Prisma.SortOrder
   riskThreshold?: Prisma.SortOrder
 }
@@ -880,16 +1034,8 @@ export type PatientUncheckedUpdateManyWithoutClinicianNestedInput = {
   deleteMany?: Prisma.PatientScalarWhereInput | Prisma.PatientScalarWhereInput[]
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
+export type NullableFloatFieldUpdateOperationsInput = {
   set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
   increment?: number
   decrement?: number
   multiply?: number
@@ -898,6 +1044,14 @@ export type IntFieldUpdateOperationsInput = {
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type PatientCreateNestedOneWithoutSensorLogsInput = {
@@ -932,16 +1086,23 @@ export type PatientCreateWithoutClinicianInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -961,16 +1122,23 @@ export type PatientUncheckedCreateWithoutClinicianInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -1019,16 +1187,23 @@ export type PatientScalarWhereInput = {
   id?: Prisma.StringFilter<"Patient"> | string
   mrn?: Prisma.StringNullableFilter<"Patient"> | string | null
   fullName?: Prisma.StringFilter<"Patient"> | string
-  age?: Prisma.IntNullableFilter<"Patient"> | number | null
+  dateOfBirth?: Prisma.DateTimeFilter<"Patient"> | Date | string
   gender?: Prisma.StringNullableFilter<"Patient"> | string | null
+  heightCm?: Prisma.FloatNullableFilter<"Patient"> | number | null
+  weightKg?: Prisma.FloatNullableFilter<"Patient"> | number | null
   phoneNumber?: Prisma.StringFilter<"Patient"> | string
   email?: Prisma.StringFilter<"Patient"> | string
-  passwordHash?: Prisma.StringFilter<"Patient"> | string
+  passwordHash?: Prisma.StringNullableFilter<"Patient"> | string | null
+  activationToken?: Prisma.StringNullableFilter<"Patient"> | string | null
+  activationExpires?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
+  emergencyContactName?: Prisma.StringNullableFilter<"Patient"> | string | null
+  emergencyContactPhone?: Prisma.StringNullableFilter<"Patient"> | string | null
   oaDiagnosis?: Prisma.BoolFilter<"Patient"> | boolean
   affectedKnee?: Prisma.StringNullableFilter<"Patient"> | string | null
-  painSeverity?: Prisma.IntNullableFilter<"Patient"> | number | null
   occupation?: Prisma.StringNullableFilter<"Patient"> | string | null
   activityLevel?: Prisma.StringNullableFilter<"Patient"> | string | null
+  consentGiven?: Prisma.BoolFilter<"Patient"> | boolean
+  consentTimestamp?: Prisma.DateTimeNullableFilter<"Patient"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Patient"> | Date | string
   isVerified?: Prisma.BoolFilter<"Patient"> | boolean
@@ -1047,16 +1222,23 @@ export type PatientCreateWithoutSensorLogsInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -1076,16 +1258,23 @@ export type PatientUncheckedCreateWithoutSensorLogsInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -1121,16 +1310,23 @@ export type PatientUpdateWithoutSensorLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1150,16 +1346,23 @@ export type PatientUncheckedUpdateWithoutSensorLogsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1179,16 +1382,23 @@ export type PatientCreateWithoutInterventionsInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -1208,16 +1418,23 @@ export type PatientUncheckedCreateWithoutInterventionsInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -1253,16 +1470,23 @@ export type PatientUpdateWithoutInterventionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1282,16 +1506,23 @@ export type PatientUncheckedUpdateWithoutInterventionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1311,16 +1542,23 @@ export type PatientCreateManyClinicianInput = {
   id?: string
   mrn?: string | null
   fullName: string
-  age?: number | null
+  dateOfBirth: Date | string
   gender?: string | null
+  heightCm?: number | null
+  weightKg?: number | null
   phoneNumber: string
   email: string
-  passwordHash: string
+  passwordHash?: string | null
+  activationToken?: string | null
+  activationExpires?: Date | string | null
+  emergencyContactName?: string | null
+  emergencyContactPhone?: string | null
   oaDiagnosis?: boolean
   affectedKnee?: string | null
-  painSeverity?: number | null
   occupation?: string | null
   activityLevel?: string | null
+  consentGiven?: boolean
+  consentTimestamp?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   isVerified?: boolean
@@ -1338,16 +1576,23 @@ export type PatientUpdateWithoutClinicianInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1367,16 +1612,23 @@ export type PatientUncheckedUpdateWithoutClinicianInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1396,16 +1648,23 @@ export type PatientUncheckedUpdateManyWithoutClinicianInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   mrn?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fullName?: Prisma.StringFieldUpdateOperationsInput | string
-  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dateOfBirth?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   gender?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  heightCm?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  weightKg?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
-  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activationExpires?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  emergencyContactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  emergencyContactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   oaDiagnosis?: Prisma.BoolFieldUpdateOperationsInput | boolean
   affectedKnee?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  painSeverity?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   occupation?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activityLevel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  consentGiven?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  consentTimestamp?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   isVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1463,16 +1722,23 @@ export type PatientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   id?: boolean
   mrn?: boolean
   fullName?: boolean
-  age?: boolean
+  dateOfBirth?: boolean
   gender?: boolean
+  heightCm?: boolean
+  weightKg?: boolean
   phoneNumber?: boolean
   email?: boolean
   passwordHash?: boolean
+  activationToken?: boolean
+  activationExpires?: boolean
+  emergencyContactName?: boolean
+  emergencyContactPhone?: boolean
   oaDiagnosis?: boolean
   affectedKnee?: boolean
-  painSeverity?: boolean
   occupation?: boolean
   activityLevel?: boolean
+  consentGiven?: boolean
+  consentTimestamp?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
@@ -1495,16 +1761,23 @@ export type PatientSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   mrn?: boolean
   fullName?: boolean
-  age?: boolean
+  dateOfBirth?: boolean
   gender?: boolean
+  heightCm?: boolean
+  weightKg?: boolean
   phoneNumber?: boolean
   email?: boolean
   passwordHash?: boolean
+  activationToken?: boolean
+  activationExpires?: boolean
+  emergencyContactName?: boolean
+  emergencyContactPhone?: boolean
   oaDiagnosis?: boolean
   affectedKnee?: boolean
-  painSeverity?: boolean
   occupation?: boolean
   activityLevel?: boolean
+  consentGiven?: boolean
+  consentTimestamp?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
@@ -1524,16 +1797,23 @@ export type PatientSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   mrn?: boolean
   fullName?: boolean
-  age?: boolean
+  dateOfBirth?: boolean
   gender?: boolean
+  heightCm?: boolean
+  weightKg?: boolean
   phoneNumber?: boolean
   email?: boolean
   passwordHash?: boolean
+  activationToken?: boolean
+  activationExpires?: boolean
+  emergencyContactName?: boolean
+  emergencyContactPhone?: boolean
   oaDiagnosis?: boolean
   affectedKnee?: boolean
-  painSeverity?: boolean
   occupation?: boolean
   activityLevel?: boolean
+  consentGiven?: boolean
+  consentTimestamp?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
@@ -1553,16 +1833,23 @@ export type PatientSelectScalar = {
   id?: boolean
   mrn?: boolean
   fullName?: boolean
-  age?: boolean
+  dateOfBirth?: boolean
   gender?: boolean
+  heightCm?: boolean
+  weightKg?: boolean
   phoneNumber?: boolean
   email?: boolean
   passwordHash?: boolean
+  activationToken?: boolean
+  activationExpires?: boolean
+  emergencyContactName?: boolean
+  emergencyContactPhone?: boolean
   oaDiagnosis?: boolean
   affectedKnee?: boolean
-  painSeverity?: boolean
   occupation?: boolean
   activityLevel?: boolean
+  consentGiven?: boolean
+  consentTimestamp?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   isVerified?: boolean
@@ -1577,7 +1864,7 @@ export type PatientSelectScalar = {
   lastCriticalAlertAt?: boolean
 }
 
-export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mrn" | "fullName" | "age" | "gender" | "phoneNumber" | "email" | "passwordHash" | "oaDiagnosis" | "affectedKnee" | "painSeverity" | "occupation" | "activityLevel" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId" | "pushSubscription" | "lastCriticalAlertAt", ExtArgs["result"]["patient"]>
+export type PatientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "mrn" | "fullName" | "dateOfBirth" | "gender" | "heightCm" | "weightKg" | "phoneNumber" | "email" | "passwordHash" | "activationToken" | "activationExpires" | "emergencyContactName" | "emergencyContactPhone" | "oaDiagnosis" | "affectedKnee" | "occupation" | "activityLevel" | "consentGiven" | "consentTimestamp" | "createdAt" | "updatedAt" | "isVerified" | "highStressAlerts" | "vibrationEnabled" | "vibrationIntensity" | "ledEnabled" | "riskThreshold" | "deviceMac" | "clinicianId" | "pushSubscription" | "lastCriticalAlertAt", ExtArgs["result"]["patient"]>
 export type PatientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sensorLogs?: boolean | Prisma.Patient$sensorLogsArgs<ExtArgs>
   interventions?: boolean | Prisma.Patient$interventionsArgs<ExtArgs>
@@ -1602,16 +1889,23 @@ export type $PatientPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     id: string
     mrn: string | null
     fullName: string
-    age: number | null
+    dateOfBirth: Date
     gender: string | null
+    heightCm: number | null
+    weightKg: number | null
     phoneNumber: string
     email: string
-    passwordHash: string
+    passwordHash: string | null
+    activationToken: string | null
+    activationExpires: Date | null
+    emergencyContactName: string | null
+    emergencyContactPhone: string | null
     oaDiagnosis: boolean
     affectedKnee: string | null
-    painSeverity: number | null
     occupation: string | null
     activityLevel: string | null
+    consentGiven: boolean
+    consentTimestamp: Date | null
     createdAt: Date
     updatedAt: Date
     isVerified: boolean
@@ -2053,16 +2347,23 @@ export interface PatientFieldRefs {
   readonly id: Prisma.FieldRef<"Patient", 'String'>
   readonly mrn: Prisma.FieldRef<"Patient", 'String'>
   readonly fullName: Prisma.FieldRef<"Patient", 'String'>
-  readonly age: Prisma.FieldRef<"Patient", 'Int'>
+  readonly dateOfBirth: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly gender: Prisma.FieldRef<"Patient", 'String'>
+  readonly heightCm: Prisma.FieldRef<"Patient", 'Float'>
+  readonly weightKg: Prisma.FieldRef<"Patient", 'Float'>
   readonly phoneNumber: Prisma.FieldRef<"Patient", 'String'>
   readonly email: Prisma.FieldRef<"Patient", 'String'>
   readonly passwordHash: Prisma.FieldRef<"Patient", 'String'>
+  readonly activationToken: Prisma.FieldRef<"Patient", 'String'>
+  readonly activationExpires: Prisma.FieldRef<"Patient", 'DateTime'>
+  readonly emergencyContactName: Prisma.FieldRef<"Patient", 'String'>
+  readonly emergencyContactPhone: Prisma.FieldRef<"Patient", 'String'>
   readonly oaDiagnosis: Prisma.FieldRef<"Patient", 'Boolean'>
   readonly affectedKnee: Prisma.FieldRef<"Patient", 'String'>
-  readonly painSeverity: Prisma.FieldRef<"Patient", 'Int'>
   readonly occupation: Prisma.FieldRef<"Patient", 'String'>
   readonly activityLevel: Prisma.FieldRef<"Patient", 'String'>
+  readonly consentGiven: Prisma.FieldRef<"Patient", 'Boolean'>
+  readonly consentTimestamp: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Patient", 'DateTime'>
   readonly isVerified: Prisma.FieldRef<"Patient", 'Boolean'>

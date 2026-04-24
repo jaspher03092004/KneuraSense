@@ -4,8 +4,8 @@ import Image from 'next/image';
 import EditProfileModal from '@/components/EditProfileModal';
 import { 
   User, Mail, Phone, Calendar, Activity, Briefcase, 
-  AlertCircle, Edit3, MapPin, CheckCircle2, 
-  Target, ShieldAlert // NEW: Added missing icons
+  AlertCircle, MapPin, CheckCircle2, 
+  Target, ShieldAlert, HeartPulse, PhoneCall
 } from 'lucide-react';
 
 export default async function PatientProfile({ params }) {
@@ -17,7 +17,7 @@ export default async function PatientProfile({ params }) {
   try {
     patient = await prisma.patient.findUnique({
       where: { id },
-      include: { clinician: true } // NEW: Include the clinician data
+      include: { clinician: true } 
     });
     if (!patient) error = 'Patient not found';
   } catch (err) {
@@ -43,6 +43,18 @@ export default async function PatientProfile({ params }) {
   const getInitials = (name) => {
     return name ? name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase() : 'U';
   };
+
+  // Dynamically calculate age from DOB
+  let calculatedAge = 'N/A';
+  if (patient.dateOfBirth) {
+    const dob = new Date(patient.dateOfBirth);
+    const today = new Date();
+    calculatedAge = today.getFullYear() - dob.getFullYear();
+    const m = today.getMonth() - dob.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+      calculatedAge--;
+    }
+  }
 
   return (
     <div className="max-w-[1300px] mx-auto space-y-6 bg-transparent transition-colors duration-300">
@@ -93,8 +105,8 @@ export default async function PatientProfile({ params }) {
                    <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-500/10 text-blue-700 dark:text-blue-400 font-medium text-xs border border-blue-100 dark:border-blue-500/20">
                      <User size={12} /> Patient
                    </span>
-                   <span className="flex items-center gap-1.5">
-                     <Calendar size={14} /> Joined {new Date(patient.createdAt).toLocaleDateString()}
+                   <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-medium text-xs border border-slate-200 dark:border-slate-700">
+                     MRN: {patient.mrn || 'Pending'}
                    </span>
                 </div>
               </div>
@@ -111,6 +123,7 @@ export default async function PatientProfile({ params }) {
             
             {/* Left Column: Personal Information */}
             <div className="lg:col-span-2 space-y-6">
+              
               <section>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
                   <User size={16} className="text-[#3A9D8C]" /> Personal Information
@@ -150,59 +163,70 @@ export default async function PatientProfile({ params }) {
                    <div className="flex items-center gap-8">
                       <div>
                         <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Age</span>
-                        <p className="mt-1 font-medium text-slate-900 dark:text-slate-200">{patient.age} <span className="text-slate-400 dark:text-slate-500 text-sm font-normal">yrs</span></p>
+                        <p className="mt-1 font-medium text-slate-900 dark:text-slate-200">{calculatedAge} <span className="text-slate-400 dark:text-slate-500 text-sm font-normal">yrs</span></p>
                       </div>
                       <div>
                         <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Gender</span>
-                        <p className="mt-1 font-medium text-slate-900 dark:text-slate-200 capitalize">{patient.gender}</p>
+                        <p className="mt-1 font-medium text-slate-900 dark:text-slate-200 capitalize">{patient.gender || 'N/A'}</p>
                       </div>
                    </div>
                 </div>
               </section>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Biometrics */}
+                <section>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <HeartPulse size={16} className="text-rose-500" /> Biometrics
+                  </h3>
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-5 flex gap-8">
+                    <div>
+                      <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Height</span>
+                      <p className="mt-1 font-medium text-slate-900 dark:text-slate-200">{patient.heightCm ? `${patient.heightCm} cm` : 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Weight</span>
+                      <p className="mt-1 font-medium text-slate-900 dark:text-slate-200">{patient.weightKg ? `${patient.weightKg} kg` : 'N/A'}</p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Emergency Contact */}
+                <section>
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <PhoneCall size={16} className="text-amber-500" /> Emergency Contact
+                  </h3>
+                  <div className="bg-slate-50/50 dark:bg-slate-800/50 rounded-xl border border-slate-200 dark:border-slate-700 p-5">
+                    <p className="font-semibold text-slate-900 dark:text-white">{patient.emergencyContactName || 'None listed'}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{patient.emergencyContactPhone || 'N/A'}</p>
+                  </div>
+                </section>
+              </div>
+
             </div>
 
             {/* Right Column: Medical Context & New Widgets */}
             <div className="space-y-8">
               
-              {/* Existing Medical Profile */}
+              {/* Simplified Medical Profile */}
               <section>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <Activity size={16} className="text-[#3A9D8C]" /> Medical Profile
+                  <Activity size={16} className="text-[#3A9D8C]" /> Medical Context
                 </h3>
                 
                 <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
                   <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-800/50">
-                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Knee Health Status</span>
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${
-                       patient.painSeverity > 5 
-                       ? 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-100 dark:border-amber-500/20' 
-                       : 'bg-green-50 dark:bg-emerald-500/10 text-green-600 dark:text-emerald-400 border-green-100 dark:border-emerald-500/20'
-                    }`}>
-                      {patient.painSeverity > 5 ? 'Attention Needed' : 'Stable'}
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Active Monitoring</span>
+                    <span className="px-2.5 py-1 rounded-full text-xs font-bold border bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-500/20">
+                      Telemetry Online
                     </span>
                   </div>
 
                   <div className="p-5 space-y-6">
-                    <div>
-                       <div className="flex justify-between items-end mb-2">
-                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase">Pain Severity</span>
-                          <span className="text-lg font-bold text-slate-900 dark:text-white">{patient.painSeverity}<span className="text-sm text-slate-400 dark:text-slate-500 font-medium">/10</span></span>
-                       </div>
-                       <div className="w-full bg-slate-100 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
-                          <div 
-                             className={`h-full rounded-full transition-all duration-500 ${
-                                patient.painSeverity > 7 ? 'bg-red-500' : 
-                                patient.painSeverity > 4 ? 'bg-amber-400' : 'bg-[#3A9D8C]'
-                             }`}
-                             style={{ width: `${(patient.painSeverity / 10) * 100}%` }}
-                          ></div>
-                       </div>
-                    </div>
-
                     <div className="grid grid-cols-2 gap-4">
                        <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
                           <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Affected Knee</p>
-                          <p className="font-semibold text-slate-900 dark:text-slate-200">{patient.affectedKnee}</p>
+                          <p className="font-semibold text-slate-900 dark:text-slate-200">{patient.affectedKnee || 'N/A'}</p>
                        </div>
                        <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700">
                           <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">OA Diagnosis</p>
@@ -220,14 +244,14 @@ export default async function PatientProfile({ params }) {
                        <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">Assigned Activity Level</p>
                        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-[#E8F4F8] dark:bg-blue-500/10 text-[#2D5F8B] dark:text-blue-400 rounded-lg text-sm font-medium">
                           <Activity size={14} />
-                          {patient.activityLevel}
+                          {patient.activityLevel || 'Not specified'}
                        </div>
                     </div>
                   </div>
                 </div>
               </section>
 
-              {/* NEW: Prescribed Baseline Widget */}
+              {/* Prescribed Baseline Widget */}
               <section>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
                   <Target size={16} className="text-indigo-500 dark:text-indigo-400" /> Prescribed Baseline
@@ -251,7 +275,7 @@ export default async function PatientProfile({ params }) {
                 </div>
               </section>
 
-              {/* NEW: Managing Clinician Card */}
+              {/* Managing Clinician Card */}
               <section>
                 <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wide mb-4 flex items-center gap-2">
                   <ShieldAlert size={16} className="text-slate-400" /> Managing Clinician
@@ -276,7 +300,6 @@ export default async function PatientProfile({ params }) {
               </section>
 
             </div>
-
           </div>
         </div>
       </div>
