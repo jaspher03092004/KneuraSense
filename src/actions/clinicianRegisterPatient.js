@@ -1,72 +1,87 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import bcrypt from 'bcryptjs';
+import { revalidatePath } from 'next/cache';
+import crypto from 'crypto';
+import { sendActivationEmail } from '@/lib/email';
 
 export async function clinicianRegisterPatient(formData) {
   try {
-    const data = Object.fromEntries(formData);
-    const email = data.email?.trim().toLowerCase();
-    const phoneNumber = data.phoneNumber?.trim();
-    
-    // 1. Check for duplicates ACROSS BOTH TABLES
-    const existingPatientEmail = await prisma.patient.findUnique({ where: { email } });
-    const existingClinicianEmail = await prisma.clinician.findUnique({ where: { email } });
-    
-    if (existingPatientEmail || existingClinicianEmail) {
-      return { success: false, error: 'This email is already registered in the system.' };
-    }
-    
-    const existingPatientPhone = await prisma.patient.findUnique({ where: { phoneNumber } });
-    const existingClinicianPhone = await prisma.clinician.findUnique({ where: { phone_number: phoneNumber } });
-    
-    if (existingPatientPhone || existingClinicianPhone) {
-      return { success: false, error: 'This phone number is already registered in the system.' };
-    }
+    const email = formData.get('email')?.toLowerCase();
+    const phoneNumber = formData.get('phoneNumber');
+    const clinicianId = formData.get('registeredByClinicianId');
 
-    // 2. Generate a highly unique MRN (e.g., MRN-84729104)
-    let generatedMrn;
-    let isUniqueMrn = false;
-    
-    while (!isUniqueMrn) {
-      // Generates an 8-digit random number
-      generatedMrn = `MRN-${Math.floor(10000000 + Math.random() * 90000000)}`;
-      
-      // Double check the database to ensure it hasn't been used
-      const existingRecord = await prisma.patient.findUnique({ where: { mrn: generatedMrn } });
-      
-      if (!existingRecord) {
-        isUniqueMrn = true;
-      }
-    }
-
-    // 3. Hash password (use provided or generate a secure temporary one)
-    const passwordToHash = data.password || (Math.random().toString(36).slice(-10) + 'A1!z');
-    const passwordHash = await bcrypt.hash(passwordToHash, 10);
-
-    // 4. Create the patient directly as verified, inserting the auto-generated MRN
-    await prisma.patient.create({
-      data: {
-        mrn: generatedMrn,
-        fullName: data.fullName,
-        email: email,
-        phoneNumber: phoneNumber,
-        passwordHash: passwordHash,
-        age: parseInt(data.age),
-        gender: data.gender,
-        oaDiagnosis: data.oaDiagnosis === 'Yes',
-        activityLevel: data.activityLevel,
-        isVerified: true,
-        deviceMac: data.deviceMac || null, // Handles empty strings smoothly
+    // 1. Basic validation: Check if patient already exists
+    const existingPatient = await prisma.patient.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { phoneNumber: phoneNumber }
+        ]
       }
     });
 
-    return { success: true };
+    if (existingPatient) {
+      return { error: 'A patient with this email or phone number already exists.' };
+    }
+
+    // 2. Generate a unique MRN (Medical Record Number)
+    const generatedMrn = `MRN-${Math.floor(10000000 + Math.random() * 90000000)}`;
+
+    // 3. Generate Secure Activation Token (instead of a default password)
+    // This meets standard medical privacy needs as only the patient will know their password.
+    const activationToken = crypto.randomBytes(32).toString('hex');
+    const activationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // Expires in 24 hours
+
+    // 4. Create the patient record
+    const newPatient = await prisma.patient.create({
+      data: {
+        mrn: generatedMrn,
+        fullName: formData.get('fullName'),
+        email: email,
+        phoneNumber: phoneNumber,
+        
+        // Demographics & Biometrics
+        dateOfBirth: new Date(formData.get('dateOfBirth')),
+        gender: formData.get('gender'),
+        heightCm: formData.get('heightCm') ? parseFloat(formData.get('heightCm')) : null,
+        weightKg: formData.get('weightKg') ? parseFloat(formData.get('weightKg')) : null,
+        
+        // Medical Context
+        oaDiagnosis: formData.get('oaDiagnosis') === 'Yes',
+        affectedKnee: formData.get('affectedKnee') || 'Both',
+        activityLevel: formData.get('activityLevel'),
+        occupation: formData.get('occupation') || null,
+        
+        // Emergency Contact
+        emergencyContactName: formData.get('emergencyContactName') || null,
+        emergencyContactPhone: formData.get('emergencyContactPhone') || null,
+
+        // Activation & Verification
+        activationToken: activationToken,
+        activationExpires: activationExpires,
+        isVerified: false, // Remains false until they click the email link
+        
+        // Device & Clinician Link
+        deviceMac: formData.get('deviceMac') || null,
+        clinicianId: clinicianId,
+      }
+    });
+
+    // 5. Send the activation email via the email utility
+    // Ensure you have implemented sendActivationEmail in src/lib/email.js
+    try {
+      await sendActivationEmail(newPatient.email, activationToken, newPatient.fullName);
+    } catch (emailError) {
+      console.error('Email Delivery Failed:', emailError);
+      // We don't roll back the patient creation, but we log the error
+    }
+
+    revalidatePath(`/clinician/${clinicianId}/patients`);
+    return { success: true, patientId: newPatient.id };
+
   } catch (error) {
     console.error('Direct Registration Error:', error);
-    if (error.code === 'P2002') {
-      return { success: false, error: 'Account credentials already taken.' };
-    }
-    return { success: false, error: 'Failed to create patient record.' };
+    return { error: 'Failed to create patient record. Please check server logs.' };
   }
 }

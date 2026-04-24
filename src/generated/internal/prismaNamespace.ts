@@ -1238,16 +1238,23 @@ export const PatientScalarFieldEnum = {
   id: 'id',
   mrn: 'mrn',
   fullName: 'fullName',
-  age: 'age',
+  dateOfBirth: 'dateOfBirth',
   gender: 'gender',
+  heightCm: 'heightCm',
+  weightKg: 'weightKg',
   phoneNumber: 'phoneNumber',
   email: 'email',
   passwordHash: 'passwordHash',
+  activationToken: 'activationToken',
+  activationExpires: 'activationExpires',
+  emergencyContactName: 'emergencyContactName',
+  emergencyContactPhone: 'emergencyContactPhone',
   oaDiagnosis: 'oaDiagnosis',
   affectedKnee: 'affectedKnee',
-  painSeverity: 'painSeverity',
   occupation: 'occupation',
   activityLevel: 'activityLevel',
+  consentGiven: 'consentGiven',
+  consentTimestamp: 'consentTimestamp',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   isVerified: 'isVerified',
@@ -1420,20 +1427,6 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
  * Reference to a field of type 'Float'
  */
 export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
@@ -1444,6 +1437,20 @@ export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, '
  * Reference to a field of type 'Float[]'
  */
 export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Int'
+ */
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Int[]'
+ */
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 /**

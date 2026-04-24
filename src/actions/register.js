@@ -153,8 +153,6 @@ export async function finalizeRegistration(formData, otp) {
 
       if (!adminEmail) {
         console.error("CRITICAL ERROR: ADMIN_NOTIFICATION_EMAIL is not defined in environment variables.");
-        // We return success to the user because their account was created and verified,
-        // but we log the error so the developer knows the admin wasn't notified.
         return { 
           success: true, 
           message: 'Account created! Please wait for administrative approval.' 
@@ -208,20 +206,29 @@ export async function finalizeRegistration(formData, otp) {
         `
       });
     } else {
+      // Generate a unique Medical Record Number (MRN) for the patient
+      const generatedMrn = `MRN-${Math.floor(10000000 + Math.random() * 90000000)}`;
+
       await prisma.patient.create({
         data: {
+          mrn: generatedMrn,
           fullName: fullName,
-          age: data.age ? parseInt(data.age) : null,
+          dateOfBirth: new Date(data.dateOfBirth),
           gender: data.gender || null,
+          heightCm: data.heightCm ? parseFloat(data.heightCm) : null,
+          weightKg: data.weightKg ? parseFloat(data.weightKg) : null,
+          emergencyContactName: data.emergencyContactName?.trim() || null,
+          emergencyContactPhone: data.emergencyContactPhone?.trim() || null,
           phoneNumber: phoneNumber,
           email,
           passwordHash: hashed,
           oaDiagnosis: data.oaDiagnosis === 'Yes',
           affectedKnee: data.affectedKnee || null,
-          painSeverity: data.painSeverity ? parseInt(data.painSeverity) : null,
           occupation: data.occupation || null,
           activityLevel: data.activityLevel || null,
-          isVerified: true, // Mark as verified immediately
+          consentGiven: true, 
+          consentTimestamp: new Date(),
+          isVerified: true, 
         },
       });
     }
@@ -234,7 +241,6 @@ export async function finalizeRegistration(formData, otp) {
   } catch (error) {
     console.error('Finalize Registration Error:', error);
     
-    // Catch Prisma unique constraint errors
     if (error.code === 'P2002') {
       return { success: false, error: 'This account was already created or the credentials are taken.' };
     }

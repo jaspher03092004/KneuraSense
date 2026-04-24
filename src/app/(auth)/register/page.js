@@ -11,18 +11,25 @@ import { initiateRegistration, finalizeRegistration } from '@/actions/register';
 const registerFormSchema = z.object({
   role: z.enum(['Patient', 'Clinician']),
   fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  age: z.coerce.number().min(1, 'Valid age is required (1-120)').max(120, 'Invalid age'),
+  dateOfBirth: z.string().min(1, 'Date of birth is required'),
   gender: z.string().min(1, 'Please select a gender'),
   phoneNumber: z.string().min(10, 'Phone number must be at least 10 digits'),
   email: z.string().email('Please enter a valid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   confirmPassword: z.string(),
   specialization: z.string().optional(),
+  
+  // Clinical Knee Data
   oaDiagnosis: z.enum(['Yes', 'No']).optional(),
   affectedKnee: z.string().optional(),
-  painSeverity: z.coerce.number().optional(),
   occupation: z.string().optional(),
   activityLevel: z.string().optional(),
+  
+  // Biomechanical & Emergency Data
+  heightCm: z.coerce.number().min(50).max(300).optional().or(z.literal('')),
+  weightKg: z.coerce.number().min(20).max(400).optional().or(z.literal('')),
+  emergencyContactName: z.string().optional(),
+  emergencyContactPhone: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords do not match",
   path: ["confirmPassword"],
@@ -57,7 +64,6 @@ export default function RegisterPage() {
       gender: 'Male',
       oaDiagnosis: 'Yes',
       affectedKnee: 'Both',
-      painSeverity: 5,
       occupation: 'Retired',
       activityLevel: 'Moderate',
       specialization: '',
@@ -68,10 +74,10 @@ export default function RegisterPage() {
   const role = watch('role');
   const gender = watch('gender');
   const oaDiagnosis = watch('oaDiagnosis');
-  const painSeverity = watch('painSeverity');
 
   const handleNextStep = async () => {
-    const fieldsToValidate = ['role', 'fullName', 'age', 'gender', 'phoneNumber', 'email', 'password', 'confirmPassword'];
+    // Validating dateOfBirth instead of age
+    const fieldsToValidate = ['role', 'fullName', 'dateOfBirth', 'gender', 'phoneNumber', 'email', 'password', 'confirmPassword'];
     if (role === 'Clinician') fieldsToValidate.push('specialization');
 
     const isStep1Valid = await trigger(fieldsToValidate);
@@ -271,10 +277,10 @@ export default function RegisterPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Age</label>
-                    <input type="number" {...register('age')} placeholder="Years" min="1" max="120"
-                           className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all font-medium text-base sm:text-sm ${errors.age ? 'border-red-400' : 'border-slate-200'}`} />
-                    {errors.age && <p className="text-red-600 text-xs font-medium mt-1.5 pl-1">{errors.age.message}</p>}
+                    <label className="block text-sm font-bold text-slate-700 mb-1.5">Date of Birth</label>
+                    <input type="date" {...register('dateOfBirth')}
+                           className={`w-full px-4 py-3 bg-slate-50 border rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 transition-all font-medium text-slate-700 text-base sm:text-sm ${errors.dateOfBirth ? 'border-red-400' : 'border-slate-200'}`} />
+                    {errors.dateOfBirth && <p className="text-red-600 text-xs font-medium mt-1.5 pl-1">{errors.dateOfBirth.message}</p>}
                   </div>
 
                   <div>
@@ -393,19 +399,6 @@ export default function RegisterPage() {
                       </select>
                     </div>
                   </div>
-
-                  <div className="p-6 bg-slate-50/80 border border-slate-200/80 rounded-2xl">
-                    <div className="flex justify-between items-center mb-4">
-                      <label className="text-sm font-bold text-slate-700">Average Pain Severity</label>
-                      <span className="inline-flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-xl w-12 h-12 font-extrabold text-xl text-blue-600">{painSeverity}</span>
-                    </div>
-                    <input type="range" {...register('painSeverity', { valueAsNumber: true })} min="1" max="10" 
-                           className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-blue-600" />
-                    <div className="flex justify-between text-xs font-bold text-slate-400 mt-3">
-                       <span>Mild (1)</span><span>Severe (10)</span>
-                    </div>
-                  </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Occupation</label>
@@ -426,6 +419,34 @@ export default function RegisterPage() {
                       </select>
                     </div>
                   </div>
+
+                  {/* Biometrics Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Height (cm)</label>
+                      <input type="number" {...register('heightCm')} placeholder="e.g. 170"
+                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 font-bold text-slate-700 text-base sm:text-sm transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Weight (kg)</label>
+                      <input type="number" step="0.1" {...register('weightKg')} placeholder="e.g. 75.5"
+                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 font-bold text-slate-700 text-base sm:text-sm transition-all" />
+                    </div>
+                  </div>
+
+                  {/* Emergency Contact Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Emergency Contact Name</label>
+                      <input type="text" {...register('emergencyContactName')} placeholder="Full Name"
+                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 font-bold text-slate-700 text-base sm:text-sm transition-all" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">Emergency Phone</label>
+                      <input type="tel" {...register('emergencyContactPhone')} placeholder="Phone Number"
+                             className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 font-bold text-slate-700 text-base sm:text-sm transition-all" />
+                    </div>
+                  </div>
                 </div>
 
                 <label className="flex items-start gap-3.5 p-4 bg-slate-50/50 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors mb-8 group">
@@ -434,8 +455,8 @@ export default function RegisterPage() {
                     <svg className="w-3.5 h-3.5 text-blue-600 opacity-0 peer-checked:opacity-100 transition-opacity" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7"></path></svg>
                   </div>
                   <div className="text-sm">
-                    <span className="font-bold text-slate-800 block mb-1">I agree to the Terms &amp; Conditions</span>
-                    <span className="text-slate-500 font-medium leading-relaxed">I understand KneuraSense is a predictive monitoring tool, not a substitute for professional medical diagnosis.</span>
+                    <span className="font-bold text-slate-800 block mb-1">I agree to the Terms &amp; Medical Data Processing</span>
+                    <span className="text-slate-500 font-medium leading-relaxed">I consent to KneuraSense collecting and analyzing my movement data for predictive monitoring. I understand this is not a substitute for professional medical diagnosis.</span>
                   </div>
                 </label>
 
