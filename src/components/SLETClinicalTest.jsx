@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { updateClinicalThreshold } from '@/actions/updateClinicalThreshold';
-import { Clock, Play, Square, Activity as ActivityIcon } from 'lucide-react';
+import { Clock, Play, Square, Activity as ActivityIcon, WifiOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function STSClinicalTest({ deviceMac, patientId, clinicianId }) {
@@ -96,8 +96,9 @@ export default function STSClinicalTest({ deviceMac, patientId, clinicianId }) {
     <div className="p-6 bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800">
       
       {deviceStatus === "Offline" && (
-        <div className="mb-4 p-3 bg-amber-50 text-amber-700 border border-amber-200 rounded text-sm font-bold">
-          ⚠️ Device is Offline. Ensure the patellar sensor is powered on.
+        <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-500/20 rounded-md text-xs font-bold flex items-center gap-2 shadow-sm">
+          <WifiOff size={16} className="shrink-0" />
+          <span>KneuraSense wearable is offline. Ensure the patellar sensor is powered on and connected.</span>
         </div>
       )}
 

@@ -70,10 +70,10 @@ export default async function PatientDashboard({ params, searchParams }) {
 
           <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm overflow-hidden">
             <header className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800 p-5 shrink-0 flex items-center gap-3">
-               <div className="bg-blue-100 text-blue-500 p-2 rounded-lg">
-                 <ClipboardList size={18} strokeWidth={2.5} />
-               </div>
-               <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Care Plan</h2>
+              <div className="bg-blue-100 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 p-2 rounded-lg transition-colors">
+                <ClipboardList size={18} strokeWidth={2.5} />
+              </div>
+              <h2 className="text-sm font-extrabold text-slate-900 dark:text-white uppercase tracking-wider">Care Plan</h2>
             </header>
 
             <div className="p-5 flex-1">

@@ -346,19 +346,19 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
         <footer className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-slate-200 dark:border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
            <div className="flex items-center gap-4 w-full sm:w-1/2">
-              <div className={`p-2.5 rounded-xl ${data.bat < 20 ? 'bg-rose-100 text-rose-600' : 'bg-emerald-100 text-emerald-600'}`}>
-                 <Battery size={20} strokeWidth={2.5}/>
+            <div className={`p-2.5 rounded-xl ${data.bat < 20 ? 'bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400' : 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}`}>
+                <Battery size={20} strokeWidth={2.5}/>
               </div>
               <div className="flex-1 max-w-xs">
-                 <div className="flex justify-between items-end mb-1.5">
-                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Battery Level</span>
-                   <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">{data.bat}%</span>
-                 </div>
-                 <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
-                   <div className={`h-full rounded-full transition-all duration-700 ease-out ${data.bat < 20 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${Math.max(0, Math.min(100, data.bat))}%` }}></div>
-                 </div>
+                <div className="flex justify-between items-end mb-1.5">
+                  <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Battery Level</span>
+                  <span className="text-sm font-extrabold text-slate-800 dark:text-slate-200">{data.bat}%</span>
+                </div>
+                <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2 overflow-hidden">
+                  <div className={`h-full rounded-full transition-all duration-700 ease-out ${data.bat < 20 ? 'bg-rose-500' : 'bg-emerald-500'}`} style={{ width: `${Math.max(0, Math.min(100, data.bat))}%` }}></div>
+                </div>
               </div>
-           </div>
+            </div>
            
            <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 rounded-xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
               <Cloud size={18} className="text-slate-400 dark:text-slate-500" />

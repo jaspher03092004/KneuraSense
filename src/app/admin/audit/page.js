@@ -109,10 +109,31 @@ export default function SystemAudit() {
 
       {/* COMPACT KPI GRID */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <StatCard title="Total Events (500)" val={auditData.stats.totalLogs} icon={Activity} cls="text-blue-600 bg-blue-50 border-blue-100" />
-        <StatCard title="Critical Actions" val={auditData.stats.criticalActions} icon={FileWarning} cls="text-rose-600 bg-rose-50 border-rose-100" alert={auditData.stats.criticalActions > 0} />
-        <StatCard title="Auth Events" val={auditData.stats.loginEvents} icon={Key} cls="text-emerald-600 bg-emerald-50 border-emerald-100" />
-        <StatCard title="System Integrity" val="100%" icon={ShieldCheck} cls="text-[#2D5F8B] bg-blue-50 border-blue-100" />
+        <StatCard 
+          title="Total Events (500)" 
+          val={auditData.stats.totalLogs} 
+          icon={Activity} 
+          cls="text-blue-600 bg-blue-50 border-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" 
+        />
+        <StatCard 
+          title="Critical Actions" 
+          val={auditData.stats.criticalActions} 
+          icon={FileWarning} 
+          cls="text-rose-600 bg-rose-50 border-rose-100 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/30" 
+          alert={auditData.stats.criticalActions > 0} 
+        />
+        <StatCard 
+          title="Auth Events" 
+          val={auditData.stats.loginEvents} 
+          icon={Key} 
+          cls="text-emerald-600 bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20" 
+        />
+        <StatCard 
+          title="System Integrity" 
+          val="100%" 
+          icon={ShieldCheck} 
+          cls="text-[#2D5F8B] bg-blue-50 border-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" 
+        />
       </div>
 
       {/* MAIN CONTENT AREA */}
