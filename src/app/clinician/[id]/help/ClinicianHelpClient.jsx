@@ -13,7 +13,6 @@ export default function ClinicianHelpClient({ clinician }) {
   const categories = [
     { title: "Clinical Validity", icon: Activity, desc: "Understanding the Overuse Risk Score and algorithms." },
     { title: "Patient Management", icon: Users, desc: "Onboarding, sensor calibration, and alerts." },
-    { title: "RPM Billing & Compliance", icon: FileText, desc: "Time tracking for CPT codes (99453, 99454, 99457)." },
     { title: "EHR Integration", icon: Database, desc: "Exporting CSVs and PDF reports for patient records." }
   ];
 
@@ -23,7 +22,6 @@ export default function ClinicianHelpClient({ clinician }) {
     { q: "How do I register a new patient?", a: "Navigate to the 'Patients Management' tab and click 'Register New'. You will need their email address and the MAC address of their assigned KneuraSense device. An invitation will be sent to their email to complete setup." },
     { q: "How do I assign an existing patient to my care list?", a: "If a patient is already registered in the KneuraSense system, go to your Patient Management and input the patient's unique Patient registered email address to request access to their telemetry data." },
     { q: "How do I customize a patient's risk threshold?", a: "From the patient's individual profile, locate the Clinical Threshold Manager section. Use the slider to adjust the Clinical Baseline Threshold, which prescribes the Overuse Risk Score limit for that specific patient (defaults to 75 if not previously set). If the patient's device is online, clicking Update Prescription will instantly sync the new limit to the device otherwise, it will sync automatically the next time the device connects." },
-    { q: "Which CPT codes can I bill for using KneuraSense?", a: "KneuraSense supports Remote Patient Monitoring (RPM) workflows. You can typically bill CPT 99453 for initial setup, CPT 99454 for monthly device supply (requires 16 days of data transmission), and CPT 99457/99458 for clinical time spent reviewing the data. Please consult your billing department for compliance." },
     { q: "How do I export data to my EHR system?", a: "Go to a patient's individual profile and click 'Export Report' in the top right corner. You can download a HIPAA-compliant PDF summary of their monthly progress, or a raw CSV file of their telemetry data to attach to their EHR." },
     { q: "How do I assign a new Intervention or Care Plan?", a: "From the patient's detailed view, navigate to the 'Interventions' tab and click 'Add New'. You can add internal clinical notes, as well as patient-friendly instructions. The patient will be forced to acknowledge this update the next time they log in." },
     { q: "What triggers a 'Critical Alert' on my dashboard?", a: "A patient will flag as a Critical Alert if their Overuse Risk Score exceeds 80 for more than 5 consecutive minutes, indicating severe joint stress that requires immediate intervention or activity modification." },
@@ -163,15 +161,6 @@ export default function ClinicianHelpClient({ clinician }) {
                       <div>
                          <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-none">Validation Paper</p>
                          <p className="text-[10px] text-slate-500 mt-1">Study (PDF)</p>
-                      </div>
-                    </a>
-                    <a href="/KneuraSense_RPM_Billing_Guide.pdf" download className="flex items-center gap-3 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group">
-                      <div className="w-8 h-8 bg-slate-50 dark:bg-slate-800 text-[#2D5F8B] rounded-md flex items-center justify-center group-hover:bg-[#2D5F8B] group-hover:text-white transition-colors shrink-0">
-                        <BookOpen size={16} />
-                      </div>
-                      <div>
-                         <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 leading-none">Billing Guide</p>
-                         <p className="text-[10px] text-slate-500 mt-1">Compliance (PDF)</p>
                       </div>
                     </a>
                  </div>

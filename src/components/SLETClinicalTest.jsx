@@ -2,9 +2,11 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useMQTT } from '@/hooks/useMQTT';
 import { updateClinicalThreshold } from '@/actions/updateClinicalThreshold';
 import { Clock, Play, Square, Activity as ActivityIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function STSClinicalTest({ deviceMac, patientId, clinicianId }) {
-  const { data, deviceStatus } = useMQTT(deviceMac);
+  const router = useRouter();
+  const { data, deviceStatus, sendCommand } = useMQTT(deviceMac);
   
   // -- Test Configuration State --
   const [isTesting, setIsTesting] = useState(false);
@@ -72,7 +74,21 @@ export default function STSClinicalTest({ deviceMac, patientId, clinicianId }) {
   const handleApplyThreshold = async () => {
     setIsSaving(true);
     const res = await updateClinicalThreshold(clinicianId, patientId, safeThreshold); 
-    if (res.success) setSavedSuccess(true);
+    
+    if (res.success) {
+      setSavedSuccess(true);
+      
+      // SYNC TO HARDWARE: If device is online, push the new threshold instantly
+      if (sendCommand && deviceStatus === "Online") {
+        const p = res.patientData; // Data returned from the server action
+        // Protocol: CONFIG:StressAlert:VibEnabled:VibInt:LedEnabled:Threshold
+        const configCommand = `CONFIG:${p.highStressAlerts ? 1 : 0}:${p.vibrationEnabled ? 1 : 0}:${p.vibrationIntensity}:${p.ledEnabled ? 1 : 0}:${safeThreshold}`;
+        sendCommand(configCommand);
+      }
+      router.refresh();
+    } else {
+      alert(res.error || "Failed to update threshold");
+    }
     setIsSaving(false);
   };
 

@@ -20,7 +20,6 @@ export default function ClinicianBot() {
         { label: "Draft an Intervention Note", next: "draft_note" },
         { label: "Summarize Patient Data", next: "summarize_data" },
         { label: "Explain Risk Score Trends", next: "explain_risk" },
-        { label: "Billing & RPM Codes", next: "rpm_billing" }
       ]
     },
     draft_note: {
@@ -35,10 +34,6 @@ export default function ClinicianBot() {
       text: "The Overuse Risk Score fuses joint kinematics (flexion angles), applied force (FSR), and physiological stress (heart rate/skin temp) using our Edge AI model. Sustained scores over 80 trigger Critical Alerts.",
       options: [{ label: "Return to Main Menu", next: "start" }]
     },
-    rpm_billing: {
-      text: "For Remote Patient Monitoring (RPM):\n• Bill CPT 99453 for initial setup.\n• Bill CPT 99454 for device supply (requires 16+ days of data/month).\n• Bill CPT 99457 for 20 mins of clinical time spent reviewing data.",
-      options: [{ label: "Return to Main Menu", next: "start" }]
-    }
   };
 
   const [chatHistory, setChatHistory] = useState([

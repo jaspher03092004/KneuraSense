@@ -112,7 +112,7 @@ export default function LiveDashboard({ patientName, patientId, deviceMac, riskT
   // Use the same risk configuration logic from SmartDashboard
   const riskConfig = useMemo(() => {
     const currentScore = Number(data.risk_score || 0);
-    const threshold = Number(riskThreshold);
+    const threshold = Number(data.dynamic_threshold || riskThreshold);
     if (currentScore >= threshold) return { 
       isCritical: true, label: 'CRITICAL STRESS', 
       stroke: 'text-rose-500',
@@ -128,7 +128,7 @@ export default function LiveDashboard({ patientName, patientId, deviceMac, riskT
       stroke: 'text-emerald-500',
       badgeStyles: 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
     };
-  }, [data.risk_score, riskThreshold]);
+  }, [data.risk_score, data.dynamic_threshold, riskThreshold]);
 
   return (
     <>

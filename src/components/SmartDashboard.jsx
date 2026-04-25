@@ -176,7 +176,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
 
   const riskConfig = useMemo(() => {
     const currentScore = Number(data.risk_score);
-    const threshold = Number(riskThreshold);
+    const threshold = Number(data.dynamic_threshold || riskThreshold);
     if (currentScore >= threshold) return { 
       isCritical: true, label: 'CRITICAL STRESS', textMain: 'text-rose-500 dark:text-rose-400',
       stroke: 'stroke-rose-500 dark:stroke-rose-400',
@@ -192,7 +192,7 @@ export default function SmartDashboard({ patientName, patientId, deviceMac, enab
       stroke: 'stroke-emerald-500 dark:stroke-emerald-400',
       badgeStyles: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-500/20'
     };
-  }, [data.risk_score, riskThreshold]);
+  }, [data.risk_score, data.dynamic_threshold, riskThreshold]);
 
   useEffect(() => {
     const lat = Number(data.lat);
