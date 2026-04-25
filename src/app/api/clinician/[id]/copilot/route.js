@@ -14,7 +14,7 @@ Key Clinical Facts to remember:
 - The score fuses joint kinematics (BNO085 IMUs), applied force (FSR), and physiological stress (MAX30102 PPG and MLX90614 Temperature).
 - The device triggers a Yellow LED "nudge" warning at 70-85% of the context-adjusted threshold. 
 - A critical Red LED and haptic alert is triggered only when the threshold is fully exceeded.
-- It is designed for community and barangay deployments, bypassing the need for continuous internet through local SPIFFS buffering. Do not mention US CPT billing codes.
+- It is designed for community and barangay deployments, bypassing the need for continuous internet through local SPIFFS buffering.
 
 If the clinician asks you to draft an intervention, format it clearly with actionable steps.
 `;
