@@ -136,7 +136,7 @@ export default function PatientsClient({ clinicianId, patients }) {
   };
 
   return (
-    <div className="min-h-screen p-3 md:p-5 font-sans text-slate-800 antialiased relative">
+    <div className="min-h-screen p-3 md:p-5 font-sans text-slate-800 dark:text-slate-200 antialiased relative">
       <div className="mx-auto w-full max-w-[1400px]">
         
         {/* --- Header & Actions --- */}
@@ -295,12 +295,12 @@ export default function PatientsClient({ clinicianId, patients }) {
                 </div>
                 <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
                   {!isReleasing ? (
-                    <div><label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Clinician Email</label><input type="email" placeholder="clinician@example.com" value={targetClinicianEmail} onChange={(e) => setTargetClinicianEmail(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] text-xs"/></div>
-                  ) : (<div className="p-3 bg-rose-50 dark:bg-rose-500/10 rounded-md border border-rose-100"><p className="text-xs text-rose-700 dark:text-rose-400 font-semibold">This will unassign the patient.</p></div>)}
+                    <div><label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Clinician Email</label><input type="email" placeholder="clinician@example.com" value={targetClinicianEmail} onChange={(e) => setTargetClinicianEmail(e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 text-slate-900 dark:text-white text-xs"/></div>
+                  ) : (<div className="p-3 bg-rose-50 dark:bg-rose-500/10 rounded-md border border-rose-100 dark:border-rose-500/30"><p className="text-xs text-rose-700 dark:text-rose-400 font-semibold">This will unassign the patient.</p></div>)}
                 </div>
                 <div className="flex flex-col gap-2">
                   <button onClick={handleExecuteTransfer} disabled={(isReleasing ? false : !targetClinicianEmail.trim()) || isTransferring} className={`w-full py-2.5 text-xs font-bold rounded-md flex items-center justify-center gap-1.5 ${isReleasing ? 'bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50' : 'bg-slate-900 dark:bg-blue-600 text-white disabled:opacity-50'}`}>{isTransferring ? <Loader2 className="animate-spin" size={14} /> : (isReleasing ? 'Release Patient' : 'Confirm Transfer')}</button>
-                  <button onClick={() => setShowTransferModal(false)} className="w-full py-2.5 text-slate-500 font-bold hover:text-slate-700 transition-colors text-xs">Cancel</button>
+                  <button onClick={() => setShowTransferModal(false)} className="w-full py-2.5 text-slate-500 dark:text-slate-400 font-bold hover:text-slate-700 dark:hover:text-slate-300 transition-colors text-xs">Cancel</button>
                 </div>
               </div>
             </div>
@@ -313,17 +313,17 @@ export default function PatientsClient({ clinicianId, patients }) {
             <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowAssignModal(false)}></div>
             <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl p-5 md:p-6 max-w-md w-full relative border border-slate-100 dark:border-slate-800 animate-in fade-in zoom-in-95 duration-200">
                <div className="flex justify-between items-start mb-4">
-                 <div className="min-w-0 text-left"><h2 className="text-lg font-extrabold tracking-tight flex items-center gap-1.5"><UserPlus size={18} className="text-[#2D5F8B]" /> Assign Patient</h2><p className="text-xs font-medium text-slate-500 mt-1">Link an existing KneuraSense patient.</p></div>
-                 <button onClick={() => setShowAssignModal(false)} className="p-1.5 -mr-1.5 bg-slate-50 dark:bg-slate-800 rounded-md text-slate-400"><X size={16} /></button>
+                 <div className="min-w-0 text-left"><h2 className="text-lg font-extrabold tracking-tight flex items-center gap-1.5 text-slate-900 dark:text-white"><UserPlus size={18} className="text-[#2D5F8B] dark:text-blue-400" /> Assign Patient</h2><p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">Link an existing KneuraSense patient.</p></div>
+                 <button onClick={() => setShowAssignModal(false)} className="p-1.5 -mr-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md text-slate-400 transition-colors"><X size={16} /></button>
                </div>
                {assignStatus.message && (
-                <div className={`mb-4 p-3 rounded-md text-xs font-bold flex items-center gap-2 ${assignStatus.type === 'error' ? 'bg-rose-50 text-rose-600' : 'bg-emerald-50 text-emerald-600'}`}>{assignStatus.type === 'error' ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}{assignStatus.message}</div>
+                <div className={`mb-4 p-3 rounded-md text-xs font-bold flex items-center gap-2 ${assignStatus.type === 'error' ? 'bg-rose-50 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-100 dark:border-rose-500/20' : 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20'}`}>{assignStatus.type === 'error' ? <AlertTriangle size={14} /> : <CheckCircle size={14} />}{assignStatus.message}</div>
                )}
               <form onSubmit={handleAssignPatient} className="space-y-3 text-left">
-                <div><label className="block text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Patient Email <span className="text-rose-500">*</span></label><input type="email" value={assignEmail} onChange={(e) => setAssignEmail(e.target.value)} className="w-full px-3 py-2 border rounded-md text-xs" required/></div>
+                <div><label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Patient Email <span className="text-rose-500">*</span></label><input type="email" value={assignEmail} onChange={(e) => setAssignEmail(e.target.value)} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-900 dark:text-white rounded-md text-xs outline-none focus:border-[#2D5F8B] dark:focus:border-blue-500 transition-colors" required/></div>
                 <div className="flex flex-col gap-1.5 pt-2">
-                  <button type="submit" disabled={assignStatus.loading || !assignEmail} className="w-full flex justify-center gap-1.5 px-3 py-2 bg-[#2D5F8B] text-white font-bold rounded-md disabled:opacity-50 text-xs">{assignStatus.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Add to Roster'}</button>
-                  <button type="button" onClick={() => setShowAssignModal(false)} className="w-full px-3 py-2 bg-slate-50 border rounded-md text-slate-700 font-bold text-xs">Cancel</button>
+                  <button type="submit" disabled={assignStatus.loading || !assignEmail} className="w-full flex justify-center gap-1.5 px-3 py-2 bg-[#2D5F8B] dark:bg-blue-600 text-white font-bold rounded-md disabled:opacity-50 text-xs hover:bg-[#204565] dark:hover:bg-blue-700 transition-colors">{assignStatus.loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : 'Add to Roster'}</button>
+                  <button type="button" onClick={() => setShowAssignModal(false)} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 font-bold text-xs transition-colors">Cancel</button>
                 </div>
               </form>
             </div>
@@ -336,8 +336,8 @@ export default function PatientsClient({ clinicianId, patients }) {
             <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowLiveDashboard(false)}></div>
             <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-5xl w-full max-h-[90dvh] overflow-y-auto relative border border-slate-100 dark:border-slate-800 no-scrollbar">
               <div className="sticky top-0 bg-white dark:bg-slate-900 flex justify-between items-center p-4 md:p-5 border-b border-slate-100 dark:border-slate-800 z-10">
-                <div className="min-w-0"><h2 className="text-lg md:text-xl font-extrabold">{selectedPatient.fullName} - Live Dashboard</h2></div>
-                <button onClick={() => setShowLiveDashboard(false)} className="p-1.5 -mr-1.5 bg-slate-50 rounded-md text-slate-400"><X size={18} /></button>
+                <div className="min-w-0"><h2 className="text-lg md:text-xl font-extrabold text-slate-900 dark:text-white">{selectedPatient.fullName} - Live Dashboard</h2></div>
+                <button onClick={() => setShowLiveDashboard(false)} className="p-1.5 -mr-1.5 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-md text-slate-400 transition-colors"><X size={18} /></button>
               </div>
               <div className="p-4 md:p-5"><LiveDashboard patientName={selectedPatient.fullName} patientId={selectedPatient.id} deviceMac={selectedPatient.deviceMac}/></div>
             </div>
@@ -347,11 +347,11 @@ export default function PatientsClient({ clinicianId, patients }) {
         {/* --- CLINICAL THRESHOLD MODAL --- */}
         {showThresholdModal && selectedPatientForThreshold && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => setShowThresholdModal(false)}></div>
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full relative">
-              <div className="flex justify-between items-center p-4 border-b">
-                <h2 className="text-lg font-extrabold">{selectedPatientForThreshold.fullName} - Clinical Threshold</h2>
-                <button onClick={() => setShowThresholdModal(false)} className="p-1.5 rounded-md"><X size={18} /></button>
+            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => setShowThresholdModal(false)}></div>
+            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full relative border border-slate-100 dark:border-slate-800">
+              <div className="flex justify-between items-center p-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">{selectedPatientForThreshold.fullName} - Clinical Threshold</h2>
+                <button onClick={() => setShowThresholdModal(false)} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"><X size={18} /></button>
               </div>
               <div className="p-4"><ClinicalThresholdManager clinicianId={clinicianId} patient={selectedPatientForThreshold}/></div>
             </div>
@@ -361,13 +361,13 @@ export default function PatientsClient({ clinicianId, patients }) {
         {/* --- STS CLINICAL TEST MODAL --- */}
         {showStsModal && selectedPatientForSts && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
-            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => { setShowStsModal(false); setSelectedPatientForSts(null); }}></div>
-            <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full relative">
-              <div className="flex justify-between items-center p-4 border-b">
-                <h2 className="text-lg font-extrabold">{selectedPatientForSts.fullName} - SLET Test</h2>
-                <button onClick={() => { setShowStsModal(false); setSelectedPatientForSts(null); }} className="p-1.5 rounded-md"><X size={18} /></button>
+            <div className="absolute inset-0 bg-slate-900/40 dark:bg-slate-950/80 backdrop-blur-sm" onClick={() => { setShowStsModal(false); setSelectedPatientForSts(null); }}></div>
+            <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl max-w-2xl w-full relative border border-slate-100 dark:border-slate-800">
+              <div className="flex justify-between items-center p-4 border-b border-slate-100 dark:border-slate-800">
+                <h2 className="text-lg font-extrabold text-slate-900 dark:text-white">{selectedPatientForSts.fullName} - SLET Test</h2>
+                <button onClick={() => { setShowStsModal(false); setSelectedPatientForSts(null); }} className="p-1.5 rounded-md text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"><X size={18} /></button>
               </div>
-              <div className="p-4 bg-slate-50 rounded-b-lg"><STSClinicalTest deviceMac={selectedPatientForSts.deviceMac} patientId={selectedPatientForSts.id} clinicianId={clinicianId}/></div>
+              <div className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-b-lg"><STSClinicalTest deviceMac={selectedPatientForSts.deviceMac} patientId={selectedPatientForSts.id} clinicianId={clinicianId}/></div>
             </div>
           </div>
         )}

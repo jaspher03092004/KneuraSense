@@ -72,7 +72,7 @@ export default function AdminDashboard() {
   const todayStr = new Date().toISOString().split('T')[0];
 
   if ((loading && !data.analytics) || !dateRange.start) {
-    return <div className="p-10 animate-pulse bg-slate-50 h-full" />;
+    return <div className="p-10 animate-pulse bg-slate-50 dark:bg-slate-900 h-full" />;
   }
 
   const { kpis, demographicsData, batteryHealth, recentAlerts, growthData, alertTrends, syncEfficiency } = data.analytics;
@@ -82,14 +82,14 @@ export default function AdminDashboard() {
     <div className="p-4 md:p-8 max-w-[1400px] mx-auto space-y-6 animate-in fade-in duration-500 font-sans antialiased relative">
       <header className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-2">
         <div className="space-y-1">
-          <h1 className="text-2xl font-extrabold text-[#2C3E50] dark:text-white tracking-tight">System <span className="text-[#2D5F8B]">Insights</span></h1>
+          <h1 className="text-2xl font-extrabold text-[#2C3E50] dark:text-white tracking-tight">System <span className="text-[#2D5F8B] dark:text-blue-400">Insights</span></h1>
           <p className="text-xs font-medium text-slate-500 dark:text-slate-400">Edge AI telemetry and platform infrastructure.</p>
         </div>
         
         {/* CUSTOM DATE RANGE SELECTOR */}
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-md shadow-sm overflow-hidden p-1">
-            <div className="px-2 flex items-center text-slate-400">
+            <div className="px-2 flex items-center text-slate-400 dark:text-slate-500">
               <CalendarDays className="w-4 h-4" />
             </div>
             
@@ -98,10 +98,10 @@ export default function AdminDashboard() {
               value={dateRange.start}
               max={dateRange.end}
               onChange={(e) => setDateRange(prev => ({...prev, start: e.target.value}))}
-              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-0 cursor-pointer py-1"
+              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-0 cursor-pointer py-1 [color-scheme:light_dark]"
             />
             
-            <span className="px-2 text-xs font-bold text-slate-400">to</span>
+            <span className="px-2 text-xs font-bold text-slate-400 dark:text-slate-500">to</span>
             
             <input 
               type="date" 
@@ -109,30 +109,51 @@ export default function AdminDashboard() {
               min={dateRange.start}
               max={todayStr}
               onChange={(e) => setDateRange(prev => ({...prev, end: e.target.value}))}
-              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-0 cursor-pointer py-1"
+              className="bg-transparent text-xs font-bold text-slate-700 dark:text-slate-300 outline-none focus:ring-0 cursor-pointer py-1 [color-scheme:light_dark]"
             />
           </div>
 
           <div className="hidden md:flex items-center gap-2 bg-white dark:bg-slate-900 px-4 py-2 rounded-md border border-slate-200 dark:border-slate-800 shadow-sm">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cloud Sync Active</span>
+            <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cloud Sync Active</span>
           </div>
         </div>
       </header>
 
       {/* KPI GRID */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <StatCard title="Active Patients" val={kpis.totalPatients} icon={Users} cls="text-blue-600 bg-blue-50 border-blue-100" />
-        <StatCard title="Approved Staff" val={kpis.totalApprovedClinicians} icon={CheckCircle} cls="text-emerald-600 bg-emerald-50 border-emerald-100" />
-        <StatCard title="Pending Review" val={kpis.pendingApprovalsCount} icon={AlertTriangle} cls="text-amber-600 bg-amber-50 border-amber-100" alert={kpis.pendingApprovalsCount > 0} />
-        <StatCard title="Active Wearables" val={kpis.activeDevices} icon={Activity} cls="text-indigo-600 bg-indigo-50 border-indigo-100" />
+        <StatCard 
+          title="Active Patients" 
+          val={kpis.totalPatients} 
+          icon={Users} 
+          cls="text-blue-600 bg-blue-50 border-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" 
+        />
+        <StatCard 
+          title="Approved Staff" 
+          val={kpis.totalApprovedClinicians} 
+          icon={CheckCircle} 
+          cls="text-emerald-600 bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20" 
+        />
+        <StatCard 
+          title="Pending Review" 
+          val={kpis.pendingApprovalsCount} 
+          icon={AlertTriangle} 
+          cls="text-amber-600 bg-amber-50 border-amber-100 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20" 
+          alert={kpis.pendingApprovalsCount > 0} 
+        />
+        <StatCard 
+          title="Active Wearables" 
+          val={kpis.activeDevices} 
+          icon={Activity} 
+          cls="text-indigo-600 bg-indigo-50 border-indigo-100 dark:text-indigo-400 dark:bg-indigo-500/10 dark:border-indigo-500/20" 
+        />
       </div>
 
       {/* TIER 1 CHARTS: GROWTH & ALERTS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <ChartBox title="Platform Adoption" sub="Registration velocity over selected range" colSpan="lg:col-span-2">
           {loading ? (
-             <div className="w-full h-[220px] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#2D5F8B] animate-spin" /></div>
+             <div className="w-full h-[220px] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#2D5F8B] dark:text-blue-400 animate-spin" /></div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={growthData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
@@ -146,7 +167,7 @@ export default function AdminDashboard() {
                     <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.2} />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 600}} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} />
                 <Tooltip content={<CustomTooltip />} />
@@ -159,11 +180,11 @@ export default function AdminDashboard() {
 
         <ChartBox title="Alert Frequency" sub="Critical events over selected range">
           {loading ? (
-            <div className="w-full h-[220px] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#2D5F8B] animate-spin" /></div>
+            <div className="w-full h-[220px] flex items-center justify-center"><Loader2 className="w-6 h-6 text-[#2D5F8B] dark:text-blue-400 animate-spin" /></div>
           ) : (
             <ResponsiveContainer width="100%" height={220}>
               <LineChart data={alertTrends} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.2} />
                 <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11, fontWeight: 600}} dy={10} />
                 <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 11}} />
                 <Tooltip content={<CustomTooltip />} />
@@ -181,7 +202,7 @@ export default function AdminDashboard() {
             <BarChart data={demographicsData} layout="vertical" margin={{ top: 0, right: 10, left: -10, bottom: 0 }}>
               <XAxis type="number" hide />
               <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: 700}} width={80} />
-              <Tooltip cursor={{fill: 'rgba(241, 245, 249, 0.4)'}} content={<CustomTooltip />} />
+              <Tooltip cursor={{fill: 'rgba(100, 116, 139, 0.1)'}} content={<CustomTooltip />} />
               <Bar dataKey="value" fill="#2D5F8B" radius={[0, 4, 4, 0]} barSize={24} />
             </BarChart>
           </ResponsiveContainer>
@@ -190,10 +211,10 @@ export default function AdminDashboard() {
         <ChartBox title="Data Sync Latency" sub="Edge-to-cloud transfer speed">
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={syncEfficiency} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.2} />
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 10, fontWeight: 600}} dy={5} />
               <YAxis hide />
-              <Tooltip cursor={{fill: 'rgba(241, 245, 249, 0.4)'}} content={<CustomTooltip />} />
+              <Tooltip cursor={{fill: 'rgba(100, 116, 139, 0.1)'}} content={<CustomTooltip />} />
               <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={32}>
                 {syncEfficiency.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
               </Bar>
@@ -224,7 +245,7 @@ export default function AdminDashboard() {
                   <Label 
                     value="Healthy" 
                     position="centerTop" 
-                    className="text-[10px] font-bold fill-slate-400 uppercase tracking-widest" 
+                    className="text-[10px] font-bold fill-slate-400 dark:fill-slate-500 uppercase tracking-widest" 
                     dy={12}
                   />
                 </Pie>
@@ -235,7 +256,7 @@ export default function AdminDashboard() {
               {batteryHealth.map((e, i) => (
                 <div key={i} className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-sm shadow-sm" style={{backgroundColor: e.fill}}/>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                     {e.name}
                   </span>
                 </div>
@@ -249,30 +270,30 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-4">
         <div className="xl:col-span-3 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-800 overflow-hidden shadow-sm">
           <div className="p-4 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 flex justify-between items-center">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Clock className="w-4 h-4 text-[#2D5F8B]"/> Credentials Review</h3>
-            <span className="bg-[#2D5F8B] text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-tighter">{data.clinicians.length} PENDING</span>
+            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2"><Clock className="w-4 h-4 text-[#2D5F8B] dark:text-blue-400"/> Credentials Review</h3>
+            <span className="bg-[#2D5F8B] dark:bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-tighter">{data.clinicians.length} PENDING</span>
           </div>
           <div className="overflow-x-auto max-h-[300px]">
             <table className="w-full text-xs">
-              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+              <tbody className="divide-y divide-slate-50 dark:divide-slate-800/50">
                 {data.clinicians.length === 0 ? (
-                  <tr><td className="py-12 text-center text-slate-400 italic font-medium">No pending applications found.</td></tr>
+                  <tr><td className="py-12 text-center text-slate-400 dark:text-slate-500 italic font-medium">No pending applications found.</td></tr>
                 ) : (
                   data.clinicians.map(c => (
                     <tr key={c.clinician_id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
-                      <td className="p-4"><div className="font-bold text-slate-700 dark:text-slate-200">{c.full_name}</div><div className="text-[10px] text-slate-400 font-medium">{c.email}</div></td>
-                      <td className="p-4"><span className="text-[10px] font-bold text-[#2D5F8B] bg-blue-50 px-2 py-1 rounded-md uppercase tracking-wide border border-blue-100/50">{c.specialization}</span></td>
+                      <td className="p-4"><div className="font-bold text-slate-700 dark:text-slate-200">{c.full_name}</div><div className="text-[10px] text-slate-400 dark:text-slate-500 font-medium">{c.email}</div></td>
+                      <td className="p-4"><span className="text-[10px] font-bold text-[#2D5F8B] dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10 px-2 py-1 rounded-md uppercase tracking-wide border border-blue-100/50 dark:border-blue-500/20">{c.specialization}</span></td>
                       <td className="p-4 text-right">
                         <div className="flex justify-end gap-1">
                           <button 
                             onClick={() => setActionModal({ isOpen: true, id: c.clinician_id, type: 'approve', name: c.full_name })} 
-                            className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-md transition-all"
+                            className="p-2 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 rounded-md transition-all"
                           >
                             <CheckCircle className="w-5 h-5"/>
                           </button>
                           <button 
                             onClick={() => setActionModal({ isOpen: true, id: c.clinician_id, type: 'reject', name: c.full_name })} 
-                            className="p-2 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md transition-all"
+                            className="p-2 text-rose-500 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-md transition-all"
                           >
                             <XCircle className="w-5 h-5"/>
                           </button>
@@ -287,25 +308,25 @@ export default function AdminDashboard() {
         </div>
 
         <div className="xl:col-span-2 bg-white dark:bg-slate-900 rounded-lg border border-slate-200/60 dark:border-slate-800 p-5 shadow-sm">
-          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-rose-500"/> Risk Telemetry Feed</h3>
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2 mb-4"><TrendingUp className="w-4 h-4 text-rose-500 dark:text-rose-400"/> Risk Telemetry Feed</h3>
           <div className="space-y-3 max-h-[260px] overflow-y-auto pr-1 no-scrollbar">
             {recentAlerts.map(a => (
-              <div key={a.id} className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:border-rose-100 transition-all">
+              <div key={a.id} className="p-3.5 rounded-md bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:border-rose-100 dark:hover:border-rose-500/30 transition-all">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-900 flex flex-col items-center justify-center border border-slate-200 shadow-sm group-hover:border-rose-200 transition-colors">
-                    <span className="text-rose-600 font-black text-xs leading-none">{a.riskScore}</span>
-                    <span className="text-[7px] font-black text-slate-400 uppercase tracking-tighter mt-1">Risk</span>
+                  <div className="w-10 h-10 rounded-md bg-white dark:bg-slate-900 flex flex-col items-center justify-center border border-slate-200 dark:border-slate-700 shadow-sm group-hover:border-rose-200 dark:group-hover:border-rose-500/30 transition-colors">
+                    <span className="text-rose-600 dark:text-rose-400 font-black text-xs leading-none">{a.riskScore}</span>
+                    <span className="text-[7px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-tighter mt-1">Risk</span>
                   </div>
                   <div>
                     <p className="text-xs font-bold text-slate-700 dark:text-slate-200">{a.patient.fullName}</p>
-                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{new Date(a.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
+                    <p className="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">{new Date(a.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</p>
                   </div>
                 </div>
-                <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-rose-400 transition-colors" />
+                <ArrowUpRight className="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-rose-400 dark:group-hover:text-rose-400 transition-colors" />
               </div>
             ))}
             {recentAlerts.length === 0 && (
-              <div className="text-center py-10 text-slate-400 text-xs italic">System clear. No recent alerts.</div>
+              <div className="text-center py-10 text-slate-400 dark:text-slate-500 text-xs italic">System clear. No recent alerts.</div>
             )}
           </div>
         </div>
@@ -319,7 +340,7 @@ export default function AdminDashboard() {
             
             <div className="flex justify-between items-start mb-3 sm:mb-4">
               <div className="flex items-center gap-2.5 sm:gap-3">
-                <div className={`p-1.5 sm:p-2 rounded-md shrink-0 ${actionModal.type === 'approve' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400'}`}>
+                <div className={`p-1.5 sm:p-2 rounded-md shrink-0 ${actionModal.type === 'approve' ? 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400' : 'bg-rose-100 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400'}`}>
                   {actionModal.type === 'approve' ? <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" /> : <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5" />}
                 </div>
                 <div>
@@ -351,7 +372,7 @@ export default function AdminDashboard() {
                 <button 
                   onClick={executeAction}
                   disabled={actionLoading}
-                  className={`w-full py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 text-white disabled:opacity-50 shadow-sm ${actionModal.type === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'}`}
+                  className={`w-full py-2 sm:py-2.5 text-[11px] sm:text-xs font-bold rounded-md transition-all flex items-center justify-center gap-1.5 text-white disabled:opacity-50 shadow-sm ${actionModal.type === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-600 dark:hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700 dark:bg-rose-600 dark:hover:bg-rose-700'}`}
                 >
                   {actionLoading ? <Loader2 className="animate-spin w-3.5 h-3.5 sm:w-4 sm:h-4" /> : (actionModal.type === 'approve' ? 'Yes, Authorize Access' : 'Yes, Reject & Delete')}
                 </button>
@@ -374,12 +395,12 @@ export default function AdminDashboard() {
 
 // ALIGNED HELPER COMPONENTS
 const StatCard = ({ title, val, icon: Icon, cls, alert }) => (
-  <div className={`bg-white dark:bg-slate-900 p-5 rounded-lg border ${alert ? 'border-rose-200 ring-4 ring-rose-50' : 'border-slate-200/60 dark:border-slate-800'} transition-all shadow-sm group`}>
+  <div className={`bg-white dark:bg-slate-900 p-5 rounded-lg border ${alert ? 'border-rose-200 ring-4 ring-rose-50 dark:border-rose-500/30 dark:ring-rose-500/10' : 'border-slate-200/60 dark:border-slate-800'} transition-all shadow-sm group`}>
     <div className="flex justify-between items-start mb-3">
       <div className={`flex h-10 w-10 items-center justify-center rounded-md border ${cls} shrink-0 transition-transform group-hover:scale-110`}><Icon size={20} strokeWidth={2.5} /></div>
-      {alert && <span className="bg-rose-50 text-rose-600 text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">Review</span>}
+      {alert && <span className="bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 text-[9px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">Review</span>}
     </div>
-    <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-0.5">{title}</p>
+    <p className="text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest mb-0.5">{title}</p>
     <h4 className="text-3xl font-black text-[#2C3E50] dark:text-white tracking-tight">{val}</h4>
   </div>
 );

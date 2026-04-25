@@ -30,7 +30,7 @@ export default function InterventionsClient({ clinicianId, allPatients = [], int
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
 
   const interventionTypes = [
-    { id: 'Advice', icon: <FileText size={16}/>, color: 'text-blue-500 bg-blue-50 dark:bg-blue-500/10' },
+    { id: 'Clinician\'s note', icon: <FileText size={16}/>, color: 'text-blue-500 bg-blue-50 dark:bg-blue-500/10' },
     { id: 'Medication', icon: <Pill size={16}/>, color: 'text-rose-500 bg-rose-50 dark:bg-rose-500/10' },
     { id: 'Exercise', icon: <Activity size={16}/>, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10' },
     { id: 'Other', icon: <Stethoscope size={16}/>, color: 'text-purple-500 bg-purple-50 dark:bg-purple-500/10' },
