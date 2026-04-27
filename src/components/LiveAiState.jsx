@@ -1,18 +1,11 @@
 'use client';
 
 import React, { memo, useState, useEffect } from 'react';
+import Image from 'next/image';
 import { useMQTT } from '@/hooks/useMQTT';
 import { 
   Activity, 
-  Footprints, 
-  PersonStanding, 
-  AlertTriangle, 
-  TrendingUp, 
-  TrendingDown,
-  ArrowUpCircle,
-  Armchair,
   Signal,
-  Cpu,
   Wifi, Brain
 } from 'lucide-react';
 
@@ -38,7 +31,7 @@ const LiveAiState = memo(({ deviceMac }) => {
   // --- Theme-Aware Configuration Map ---
   const stateConfig = {
     'safe_walking': {
-      icon: Footprints,
+      iconSrc: '/images/ai-state/safe-walking.svg',
       label: 'SAFE WALKING',
       animation: 'animate-bounce',
       color: 'text-emerald-600 dark:text-emerald-400',
@@ -49,7 +42,7 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-emerald-500'
     },
     'risky_gait': {
-      icon: AlertTriangle,
+      iconSrc: '/images/ai-state/risky-gait.svg',
       label: 'RISKY GAIT',
       animation: 'animate-ping',
       color: 'text-rose-600 dark:text-rose-400',
@@ -60,7 +53,7 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-rose-500'
     },
     'incline_context_up': {
-      icon: TrendingUp,
+      iconSrc: '/images/ai-state/incline-context-up.svg',
       label: 'INCLINE CONTEXT UP',
       animation: 'animate-pulse',
       color: 'text-amber-600 dark:text-amber-400',
@@ -71,7 +64,7 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-amber-500'
     },
     'incline_context_down': {
-      icon: TrendingDown,
+      iconSrc: '/images/ai-state/incline-context-down.svg',
       label: 'INCLINE CONTEXT DOWN',
       animation: 'animate-pulse',
       color: 'text-amber-600 dark:text-amber-400',
@@ -82,7 +75,7 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-amber-500'
     },
     'prolonged_static_standing': {
-      icon: PersonStanding,
+      iconSrc: '/images/ai-state/prolong-static-standing.svg',
       label: 'STATIC STANDING',
       animation: '',
       color: 'text-indigo-600 dark:text-indigo-400',
@@ -93,7 +86,7 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-indigo-500'
     },
     'seated_rest': {
-      icon: Armchair,
+      iconSrc: '/images/ai-state/seated-rest.svg',
       label: 'SEATED REST',
       animation: '',
       color: 'text-blue-600 dark:text-blue-400',
@@ -104,7 +97,7 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-blue-500'
     },
     'analyzing': {
-      icon: Activity,
+      icon: Activity, // Fallback to Lucide icon for analyzing
       label: 'ANALYZING',
       animation: 'animate-spin',
       color: 'text-slate-600 dark:text-emerald-400',
@@ -120,7 +113,7 @@ const LiveAiState = memo(({ deviceMac }) => {
 
   if (!isOnline) {
     currentConfig = {
-      icon: Signal,
+      icon: Signal, // Fallback to Lucide icon for offline
       label: 'DATA STREAM OFFLINE',
       animation: '',
       color: 'text-slate-400 dark:text-slate-500',
@@ -131,8 +124,6 @@ const LiveAiState = memo(({ deviceMac }) => {
       indicator: 'bg-slate-300 dark:bg-slate-600'
     };
   }
-
-  const Icon = currentConfig.icon;
 
   return (
     <article className={`relative h-[110px] w-full flex flex-col justify-center overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl ${currentConfig.glow} transition-all duration-700 ease-out group`}>
@@ -152,7 +143,19 @@ const LiveAiState = memo(({ deviceMac }) => {
           <div className={`absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l ${currentConfig.border} rounded-bl-sm`} />
           <div className={`absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r ${currentConfig.border} rounded-br-sm`} />
           
-          <Icon size={20} className={`${currentConfig.color} ${isOnline && currentConfig !== stateConfig.prolonged_static_standing && currentConfig !== stateConfig.seated_rest ? currentConfig.animation : ''}`} strokeWidth={2} />
+          {currentConfig.iconSrc ? (
+             <div className={`${isOnline && currentConfig !== stateConfig.prolonged_static_standing && currentConfig !== stateConfig.seated_rest ? currentConfig.animation : ''}`}>
+               <Image 
+                  src={currentConfig.iconSrc} 
+                  alt={currentConfig.label} 
+                  width={20} 
+                  height={20} 
+                  className={`w-5 h-5 ${currentConfig.color}`}
+               />
+             </div>
+          ) : (
+            <currentConfig.icon size={20} className={`${currentConfig.color} ${isOnline && currentConfig !== stateConfig.prolonged_static_standing && currentConfig !== stateConfig.seated_rest ? currentConfig.animation : ''}`} strokeWidth={2} />
+          )}
         </div>
         
         <div className="flex-1 min-w-0 flex flex-col justify-center">

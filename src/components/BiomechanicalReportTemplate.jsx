@@ -13,69 +13,93 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
         }));
     }, [logs]);
 
-    // Dynamically calculate Terrain Triggers from logs using the dynamic riskThreshold
-    const terrainStats = useMemo(() => {
-        const stats = { stairs: 0, incline: 0, flat: 0, uneven: 0 };
-        if (!logs) return stats;
+    // Dynamically calculate trigger events based on AI State (Movement)
+    const movementStats = useMemo(() => {
+        const stats = {};
+        if (!logs) return [];
         
         logs.forEach(log => {
+            const state = log.aiState || 'Unknown Activity';
+            if (stats[state] === undefined) {
+                stats[state] = 0;
+            }
             if (log.riskScore >= riskThreshold) {
-                const t = (log.terrain || 'flat').toLowerCase();
-                if (t.includes('stair')) stats.stairs++;
-                else if (t.includes('incline') || t.includes('slope')) stats.incline++;
-                else if (t.includes('uneven')) stats.uneven++;
-                else stats.flat++;
+                stats[state]++;
             }
         });
-        return stats;
+        return Object.entries(stats).sort((a, b) => b[1] - a[1]);
     }, [logs, riskThreshold]);
+
+    // Sort logs to actually find the highest risk deviations, not just the most recent
+    const topDeviations = useMemo(() => {
+        if (!logs) return [];
+        return [...logs].sort((a, b) => b.riskScore - a.riskScore).slice(0, 10);
+    }, [logs]);
+
+    // NEW: Robust fallback calculators for Environmental Data
+    // If the parent component fails to pass averages in `metrics`, the template will calculate them from raw logs
+    const displayWeatherTemp = useMemo(() => {
+        if (metrics?.avgWeatherTemp != null && metrics.avgWeatherTemp !== "N/A") return `${metrics.avgWeatherTemp}°C`;
+        
+        if (logs && logs.length > 0) {
+            const validLogs = logs.filter(l => l.weatherTemp != null || l.extTemp != null || l.ext_temp != null);
+            if (validLogs.length > 0) {
+                const sum = validLogs.reduce((acc, l) => acc + Number(l.weatherTemp || l.extTemp || l.ext_temp), 0);
+                return `${(sum / validLogs.length).toFixed(1)}°C`;
+            }
+        }
+        return "N/A";
+    }, [metrics, logs]);
+
+    const displayAmbientTemp = useMemo(() => {
+        if (metrics?.avgAmbientTemp != null && metrics.avgAmbientTemp !== "N/A") return `${metrics.avgAmbientTemp}°C`;
+        
+        if (logs && logs.length > 0) {
+            const validLogs = logs.filter(l => l.ambientTemp != null || l.ambient_temp != null);
+            if (validLogs.length > 0) {
+                const sum = validLogs.reduce((acc, l) => acc + Number(l.ambientTemp || l.ambient_temp), 0);
+                return `${(sum / validLogs.length).toFixed(1)}°C`;
+            }
+        }
+        return "N/A";
+    }, [metrics, logs]);
 
     return (
         <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
             <div ref={ref} className="form-container">
                 <style>{`
-                    /* GLOBAL COMPACT STYLES FOR 1-PAGE FIT */
+                    /* EXTREME COMPACT STYLES FOR STRICT 1-PAGE FIT */
                     .form-container * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; }
-                    .form-container { width: 7.5in; background: #ffffff; color: #1a1a1a; padding: 15px; }
+                    .form-container { width: 7.5in; background: #ffffff; color: #1a1a1a; padding: 12px 15px; }
                     
-                    /* Tighter Header */
-                    .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; border-bottom: 2px solid #1e293b; padding-bottom: 6px;}
-                    .header-title-left { font-size: 14px; font-weight: 800; color: #1e293b; text-transform: uppercase; }
-                    .header-title-right { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
+                    .header-section { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; border-bottom: 2px solid #1e293b; padding-bottom: 4px;}
+                    .header-title-left { font-size: 13px; font-weight: 800; color: #1e293b; text-transform: uppercase; }
+                    .header-title-right { font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; }
                     
-                    /* Patient Info Grid */
-                    .patient-info-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 0; margin-bottom: 15px; }
+                    .patient-info-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 0; margin-bottom: 12px; }
                     .input-group { display: flex; flex-direction: column; width: 48%; }
-                    .input-label { font-size: 8px; font-weight: 700; text-transform: uppercase; margin-bottom: 6px; color: #4b5563; }
+                    .input-label { font-size: 7px; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; color: #4b5563; }
+                    .input-field { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 4px 6px; font-size: 9px; font-weight: 600; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
                     
-                    /* Slightly increased padding for better readability */
-                    .input-field { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 6px 8px; font-size: 10px; font-weight: 600; color: #0f172a; min-height: 24px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+                    .section-wrapper { margin-top: 10px; margin-bottom: 12px; width: 100%; clear: both; }
+                    .section-header { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #1e293b; margin-bottom: 6px; border-bottom: 1px solid #e2e8f0; padding-bottom: 2px;}
                     
-                    /* CORRECTED SECTION WRAPPER MARGINS */
-                    .section-wrapper { margin-top: 20px; margin-bottom: 25px; width: 100%; clear: both; }
-                    
-                    .section-header { font-size: 10px; font-weight: 700; text-transform: uppercase; color: #1e293b; margin-bottom: 8px; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;}
-                    
-                    /* Universal Compact Tables - Restored Original Dark Theme */
                     .form-container table { width: 100%; border-collapse: collapse; border: 1px solid #cbd5e1; table-layout: fixed; }
-                    .form-container th { background-color: #1e293b; color: #ffffff; font-size: 7px; font-weight: 700; text-transform: uppercase; text-align: center; padding: 6px 4px; border-right: 1px solid #334155; word-wrap: break-word; }
+                    .form-container th { background-color: #1e293b; color: #ffffff; font-size: 6px; font-weight: 700; text-transform: uppercase; text-align: center; padding: 3px; border-right: 1px solid #334155; }
                     .form-container th:last-child { border-right: none; }
-                    .form-container td { padding: 6px 4px; font-size: 9px; color: #1a1a1a; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; vertical-align: middle; text-align: center; }
+                    .form-container td { padding: 3px; font-size: 8px; color: #1a1a1a; border-bottom: 1px solid #e2e8f0; border-right: 1px solid #e2e8f0; text-align: center; }
                     .form-container td:last-child { border-right: none; }
                     .form-container tr:nth-child(even) { background-color: #f8fafc; }
                     
-                    /* Metrics */
-                    .metric-cell { background-color: #ffffff; text-align: center; font-size: 12px; font-weight: 800; }
+                    .metric-cell { background-color: #ffffff; font-size: 10px; font-weight: 800; }
                     .metric-cell.alert { color: #b91c1c; background-color: #fef2f2; }
                     .status-critical { color: #b91c1c; font-weight: 700; }
                     .status-normal { color: #059669; font-weight: 700; }
                     
-                    /* Split Tables for the bottom */
-                    .split-tables { display: flex; justify-content: space-between; width: 100%; gap: 15px; }
+                    .split-tables { display: flex; justify-content: space-between; width: 100%; gap: 12px; }
                     .split-tables .section-wrapper { width: 48%; margin-bottom: 0; margin-top: 0; }
                     
-                    /* Shorter Chart Box */
-                    .chart-box { border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; background-color: #ffffff; padding-top: 10px; padding-bottom: 5px; width: 100%; height: 130px; overflow: hidden; }
+                    .chart-box { border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; background-color: #ffffff; padding-top: 8px; width: 100%; height: 90px; overflow: hidden; }
                 `}</style>
 
                 <div className="header-section">
@@ -115,11 +139,11 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
                     <table>
                         <thead>
                             <tr>
-                                <th style={{ width: '15%' }}>Mean Risk Score<br/>(0-100)</th>
-                                <th style={{ width: '20%' }}>Critical Overload<br/>Events</th>
-                                <th style={{ width: '20%' }}>Peak Compressive<br/>Force</th>
-                                <th style={{ width: '25%' }}>Mean Skin Temp<br/>(Inflammation Proxy)</th>
-                                <th style={{ width: '20%' }}>Total Data Points<br/>Logged</th>
+                                <th style={{ width: '15%' }}>Mean Risk Score</th>
+                                <th style={{ width: '20%' }}>Critical Overload Events</th>
+                                <th style={{ width: '20%' }}>Peak Compressive Force</th>
+                                <th style={{ width: '25%' }}>Mean Skin Temp</th>
+                                <th style={{ width: '20%' }}>Total Data Points</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -140,7 +164,7 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
                     <div className="section-header">Stress Kinetics Trend</div>
                     <div className="chart-box">
                         {chartData.length > 0 ? (
-                            <LineChart width={620} height={110} data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                            <LineChart width={620} height={80} data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                                 <XAxis dataKey="time" tick={{ fontSize: 8, fill: '#64748b' }} axisLine={false} tickLine={false} minTickGap={40} />
                                 <YAxis domain={[0, 100]} tick={{ fontSize: 8, fill: '#64748b' }} axisLine={false} tickLine={false} width={25} />
@@ -148,28 +172,26 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
                                 <Line type="monotone" dataKey="score" stroke="#3b82f6" strokeWidth={1.5} dot={false} isAnimationActive={false} />
                             </LineChart>
                         ) : (
-                            <span style={{ fontSize: '10px', color: '#9ca3af', fontStyle: 'italic' }}>
-                                No trend data available for this period.
-                            </span>
+                            <span style={{ fontSize: '9px', color: '#9ca3af', fontStyle: 'italic' }}>No trend data available.</span>
                         )}
                     </div>
                 </div>
 
                 <div className="section-wrapper">
-                    <div className="section-header">Critical Event Logs (Top 5 Deviations)</div>
+                    <div className="section-header">Critical Event Logs (Top 10 Deviations)</div>
                     <table>
                         <thead>
                             <tr>
                                 <th style={{ width: '25%' }}>Timestamp</th>
                                 <th style={{ width: '15%' }}>Risk Score</th>
-                                <th style={{ width: '15%' }}>Knee Flexion<br/>Angle</th>
+                                <th style={{ width: '15%' }}>Knee Flexion Angle</th>
                                 <th style={{ width: '15%' }}>Skin Temp</th>
-                                <th style={{ width: '15%' }}>Terrain Context</th>
+                                <th style={{ width: '15%' }}>Movement (AI State)</th>
                                 <th style={{ width: '15%' }}>Clinical Status</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {logs && logs.length > 0 ? logs.slice(0, 5).map((log, index) => {
+                            {topDeviations.length > 0 ? topDeviations.map((log, index) => {
                                 const isCritical = log.riskScore >= riskThreshold;
                                 return (
                                     <tr key={index}>
@@ -177,16 +199,14 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
                                         <td className={isCritical ? "status-critical" : "status-normal"}>{log.riskScore || "0"}</td>
                                         <td>{log.angle != null ? `${log.angle.toFixed(1)}°` : "0°"}</td>
                                         <td>{log.skinTemp != null ? `${log.skinTemp.toFixed(1)}°C` : "N/A"}</td>
-                                        <td>{log.terrain || "Flat Surface"}</td>
+                                        <td style={{ textTransform: 'capitalize' }}>{log.aiState || "Unknown"}</td>
                                         <td className={isCritical ? "status-critical" : "status-normal"}>
                                             {isCritical ? "CRITICAL" : "WNL (Safe)"}
                                         </td>
                                     </tr>
                                 );
                             }) : (
-                                <tr>
-                                    <td colSpan="6" style={{ textAlign: "center", padding: "8px" }}>No recent log data available</td>
-                                </tr>
+                                <tr><td colSpan="6">No recent log data available</td></tr>
                             )}
                         </tbody>
                     </table>
@@ -194,31 +214,23 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
 
                 <div className="split-tables">
                     <div className="section-wrapper">
-                        <div className="section-header">Events Trigger</div>
+                        <div className="section-header">Events Trigger (Critical Context - Top 10)</div>
                         <table>
                             <thead>
                                 <tr>
-                                    <th style={{ textAlign: 'left', paddingLeft: '8px' }}>Terrain Type</th>
+                                    <th style={{ textAlign: 'left', paddingLeft: '6px' }}>Detected Movement State</th>
                                     <th>Critical Events</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Stairs (Ascent/Descent)</td>
-                                    <td className={terrainStats.stairs > 0 ? "status-critical" : ""}>{terrainStats.stairs}</td>
-                                </tr>
-                                <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Incline / Slope</td>
-                                    <td className={terrainStats.incline > 0 ? "status-critical" : ""}>{terrainStats.incline}</td>
-                                </tr>
-                                <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Flat Surface</td>
-                                    <td className={terrainStats.flat > 0 ? "status-critical" : ""}>{terrainStats.flat}</td>
-                                </tr>
-                                <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Uneven Ground</td>
-                                    <td className={terrainStats.uneven > 0 ? "status-critical" : ""}>{terrainStats.uneven}</td>
-                                </tr>
+                                {movementStats.length > 0 ? movementStats.slice(0, 10).map(([state, count]) => (
+                                    <tr key={state}>
+                                        <td style={{ textAlign: 'left', paddingLeft: '6px', textTransform: 'capitalize' }}>{state}</td>
+                                        <td className={count > 0 ? "status-critical" : "status-normal"}>{count}</td>
+                                    </tr>
+                                )) : (
+                                    <tr><td colSpan="2">No movement data recorded.</td></tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
@@ -228,25 +240,25 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
                         <table>
                             <thead>
                                 <tr>
-                                    <th style={{ textAlign: 'left', paddingLeft: '8px' }}>Parameter</th>
+                                    <th style={{ textAlign: 'left', paddingLeft: '6px' }}>Parameter</th>
                                     <th>Value</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Avg Ambient Temp</td>
-                                    <td>{metrics?.avgAmbientTemp != null && metrics.avgAmbientTemp !== "N/A" ? `${metrics.avgAmbientTemp}°C` : "N/A"}</td>
+                                    <td style={{ textAlign: 'left', paddingLeft: '6px' }}>Avg Ambient Temp</td>
+                                    <td>{displayAmbientTemp}</td>
                                 </tr>
                                 <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Avg Humidity</td>
-                                    <td>{metrics?.avgHumidity ? `${metrics.avgHumidity}%` : "N/A"}</td>
+                                    <td style={{ textAlign: 'left', paddingLeft: '6px' }}>Avg Weather Temp</td>
+                                    <td>{displayWeatherTemp}</td>
                                 </tr>
                                 <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Avg Atm. Pressure</td>
+                                    <td style={{ textAlign: 'left', paddingLeft: '6px' }}>Avg Atm. Pressure</td>
                                     <td>{logs && logs.length > 0 && logs[0].pressure ? `${Math.round(logs[0].pressure)} hPa` : "N/A"}</td>
                                 </tr>
                                 <tr>
-                                    <td style={{ textAlign: 'left', paddingLeft: '8px' }}>Overall Weather Mod.</td>
+                                    <td style={{ textAlign: 'left', paddingLeft: '6px' }}>Overall Weather Mod.</td>
                                     <td>Normal</td>
                                 </tr>
                             </tbody>
@@ -254,9 +266,8 @@ const BiomechanicalReportTemplate = forwardRef(({ patientData, metrics, logs, ri
                     </div>
                 </div>
 
-                <div style={{ marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #cbd5e1', fontSize: '7px', color: '#64748b', textAlign: 'center', lineHeight: '1.4' }}>
-                    <strong>CONFIDENTIALITY NOTICE:</strong> This document contains protected health information intended only for the use of the named individual/entity. <br/>
-                    Generated by KneuraSense Analytics Engine • Page 1 of 1
+                <div style={{ marginTop: '8px', paddingTop: '6px', borderTop: '1px solid #cbd5e1', fontSize: '6px', color: '#64748b', textAlign: 'center' }}>
+                    <strong>CONFIDENTIALITY NOTICE:</strong> This document contains protected health information intended only for the use of the named individual/entity. Generated by KneuraSense Analytics Engine • Page 1 of 1
                 </div>
 
             </div>

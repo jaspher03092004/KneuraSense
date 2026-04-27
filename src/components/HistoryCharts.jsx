@@ -4,7 +4,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, 
   Tooltip, ResponsiveContainer, ReferenceLine, LineChart, Line,
   BarChart, Bar, PieChart, Pie, Cell, ScatterChart, Scatter, ZAxis, ComposedChart,
-  Legend // <-- NEW IMPORT
+  Legend
 } from 'recharts';
 
 // SHARED HELPER COMPONENTS & DYNAMIC COLORS
@@ -22,7 +22,7 @@ const CriticalEventDot = (props) => {
   return null;
 };
 
-// DYNAMIC COLOR ASSIGNMENT (Zero Hardcoding)
+// DYNAMIC COLOR ASSIGNMENT
 const STATE_PALETTE = [
   '#0ea5e9', // Sky Blue
   '#10b981', // Emerald
@@ -37,19 +37,15 @@ const STATE_PALETTE = [
 const assignedColors = new Map();
 
 const getAiStateColor = (state) => {
-  if (!state) return '#94a3b8'; // Default slate for null/undefined
-  
+  if (!state) return '#94a3b8';
   const normalizedState = String(state).toUpperCase();
-  
   if (!assignedColors.has(normalizedState)) {
     const nextColor = STATE_PALETTE[assignedColors.size % STATE_PALETTE.length];
     assignedColors.set(normalizedState, nextColor);
   }
-  
   return assignedColors.get(normalizedState);
 };
 
-// Helper to format raw AI states into clean Title Case for the Legends
 const formatStateName = (state) => {
   if (!state) return 'Unknown';
   return String(state)
@@ -81,24 +77,16 @@ const CustomRiskTooltip = ({ active, payload, label, threshold = 75 }) => {
     return (
       <div className="bg-white dark:bg-slate-900 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 dark:border-slate-800 min-w-[160px] transition-colors duration-300">
         <p className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2">{label}</p>
-        
         <div className="flex justify-between items-end mb-1">
           <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider">Risk Score</span>
           <span className={`text-xl font-black ${isCritical ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-slate-200'}`}>
             {score}
           </span>
         </div>
-
         {isCritical && (
           <div className="mt-3 pt-3 border-t border-rose-100 dark:border-rose-500/20 bg-rose-50 dark:bg-rose-500/10 -mx-3 -mb-3 p-3 rounded-b-xl transition-colors duration-300">
-            <p className="text-[10px] font-black uppercase text-rose-500 dark:text-rose-400 mb-2 tracking-wider flex items-center gap-1">
-              High Risk Event!
-            </p>
-            {data.aiState && (
-              <p className="text-[10px] font-bold text-rose-600 dark:text-rose-300 mb-2">
-                Detected: {formatStateName(data.aiState)}
-              </p>
-            )}
+            <p className="text-[10px] font-black uppercase text-rose-500 dark:text-rose-400 mb-2 tracking-wider flex items-center gap-1">High Risk Event!</p>
+            {data.aiState && <p className="text-[10px] font-bold text-rose-600 dark:text-rose-300 mb-2">Detected: {formatStateName(data.aiState)}</p>}
             <div className="grid grid-cols-2 gap-2">
               <div>
                 <p className="text-[9px] text-slate-400 dark:text-slate-500 uppercase font-black tracking-widest">Angle</p>
@@ -132,11 +120,9 @@ const CustomScatterTooltip = ({ active, payload }) => {
   return null;
 };
 
-// 1. ORIGINAL PATIENT CHARTS
-
+// 1. PATIENT CHARTS
 export default function HistoryCharts({ data, riskThreshold = 75 }) {
   if (!data || data.length === 0) return <EmptyChart />;
-
   return (
     <div className="w-full h-full min-h-[200px]">
       <ResponsiveContainer width="100%" height="100%">
@@ -150,20 +136,9 @@ export default function HistoryCharts({ data, riskThreshold = 75 }) {
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
           <XAxis dataKey="time" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
           <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} domain={[0, 100]} />
-          
           <Tooltip content={<CustomRiskTooltip threshold={riskThreshold} />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
-          
           <ReferenceLine y={riskThreshold} stroke="orange" strokeDasharray="3 3" strokeOpacity={0.5} />
-          <Area 
-            type="monotone" 
-            dataKey={data[0]?.score !== undefined ? "score" : "risk"} 
-            stroke="#f43f5e" 
-            fillOpacity={1} 
-            fill="url(#colorRisk)" 
-            strokeWidth={3} 
-            dot={<CriticalEventDot />} 
-            activeDot={{ r: 6, strokeWidth: 0, fill: '#f43f5e' }}
-          />
+          <Area type="monotone" dataKey={data[0]?.score !== undefined ? "score" : "risk"} stroke="#f43f5e" fillOpacity={1} fill="url(#colorRisk)" strokeWidth={3} dot={<CriticalEventDot />} activeDot={{ r: 6, strokeWidth: 0, fill: '#f43f5e' }} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
@@ -189,14 +164,14 @@ export function MiniAreaChart({ data, stroke, unit }) {
     <ResponsiveContainer width="100%" height="100%">
       <AreaChart data={data}>
         <defs>
-          <linearGradient id={`fill${stroke}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`colorArea-${stroke}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor={stroke} stopOpacity={0.3}/>
             <stop offset="95%" stopColor={stroke} stopOpacity={0}/>
           </linearGradient>
         </defs>
         <YAxis hide domain={['auto', 'auto']} />
         <Tooltip content={<CustomTooltip unit={unit} />} cursor={{ stroke: '#cbd5e1', strokeWidth: 2, strokeOpacity: 0.5 }} />
-        <Area type="monotone" dataKey="val" stroke={stroke} fill={`url(#fill${stroke})`} strokeWidth={2.5} animationDuration={800} />
+        <Area type="monotone" dataKey="val" stroke={stroke} fill={`url(#colorArea-${stroke})`} strokeWidth={2.5} animationDuration={800} />
       </AreaChart>
     </ResponsiveContainer>
   );
@@ -208,7 +183,7 @@ export function MiniBarChart({ data, stroke, unit }) {
     <ResponsiveContainer width="100%" height="100%">
       <BarChart data={data}>
         <YAxis hide domain={['auto', 'auto']} />
-        <Tooltip content={<CustomTooltip unit={unit} />} cursor={{ fill: '#cbd5e1', opacity: 0.1 }} />
+        <Tooltip content={<CustomTooltip unit={unit} />} cursor={{ fill: '#cbd5e1', opacity: 0.2 }} />
         <Bar dataKey="val" fill={stroke} radius={[2, 2, 0, 0]} animationDuration={800} />
       </BarChart>
     </ResponsiveContainer>
@@ -216,28 +191,15 @@ export function MiniBarChart({ data, stroke, unit }) {
 }
 
 // 2. CLINICIAN CDSS CHARTS
-
 export function RiskDonutChart({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
-        <Pie
-          data={data}
-          innerRadius="60%"
-          outerRadius="80%"
-          paddingAngle={5}
-          dataKey="value"
-          stroke="none"
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.fill} />
-          ))}
+        <Pie data={data} innerRadius="60%" outerRadius="80%" paddingAngle={5} dataKey="value" stroke="none">
+          {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
         </Pie>
-        <Tooltip 
-          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-          itemStyle={{ color: '#1e293b', fontWeight: 'bold' }}
-        />
+        <Tooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} itemStyle={{ color: '#1e293b', fontWeight: 'bold' }} />
       </PieChart>
     </ResponsiveContainer>
   );
@@ -258,11 +220,8 @@ export function OveruseComposedChart({ data }) {
         <XAxis dataKey="time" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
         <YAxis yAxisId="left" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} domain={[0, 100]} />
         <YAxis yAxisId="right" orientation="right" hide domain={['auto', 'auto']} />
-        
-        <Tooltip content={<CustomRiskTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
-        
+        <Tooltip content={<CustomOveruseTooltip />} cursor={{ stroke: '#94a3b8', strokeWidth: 1, strokeDasharray: '4 4' }} />
         <ReferenceLine yAxisId="left" y={70} stroke="#f43f5e" strokeDasharray="3 3" strokeOpacity={0.5} />
-        
         <Area yAxisId="right" type="monotone" dataKey="force" name="Load (N)" fill="url(#forceGradient)" stroke="#0ea5e9" strokeWidth={2} />
         <Line yAxisId="left" type="monotone" dataKey="risk" name="Risk Score" stroke="#f59e0b" strokeWidth={3} dot={<CriticalEventDot />} activeDot={{ r: 6 }} />
       </ComposedChart>
@@ -272,14 +231,12 @@ export function OveruseComposedChart({ data }) {
 
 export function BiomechanicalScatterChart({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
-  
   const scatterData = data.map(d => ({
     angle: d.angle,
     force: d.force,
     risk: d.risk,
     fill: d.risk >= 70 ? '#f43f5e' : d.risk >= 40 ? '#f59e0b' : '#10b981'
   }));
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: -20 }}>
@@ -289,63 +246,37 @@ export function BiomechanicalScatterChart({ data }) {
         <ZAxis type="number" dataKey="risk" range={[40, 400]} />
         <Tooltip content={<CustomScatterTooltip />} cursor={{ strokeDasharray: '3 3' }} />
         <Scatter data={scatterData} fill="#8884d8">
-          {scatterData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.fill} opacity={0.8} />
-          ))}
+          {scatterData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} opacity={0.8} />)}
         </Scatter>
       </ScatterChart>
     </ResponsiveContainer>
   );
 }
 
-// 3. AI STATE (ACTIVITY) CHARTS - FULLY DYNAMIC
-
+// 3. ACTIVITY CHARTS - UNIFIED TOOLTIP & FORMATTING
 export function ActivityDistributionChart({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
-
   const formattedData = data.map(d => ({
     ...d,
-    displayName: formatStateName(d.state)
+    name: formatStateName(d.state),
+    value: d.count,
+    fill: getAiStateColor(d.state)
   }));
-
   return (
     <ResponsiveContainer width="100%" height="100%">
       <PieChart>
-        <Pie
-          data={formattedData}
-          innerRadius="45%" // Slightly smaller to give more room for legend
-          outerRadius="75%"
-          paddingAngle={4}
-          dataKey="count"
-          nameKey="displayName" 
-          stroke="none"
-        >
-          {formattedData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={getAiStateColor(entry.state)} />
-          ))}
+        <Pie data={formattedData} innerRadius="45%" outerRadius="75%" paddingAngle={4} dataKey="value" nameKey="name" stroke="none">
+          {formattedData.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.fill} />)}
         </Pie>
-        <Tooltip 
-          formatter={(value, name) => [`${value} logs`, name]}
-          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-          itemStyle={{ fontWeight: 'bold' }}
-        />
-        {/* COMPACT LEGEND */}
+        {/* Unified Tooltip Design */}
+        <Tooltip content={<CustomTimelineTooltip />} />
         <Legend 
           verticalAlign="bottom" 
-          align="center"
-          layout="horizontal"
-          iconSize={8}
-          iconType="circle"
-          wrapperStyle={{ 
-            fontSize: '9px', 
-            fontWeight: 'bold', 
-            paddingTop: '10px',
-            bottom: 0,
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '2px' 
-          }}
+          align="center" 
+          layout="horizontal" 
+          iconSize={8} 
+          iconType="circle" 
+          wrapperStyle={{ fontSize: '9px', fontWeight: 'bold', paddingTop: '10px', bottom: 0, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2px' }} 
         />
       </PieChart>
     </ResponsiveContainer>
@@ -354,53 +285,76 @@ export function ActivityDistributionChart({ data }) {
 
 export function ActivityTimelineChart({ data }) {
   if (!data || data.length === 0) return <EmptyChart />;
-
-  const dynamicStates = Array.from(
-    new Set(data.flatMap(Object.keys).filter(key => key !== 'time'))
-  );
-
+  const dynamicStates = Array.from(new Set(data.flatMap(Object.keys).filter(key => key !== 'time')));
   return (
     <ResponsiveContainer width="100%" height="100%">
-      {/* Adjusted bottom margin to prevent overlap with the chart content */}
-      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
+      {/* Corrected padding/margins for Clinician Portal */}
+      <BarChart data={data} margin={{ top: 10, right: 20, left: -15, bottom: 40 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" strokeOpacity={0.5} />
-        <XAxis dataKey="time" tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
-        <YAxis tick={{fontSize: 10, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
-        <Tooltip 
-          contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-          cursor={{ fill: '#cbd5e1', opacity: 0.1 }}
-          labelStyle={{ fontWeight: 'bold', color: '#64748b', marginBottom: '4px' }}
-        />
-        
-        {/* COMPACT LEGEND */}
+        <XAxis dataKey="time" tick={{fontSize: 9, fill: '#94a3b8'}} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+        <YAxis tick={{fontSize: 9, fill: '#94a3b8'}} axisLine={false} tickLine={false} />
+        <Tooltip content={<CustomTimelineTooltip />} cursor={{ fill: '#cbd5e1', opacity: 0.1 }} />
         <Legend 
           verticalAlign="bottom" 
-          align="center"
-          layout="horizontal"
-          iconSize={8}
-          iconType="circle"
-          wrapperStyle={{ 
-            fontSize: '9px', 
-            fontWeight: 'bold', 
-            paddingTop: '15px',
-            bottom: -5,
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'center',
-            gap: '2px'
-          }}
+          align="center" 
+          layout="horizontal" 
+          iconSize={8} 
+          iconType="circle" 
+          wrapperStyle={{ fontSize: '9px', fontWeight: 'bold', paddingTop: '20px', bottom: -15, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '8px' }} 
         />
-
         {dynamicStates.map((stateKey) => (
-          <Bar 
-            key={stateKey} 
-            dataKey={stateKey} 
-            stackId="a" 
-            fill={getAiStateColor(stateKey)} 
-            name={formatStateName(stateKey)}
-          />
+          <Bar key={stateKey} dataKey={stateKey} stackId="a" fill={getAiStateColor(stateKey)} name={formatStateName(stateKey)} radius={[2, 2, 2, 2]} />
         ))}
       </BarChart>
     </ResponsiveContainer>
   );
 }
+
+const CustomTimelineTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const sortedPayload = [...payload].sort((a, b) => b.value - a.value);
+    return (
+      <div className="bg-white dark:bg-slate-900 px-3 py-2 rounded-lg shadow-xl border border-slate-100 dark:border-slate-800 transition-colors duration-300 z-50 min-w-[130px]">
+        {label && <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 pb-1 border-b border-slate-100 dark:border-slate-800">{label}</p>}
+        <div className="space-y-1.5">
+          {sortedPayload.map((entry, index) => entry.value > 0 && (
+            <div key={index} className="flex justify-between items-center gap-4">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5 whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: entry.color || entry.payload.fill }}></span> 
+                {entry.name}
+              </span>
+              <span className="text-[11px] font-black text-slate-800 dark:text-slate-200">{entry.value}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+const CustomOveruseTooltip = ({ active, payload, label }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white dark:bg-slate-900 p-3 rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-slate-100 dark:border-slate-800 min-w-[160px] transition-colors duration-300">
+        <p className="text-xs font-bold text-slate-400 dark:text-slate-500 mb-2 border-b border-slate-100 dark:border-slate-800 pb-2">{label}</p>
+        <div className="space-y-2 mt-2">
+          <div className="flex justify-between items-center gap-4">
+            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#f59e0b]"></span> Risk Score
+            </span>
+            <span className={`text-sm font-black ${data.risk >= 70 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-800 dark:text-slate-200'}`}>{data.risk}</span>
+          </div>
+          <div className="flex justify-between items-center gap-4">
+            <span className="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-[#0ea5e9]"></span> Force (N)
+            </span>
+            <span className="text-sm font-black text-slate-800 dark:text-slate-200">{data.force} N</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
