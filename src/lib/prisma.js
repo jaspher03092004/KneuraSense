@@ -5,17 +5,27 @@ import pg from 'pg';
 
 const connectionString = process.env.DATABASE_URL;
 
-const pool = new pg.Pool({ 
-  connectionString,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 5000,
-});
+// 1. Wrap the pool and client creation in a singleton function
+const prismaClientSingleton = () => {
+  const pool = new pg.Pool({ 
+    connectionString,
+    max: 1,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 20000,
+  });
 
-const adapter = new PrismaPg(pool);
+  const adapter = new PrismaPg(pool);
+  
+  return new PrismaClient({ adapter });
+};
 
-const globalForPrisma = global;
+// 2. Use globalThis (standard in Node.js)
+const globalForPrisma = globalThis;
 
-export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
+// 3. Only invoke the singleton if the client doesn't already exist globally
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
 
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// 4. In development, save the client to the global object so it survives hot-reloads
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.prisma = prisma;
+}

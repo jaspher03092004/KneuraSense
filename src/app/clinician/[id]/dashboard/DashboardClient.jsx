@@ -45,7 +45,7 @@ export default function DashboardClient({ clinician, initialPatients, stats }) {
   useEffect(() => {
     const interval = setInterval(() => {
       router.refresh(); 
-    }, 5000); 
+    }, 30000); 
     
     return () => clearInterval(interval);
   }, [router]);

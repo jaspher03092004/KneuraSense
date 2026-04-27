@@ -1,17 +1,28 @@
-// src/components/ExportCsvButton.jsx
 'use client';
 
 import { useState } from 'react';
 import { FileSpreadsheet } from 'lucide-react';
 
-export default function ExportCsvButton({ logs, patientName, className }) {
+export default function ExportCsvButton({ patientId, patientName, className }) {
   const [isExporting, setIsExporting] = useState(false);
 
-  const handleExport = () => {
-    if (!logs || logs.length === 0) return alert("No data available to export.");
+  const handleExport = async () => {
     setIsExporting(true);
 
     try {
+      // 1. Fetch the 10,000 logs on-demand
+      const response = await fetch(`/api/patient/${patientId}/export`);
+      if (!response.ok) throw new Error("Network response was not ok");
+      
+      const { logs } = await response.json();
+
+      if (!logs || logs.length === 0) {
+        alert("No data available to export.");
+        setIsExporting(false);
+        return;
+      }
+
+      // 2. Generate CSV exactly as you had it before
       const headers = ['Timestamp', 'Risk Score', 'AI State', 'Knee Angle (°)', 'Force (N)', 'Skin Temp (°C)', 'Ambient Temp (°C)', 'BPM', 'Battery (%)'];
       
       const csvRows = logs.map(log => {
@@ -40,7 +51,7 @@ export default function ExportCsvButton({ logs, patientName, className }) {
       
     } catch (error) {
       console.error("CSV Export failed:", error);
-      alert("Failed to generate CSV report.");
+      alert("Failed to generate CSV report. The server might be busy.");
     } finally {
       setIsExporting(false);
     }
@@ -53,7 +64,7 @@ export default function ExportCsvButton({ logs, patientName, className }) {
       className={`flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-bold text-white shadow-sm transition-all active:scale-95 hover:bg-emerald-700 disabled:opacity-70 ${className || "w-full md:w-auto"}`}
     >
       <FileSpreadsheet size={16} className={isExporting ? "animate-pulse" : ""} />
-      <span>{isExporting ? 'Exporting CSV...' : 'Download CSV'}</span>
+      <span>{isExporting ? 'Fetching Logs...' : 'Download CSV'}</span>
     </button>
   );
 }

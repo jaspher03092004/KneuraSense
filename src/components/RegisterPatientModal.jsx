@@ -171,7 +171,7 @@ export default function RegisterPatientModal({ isOpen, onClose, clinicianId, onS
 
           {/* Row 6: MAC Address */}
           <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-            <label className="block text-[9px] font-black text-[#3A9D8C] dark:text-teal-500 uppercase tracking-widest mb-1">Assign Device MAC (Optional)</label>
+            <label className="block text-[9px] font-black text-[#3A9D8C] dark:text-teal-500 uppercase tracking-widest mb-1">Assign Device ID (Optional)</label>
             <input type="text" {...register("deviceMac")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#3A9D8C] transition-all text-xs font-mono uppercase tracking-widest" placeholder="e.g. A1B2C3D4E5F6" maxLength={17} />
           </div>
 

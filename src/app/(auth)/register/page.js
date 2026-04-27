@@ -176,7 +176,7 @@ export default function RegisterPage() {
           <div className="relative z-10 my-16">
             <h2 className="text-3xl font-extrabold text-white mb-6 leading-[1.2] tracking-tight">
               Join the future of <br/>
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">knee health management.</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Knee Health Management.</span>
             </h2>
             <div className="w-12 h-1 bg-blue-500 rounded-full mb-8 shadow-lg shadow-blue-500/50"></div>
             
@@ -379,7 +379,7 @@ export default function RegisterPage() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-sm font-bold text-slate-700 mb-2">OA Diagnosis</label>
+                      <label className="block text-sm font-bold text-slate-700 mb-2">KOA Diagnosis</label>
                       <div className="flex gap-3">
                         {['Yes', 'No'].map(o => (
                           <button key={o} type="button" onClick={() => setValue('oaDiagnosis', o)}

@@ -25,7 +25,7 @@ export async function POST(request) {
     });
 
     if (!patient?.deviceMac) {
-      throw new Error("Device MAC not found for this patient.");
+      throw new Error("Device ID not found for this patient.");
     }
 
     const cleanMac = patient.deviceMac.replace(/:/g, '');

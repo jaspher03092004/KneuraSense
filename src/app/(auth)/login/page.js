@@ -75,13 +75,13 @@ export default function LoginPage() {
 
           <div className="relative z-10 my-16">
             <h2 className="text-4xl font-extrabold text-white mb-6 leading-[1.2] tracking-tight">
-              Predictive knee health, <br />
+              The Future of Knee Health Management, <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
                 powered by Edge AI.
               </span>
             </h2>
             <p className="text-slate-300 text-md leading-relaxed max-w-md font-medium">
-              Monitor your joint stress in real-time with context-aware predictions tailored to your exact environment and lifestyle.
+              Integrating advanced sensor technology with clinical insights to safeguard your mobility.
             </p>
           </div>
 
