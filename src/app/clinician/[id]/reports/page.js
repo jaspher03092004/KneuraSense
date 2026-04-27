@@ -1,4 +1,3 @@
-// src/app/clinician/[id]/reports/page.js
 import { prisma } from '@/lib/prisma';
 import { Users, Activity } from 'lucide-react';
 import PatientReportList from './PatientReportList'; // <-- Import the new component
@@ -6,19 +5,24 @@ import PatientReportList from './PatientReportList'; // <-- Import the new compo
 export default async function ReportsPage({ params }) {
   const { id } = await params;
 
-  // 1. Fetch the data from the database
+  // 1. OPTIMIZED: Fetch only patient metadata and the COUNT of logs
   const patients = await prisma.patient.findMany({
     where: { clinicianId: id },
-    include: {
-      clinician: true, 
-      sensorLogs: {
-        orderBy: { timestamp: 'desc' },
-        take: 500 
+    select: {
+      id: true,
+      fullName: true,
+      mrn: true,
+      email: true,
+      affectedKnee: true,
+      createdAt: true,
+      // Only get the count, NOT the actual logs
+      _count: {
+        select: { sensorLogs: true }
       }
     }
   });
 
-  const totalLogs = patients.reduce((acc, curr) => acc + curr.sensorLogs.length, 0);
+  const totalLogs = patients.reduce((acc, curr) => acc + (curr._count?.sensorLogs || 0), 0);
 
   return (
     <div className="min-h-screen bg-transparent p-4 md:p-6 transition-colors duration-200">

@@ -78,9 +78,22 @@ export default function UserManagement() {
     setManageModal({ isOpen: true, user, role });
     setEditForm({
       full_name: role === 'clinician' ? user.full_name : user.fullName,
-      email: user.email,
+      email: user.email || '',
       specialization: user.specialization || '',
-      clinicianId: user.clinicianId || ''
+      clinicianId: user.clinicianId || '',
+      // Add all Patient specific fields
+      mrn: user.mrn || '',
+      dateOfBirth: user.dateOfBirth ? new Date(user.dateOfBirth).toISOString().split('T')[0] : '',
+      gender: user.gender || '',
+      heightCm: user.heightCm || '',
+      weightKg: user.weightKg || '',
+      phoneNumber: user.phoneNumber || '',
+      emergencyContactName: user.emergencyContactName || '',
+      emergencyContactPhone: user.emergencyContactPhone || '',
+      oaDiagnosis: user.oaDiagnosis ? 'true' : 'false',
+      affectedKnee: user.affectedKnee || '',
+      occupation: user.occupation || '',
+      activityLevel: user.activityLevel || '',
     });
   };
 
@@ -93,15 +106,30 @@ export default function UserManagement() {
     const { user, role } = manageModal;
     setActionLoading(true);
     
-    // Map form data based on role schema
+    // Map form data based on role schema, applying strict type casting for Prisma
     const updateData = role === 'clinician' 
       ? { full_name: editForm.full_name, email: editForm.email, specialization: editForm.specialization }
-      : { fullName: editForm.full_name, email: editForm.email, clinicianId: editForm.clinicianId || null };
+      : { 
+          fullName: editForm.full_name, 
+          email: editForm.email, 
+          clinicianId: editForm.clinicianId || null,
+          mrn: editForm.mrn || null,
+          dateOfBirth: editForm.dateOfBirth ? new Date(editForm.dateOfBirth) : undefined, // Undefined ignores it if blank
+          gender: editForm.gender || null,
+          heightCm: editForm.heightCm ? parseFloat(editForm.heightCm) : null,
+          weightKg: editForm.weightKg ? parseFloat(editForm.weightKg) : null,
+          phoneNumber: editForm.phoneNumber || undefined, // required field
+          emergencyContactName: editForm.emergencyContactName || null,
+          emergencyContactPhone: editForm.emergencyContactPhone || null,
+          oaDiagnosis: editForm.oaDiagnosis === 'true',
+          affectedKnee: editForm.affectedKnee || null,
+          occupation: editForm.occupation || null,
+          activityLevel: editForm.activityLevel || null,
+        };
 
     const result = await updateUserProfile(role === 'clinician' ? user.clinician_id : user.id, role, updateData);
     
     if (result.success) {
-      // Optimistic UI Update
       setData(prev => {
         if (role === 'clinician') {
           return { ...prev, clinicians: prev.clinicians.map(c => c.clinician_id === user.clinician_id ? { ...c, ...updateData } : c) };
@@ -372,22 +400,102 @@ export default function UserManagement() {
                     <label className="text-[10px] font-bold text-slate-500 uppercase">Email Address</label>
                     <input type="email" value={editForm.email} onChange={e => setEditForm({...editForm, email: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] focus:ring-1 focus:ring-[#2D5F8B] outline-none transition-all dark:text-white" />
                   </div>
+                  
                   {manageModal.role === 'clinician' && (
                     <div className="space-y-1 sm:col-span-2">
                       <label className="text-[10px] font-bold text-slate-500 uppercase">Specialization</label>
                       <input type="text" value={editForm.specialization} onChange={e => setEditForm({...editForm, specialization: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] focus:ring-1 focus:ring-[#2D5F8B] outline-none transition-all dark:text-white" />
                     </div>
                   )}
+
                   {manageModal.role === 'patient' && (
-                    <div className="space-y-1 sm:col-span-2">
-                      <label className="text-[10px] font-bold text-slate-500 uppercase">Assigned Clinician</label>
-                      <select value={editForm.clinicianId} onChange={e => setEditForm({...editForm, clinicianId: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] focus:ring-1 focus:ring-[#2D5F8B] outline-none transition-all dark:text-white">
-                        <option value="">Unassigned</option>
-                        {data.clinicians.map(c => (
-                          <option key={c.clinician_id} value={c.clinician_id}>Dr. {c.full_name}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Phone Number</label>
+                        <input type="tel" value={editForm.phoneNumber} onChange={e => setEditForm({...editForm, phoneNumber: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Date of Birth</label>
+                        <input type="date" value={editForm.dateOfBirth} onChange={e => setEditForm({...editForm, dateOfBirth: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">MRN</label>
+                        <input type="text" value={editForm.mrn} onChange={e => setEditForm({...editForm, mrn: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Gender</label>
+                        <select value={editForm.gender} onChange={e => setEditForm({...editForm, gender: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
+                          <option value="">Unspecified</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Height (cm)</label>
+                        <input type="number" step="0.1" value={editForm.heightCm} onChange={e => setEditForm({...editForm, heightCm: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Weight (kg)</label>
+                        <input type="number" step="0.1" value={editForm.weightKg} onChange={e => setEditForm({...editForm, weightKg: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">OA Diagnosis</label>
+                        <select value={editForm.oaDiagnosis} onChange={e => setEditForm({...editForm, oaDiagnosis: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
+                          <option value="false">Yes</option>
+                          <option value="true">No</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Affected Knee</label>
+                        <select value={editForm.affectedKnee} onChange={e => setEditForm({...editForm, affectedKnee: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
+                          <option value="">Unspecified</option>
+                          <option value="Left">Left</option>
+                          <option value="Right">Right</option>
+                          <option value="Both">Both</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Occupation</label>
+                        <select value={editForm.occupation} onChange={e => setEditForm({...editForm, occupation: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
+                          <option value="">Unspecified</option>
+                          <option value="Retired">Retired</option>
+                          <option value="Sedentary">Sedentary</option>
+                          <option value="Light Duty">Light Duty</option>
+                          <option value="Moderate">Moderate</option>
+                          <option value="Heavy Duty">Heavy Duty</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Activity Level</label>
+                        <select value={editForm.activityLevel} onChange={e => setEditForm({...editForm, activityLevel: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
+                          <option value="">Unspecified</option>
+                          <option value="Sedentary">Sedentary</option>
+                          <option value="Light">Light</option>
+                          <option value="Moderate">Moderate</option>
+                          <option value="Active">Active</option>
+                          <option value="Very Active">Very Active</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Emerg. Contact Name</label>
+                        <input type="text" value={editForm.emergencyContactName} onChange={e => setEditForm({...editForm, emergencyContactName: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Emerg. Contact Phone</label>
+                        <input type="text" value={editForm.emergencyContactPhone} onChange={e => setEditForm({...editForm, emergencyContactPhone: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white" />
+                      </div>
+
+                      <div className="space-y-1 sm:col-span-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase">Assigned Clinician</label>
+                        <select value={editForm.clinicianId} onChange={e => setEditForm({...editForm, clinicianId: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
+                          <option value="">Unassigned</option>
+                          {data.clinicians.map(c => (
+                            <option key={c.clinician_id} value={c.clinician_id}>Dr. {c.full_name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </>
                   )}
                 </div>
                 <button onClick={handleUpdateProfile} disabled={actionLoading} className="w-full mt-2 py-2 text-xs font-bold rounded-md bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition-all flex justify-center items-center gap-2">

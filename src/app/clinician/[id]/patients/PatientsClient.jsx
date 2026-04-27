@@ -118,7 +118,7 @@ export default function PatientsClient({ clinicianId, patients }) {
 
   const handleExport = () => {
     if (filteredPatients.length === 0) return alert("No patient data to export.");
-    const headers = ['MRN', 'Name', 'Email', 'Age', 'Device MAC', 'Latest Risk Score', 'Last Sensor Sync'];
+    const headers = ['MRN', 'Name', 'Email', 'Age', 'Device ID', 'Latest Risk Score', 'Last Sensor Sync'];
     const rows = filteredPatients.map(p => {
       const latestLog = p.sensorLogs?.[0];
       return [

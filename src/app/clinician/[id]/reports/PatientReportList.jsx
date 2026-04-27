@@ -1,4 +1,3 @@
-// src/app/clinician/[id]/reports/PatientReportList.jsx
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -81,14 +80,14 @@ export default function PatientReportList({ patients }) {
                       {patient.fullName} <span className="text-slate-400 font-normal ml-1">({patient.mrn || 'No MRN'})</span>
                     </h3>
                     <p className="text-[10px] text-slate-400 font-medium mt-1">
-                      {patient.sensorLogs.length} logs available
+                      {patient._count?.sensorLogs?.toLocaleString() || 0} total logs available
                     </p>
                   </div>
                 </div>
                 
                 <div className="shrink-0 flex gap-2">
                   <ExportButton 
-                    logs={patient.sensorLogs} 
+                    patientId={patient.id} // Pass the database UUID instead of the logs array
                     patientName={patient.fullName} 
                     mrn={patient.mrn}
                     deviceMac={patient.deviceMac}
@@ -96,7 +95,11 @@ export default function PatientReportList({ patients }) {
                     clinicianName={patient.clinician?.full_name}
                     className="text-xs py-1.5 px-3"
                   />
-                  <ExportCsvButton logs={patient.sensorLogs} patientName={patient.fullName} className="text-xs py-1.5 px-3" />
+                  <ExportCsvButton 
+                    patientId={patient.id} 
+                    patientName={patient.fullName} 
+                    className="text-xs py-1.5 px-3" 
+                  />
                 </div>
               </div>
             ))}

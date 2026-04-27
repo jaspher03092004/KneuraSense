@@ -246,7 +246,7 @@ export async function registerNewDevice(macAddress) {
     const cleanMac = macAddress.toUpperCase().trim();
 
     const existing = await prisma.hardwareDevice.findUnique({ where: { macAddress: cleanMac } });
-    if (existing) return { success: false, error: "Device MAC already exists in inventory." };
+    if (existing) return { success: false, error: "Device ID already exists in inventory." };
 
     await prisma.hardwareDevice.create({
       data: { macAddress: cleanMac, status: 'IN_STOCK', firmwareVer: '1.0.0' }
@@ -339,7 +339,7 @@ export async function unpairDevice(patientId, macAddress) {
     }
 
     await prisma.auditLog.create({
-      data: { clinicianId: adminId, action: 'UNPAIR_DEVICE', targetType: 'Patient', targetId: patientId, details: `Unpaired device MAC: ${macAddress}` }
+      data: { clinicianId: adminId, action: 'UNPAIR_DEVICE', targetType: 'Patient', targetId: patientId, details: `Unpaired device ID: ${macAddress}` }
     });
 
     return { success: true, message: "Device successfully unlinked and returned to stock." };
@@ -383,8 +383,11 @@ export async function getSystemUsers() {
         orderBy: { full_name: 'asc' }
       }),
       prisma.patient.findMany({
+        // UPDATE THIS SELECT BLOCK TO INCLUDE ALL FIELDS
         select: {
           id: true, fullName: true, email: true, oaDiagnosis: true, createdAt: true, deviceMac: true, clinicianId: true,
+          mrn: true, dateOfBirth: true, gender: true, heightCm: true, weightKg: true, phoneNumber: true,
+          emergencyContactName: true, emergencyContactPhone: true, affectedKnee: true, occupation: true, activityLevel: true,
           clinician: { select: { full_name: true } },
           sensorLogs: { orderBy: { timestamp: 'desc' }, take: 1, select: { riskScore: true } }
         },
@@ -465,19 +468,32 @@ export async function updateUserProfile(id, role, data) {
       await prisma.patient.update({ where: { id }, data });
     }
 
+    // FIX: Remove clinicianId from here, put it in details instead.
     await prisma.auditLog.create({
       data: {
-        clinicianId: adminId, 
         action: 'UPDATE_PROFILE',
         targetType: role === 'clinician' ? 'Clinician' : 'Patient',
         targetId: id,
-        details: `Admin manually edited profile data.`
+        details: `Admin ${adminId} manually edited profile data.`
       }
     });
 
     return { success: true, message: "Profile updated successfully." };
   } catch (error) {
-    return { success: false, error: "Failed to update profile details. Email might already be in use." };
+    console.error("Profile Update Error:", error);
+
+    if (error.code === 'P2002') {
+      const targetField = error.meta?.target || 'field';
+      return { 
+        success: false, 
+        error: `The ${targetField} you entered is already in use.` 
+      };
+    }
+
+    return { 
+      success: false, 
+      error: error.message || "Failed to update profile details." 
+    };
   }
 }
 

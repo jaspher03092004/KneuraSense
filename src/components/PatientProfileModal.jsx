@@ -69,7 +69,7 @@ export default function PatientProfileModal({ isOpen, onClose, patient }) {
     doc.text(`Phone: ${patient.emergencyContactPhone || 'N/A'}`, leftMargin, y); y += lineHeight * 1.2;
 
     addSectionHeader("5. HARDWARE & PREFERENCES");
-    doc.text(`Device MAC: ${patient.deviceMac || 'Unassigned'}`, leftMargin, y); y += lineHeight;
+    doc.text(`Device ID: ${patient.deviceMac || 'Unassigned'}`, leftMargin, y); y += lineHeight;
     doc.text(`Risk Threshold Target: ${patient.riskThreshold ?? 75}`, leftMargin, y); y += lineHeight;
 
     const safeName = patient.fullName.replace(/[^a-zA-Z0-9]/g, '_');
@@ -130,7 +130,7 @@ export default function PatientProfileModal({ isOpen, onClose, patient }) {
                 <div className="space-y-2 text-sm">
                   <p className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">OA Diagnosis</span> <span className="font-semibold text-slate-900 dark:text-slate-200">{patient.oaDiagnosis ? 'Yes' : 'No'}</span></p>
                   <p className="flex justify-between"><span className="text-slate-500 dark:text-slate-400">Affected Knee</span> <span className="font-semibold text-slate-900 dark:text-slate-200">{patient.affectedKnee || 'N/A'}</span></p>
-                  <p className="flex justify-between mt-2 pt-2 border-t border-slate-200 dark:border-slate-700"><span className="text-slate-500 dark:text-slate-400">Device MAC</span> <span className="font-mono font-bold text-slate-900 dark:text-slate-200">{patient.deviceMac || 'None'}</span></p>
+                  <p className="flex justify-between mt-2 pt-2 border-t border-slate-200 dark:border-slate-700"><span className="text-slate-500 dark:text-slate-400">Device ID</span> <span className="font-mono font-bold text-slate-900 dark:text-slate-200">{patient.deviceMac || 'None'}</span></p>
                 </div>
               </div>
 
