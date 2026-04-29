@@ -20,6 +20,8 @@ export default async function HelpPage({ params }) {
     select: { timestamp: true, battery: true }
   });
 
+  const supportEmail = process.env.SMTP_USER;
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 font-sans text-slate-800">
       {/* Offload the interactive UI to the Client Component */}
