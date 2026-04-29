@@ -7,7 +7,7 @@ import {
   BookOpen, HelpCircle
 } from 'lucide-react';
 
-export default function HelpClient({ patient, latestLog }) {
+export default function HelpClient({ patient, latestLog, supportEmail}) {
   const [searchQuery, setSearchQuery] = useState("");
 
   const categories = [
@@ -123,20 +123,34 @@ export default function HelpClient({ patient, latestLog }) {
             <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800 shadow-sm p-4">
               <h3 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest mb-3">Resources</h3>
               <div className="space-y-2">
-                <a href="#" className="flex items-center gap-2.5 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-100">
+                {/* Updated Download Link */}
+                <a 
+                  href="/resources/KneuraSense-User-Guide.pdf" 
+                  download="KneuraSense-User-Guide.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-100"
+                >
                   <FileText size={16} className="text-[#2D5F8B] dark:text-blue-400" />
                   <div>
-                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200">User Manual</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200">User Guide</p>
                     <p className="text-[10px] text-slate-500">PDF Guide</p>
                   </div>
                 </a>
-                <button className="w-full flex items-center gap-2.5 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-100 text-left">
-                  <Wifi size={16} className="text-[#2D5F8B] dark:text-blue-400" />
+                
+                <a 
+                  href="/resources/wifi-pdf-guide.pdf" 
+                  download="wifi-pdf-guide.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors border border-transparent hover:border-slate-100 group"
+                >
+                  <Wifi size={16} className="text-[#2D5F8B] dark:text-blue-400 group-hover:scale-110 transition-transform" />
                   <div>
-                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Wi-Fi Video</p>
-                    <p className="text-[10px] text-slate-500">1.5 min watch</p>
+                    <p className="text-xs font-bold text-slate-800 dark:text-slate-200">Wi-Fi Guide</p>
+                    <p className="text-[10px] text-slate-500">PDF Guide</p>
                   </div>
-                </button>
+                </a>
               </div>
             </div>
 
@@ -144,7 +158,9 @@ export default function HelpClient({ patient, latestLog }) {
               <h3 className="text-sm font-bold text-slate-900 dark:text-white mb-1">Still need help?</h3>
               <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-4">Support is available Mon-Fri, 9AM-5PM PHT.</p>
               <div className="space-y-2">
-                <a href={`mailto:support@kneurasense.com`} className="flex items-center justify-center gap-2 w-full py-2 bg-[#2D5F8B] hover:bg-[#1f4263] text-white rounded-md text-xs font-bold transition-colors">
+                <a 
+                  href={`mailto:${supportEmail}`} 
+                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#2D5F8B] hover:bg-[#1f4263] text-white rounded-md text-xs font-bold transition-colors">
                   <Mail size={16} /> Email Support
                 </a>
                 <a href="tel:+639123456789" className="flex items-center justify-center gap-2 w-full py-2 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-bold transition-colors">
