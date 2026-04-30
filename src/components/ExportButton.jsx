@@ -11,6 +11,8 @@ export default function ExportButton({
   deviceMac, 
   mrn, 
   riskThreshold, 
+  startDate,
+  endDate,
   className 
 }) {
   const threshold = riskThreshold || 75;
@@ -28,7 +30,11 @@ export default function ExportButton({
 
     try {
       // 1. Fetch the logs on-demand from your API route
-      const response = await fetch(`/api/patient/${patientId}/export`);
+      const queryParams = new URLSearchParams();
+      if (startDate) queryParams.append('startDate', startDate);
+      if (endDate) queryParams.append('endDate', endDate);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      const response = await fetch(`/api/patient/${patientId}/export${queryString}`);
       if (!response.ok) throw new Error("Network response was not ok");
       
       const { logs } = await response.json();
