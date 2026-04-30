@@ -29,3 +29,31 @@ export function getBMICategory(bmi) {
   if (bmi < 30) return 'Overweight';
   return 'Obese';
 }
+
+function downloadCSV(data, filename) {
+  if (data.length === 0) return;
+
+  // Define headers based on SensorLog fields in prisma.zip
+  const headers = ["Timestamp", "Risk Score", "Angle", "Force", "BPM", "Skin Temp"];
+  
+  const csvRows = data.map(log => [
+    new Date(log.timestamp).toLocaleString(), // From prisma.zip
+    log.riskScore,                            // From prisma.zip[cite: 2]
+    log.angle,                                // From prisma.zip[cite: 2]
+    log.force,                                // From prisma.zip[cite: 2]
+    log.bpm || 'N/A',                         // From prisma.zip[cite: 2]
+    log.skinTemp                              // From prisma.zip[cite: 2]
+  ].join(','));
+
+  const csvContent = [headers.join(','), ...csvRows].join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", filename);
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}

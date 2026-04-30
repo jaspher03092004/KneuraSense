@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { FileSpreadsheet } from 'lucide-react';
 
-export default function ExportCsvButton({ patientId, patientName, className }) {
+export default function ExportCsvButton({ patientId, patientName, startDate, endDate, className }) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async () => {
@@ -11,7 +11,11 @@ export default function ExportCsvButton({ patientId, patientName, className }) {
 
     try {
       // 1. Fetch the 10,000 logs on-demand
-      const response = await fetch(`/api/patient/${patientId}/export`);
+      const queryParams = new URLSearchParams();
+      if (startDate) queryParams.append('startDate', startDate);
+      if (endDate) queryParams.append('endDate', endDate);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : '';
+      const response = await fetch(`/api/patient/${patientId}/export${queryString}`);
       if (!response.ok) throw new Error("Network response was not ok");
       
       const { logs } = await response.json();
@@ -22,14 +26,28 @@ export default function ExportCsvButton({ patientId, patientName, className }) {
         return;
       }
 
-      // 2. Generate CSV exactly as you had it before
-      const headers = ['Timestamp', 'Risk Score', 'AI State', 'Knee Angle (°)', 'Force (N)', 'Skin Temp (°C)', 'Ambient Temp (°C)', 'BPM', 'Battery (%)'];
+      // 2. Generate CSV with expanded field set
+      const headers = ['Patient ID', 'Timestamp', 'Angle (°)', 'Force (N)', 'Skin Temp (°C)', 'Battery (%)', 'Risk Score', 'Weather Temp (°C)', 'Ambient Temp (°C)', 'BPM', 'Pressure', 'Shank Pitch (°)', 'Thigh Pitch (°)', 'AI State', 'Offline Mode', 'WiFi SSID'];
       
       const csvRows = logs.map(log => {
         const date = new Date(log.timestamp).toLocaleString().replace(/,/g, '');
         return [
-          date, log.riskScore || 0, log.aiState || 'Unknown', log.angle || 0,
-          log.force || 0, log.skinTemp || 0, log.ambientTemp || 0, log.bpm || 0, log.battery || 0
+          patientId,
+          date, 
+          log.angle || 0, 
+          log.force || 0, 
+          log.skinTemp || 0, 
+          log.battery || 0, 
+          log.riskScore || 0, 
+          log.weatherTemp || 0, 
+          log.ambientTemp || 0, 
+          log.bpm || 0, 
+          log.pressure || 0,
+          log.shankPitch || 0,
+          log.thighPitch || 0,
+          log.aiState || 'Unknown', 
+          log.offlineMode || false,
+          log.wifiSsid || 'N/A'
         ].join(','); 
       });
 
