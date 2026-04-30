@@ -366,10 +366,6 @@ KneuraSense/
 ├── public/
 │   ├── images/
 │   └── sw.js                   # Service worker
-├── ml-pipeline/                # Python ML data export
-│   ├── export_data.py
-│   ├── requirements.txt
-│   └── datasets/
 ├── next.config.mjs             # Next.js configuration
 ├── tailwind.config.js          # Tailwind CSS configuration
 ├── package.json                # Node.js dependencies
@@ -560,6 +556,7 @@ kill -9 <PID>
 
 For comprehensive technical documentation, design patterns, architecture deep-dives, and implementation details, see:
 
+- **[DOCUMENTATION.md](./DOCUMENTATION.md)** - Concise architecture overview and implementation summary for developers
 - **[software-documentation.md](./software-documentation.md)** - Complete technical reference including system architecture, design patterns, API endpoints, database schema, scalability considerations, and roadmap
 
 ---

@@ -3,27 +3,29 @@
 
 This section provides a comprehensive technical overview of the KneuraSense system architecture, designed to facilitate onboarding and guide architectural decisions.
 
+For more complete implementation detail, API references, and roadmap guidance, see `software-documentation.md`.
+
 ### Architectural Overview
 
 KneuraSense employs a modern full-stack architecture built on Next.js with clear separation of concerns:
 
 ```
 ┌─────────────────────┐
-│   React Components  │  (components/, UI logic)
+│   React Components  │  (src/components/, UI logic)
 └──────────┬──────────┘
            │
 ┌──────────v─────────────────────────────────────┐
-│   Next.js App Router (app/)                     │
-│   ├── Route Groups: (clinician), (auth)        │
-│   ├── Dynamic Routes: patient/[id]              │
-│   └── API Routes: api/                          │
+│   Next.js App Router (src/app/)                 │
+│   ├── Route Groups: (clinician), (auth)         │
+│   ├── Dynamic Routes: patient/[id]               │
+│   └── API Routes: src/app/api/                   │
 └──────────┬──────────────────────────────────────┘
            │
 ┌──────────v──────────────────┐
-│   Data Layer (lib/)          │
-│   ├── Prisma ORM Client     │
-│   ├── MQTT Integration      │
-│   └── Weather Service       │
+│   Data Layer (src/lib/)       │
+│   ├── Prisma ORM Client      │
+│   ├── MQTT Integration       │
+│   └── Weather Service        │
 └──────────┬──────────────────┘
            │
 ┌──────────v──────────────────┐
@@ -35,14 +37,14 @@ KneuraSense employs a modern full-stack architecture built on Next.js with clear
 
 The application follows a clear request-response pattern:
 
-1. **UI Layer** (`components/`): React components handle user interactions and state management
-2. **Route Logic** (`app/`): Next.js pages and layouts orchestrate page rendering and data flows
-3. **API Routes** (`app/api/`): Backend endpoints expose data operations and integrate with the database
-4. **Data Persistence** (`lib/prisma.js`): Singleton Prisma Client manages all database operations
+1. **UI Layer** (`src/components/`): React components handle user interactions and state management
+2. **Route Logic** (`src/app/`): Next.js pages and layouts orchestrate page rendering and data flows
+3. **API Routes** (`src/app/api/`): Backend endpoints expose data operations and integrate with the database
+4. **Data Persistence** (`src/lib/prisma.js`): Singleton Prisma Client manages all database operations
 
 **Example flow for patient data retrieval:**
 ```
-React Component → app/patient/[id]/dashboard/page.js → api/patient/[id]/route.js → lib/prisma.js → PostgreSQL
+React Component → src/app/patient/[id]/dashboard/page.js → src/app/api/patient/[id]/route.js → src/lib/prisma.js → PostgreSQL
 ```
 
 ### Route Architecture: (clinician) Route Group vs. patient/[id]
@@ -51,12 +53,12 @@ Next.js **route groups** (denoted by parentheses) enable logical organization wi
 
 | Route Type | Pattern | Purpose | URL Example |
 |-----------|---------|---------|-------------|
-| **Clinician Route Group** | `app/(clinician)/` | Protected clinician-only pages | `/clinician/[id]/dashboard` |
-| **Patient Dynamic Route** | `app/patient/[id]/` | Patient-specific dashboards | `/patient/[id]/dashboard` |
-| **Auth Route Group** | `app/(auth)/` | Public authentication pages | `/login`, `/register` |
+| **Clinician Route Group** | `src/app/(clinician)/` | Protected clinician-only pages | `/clinician/[id]/dashboard` |
+| **Patient Dynamic Route** | `src/app/patient/[id]/` | Patient-specific dashboards | `/patient/[id]/dashboard` |
+| **Auth Route Group** | `src/app/(auth)/` | Public authentication pages | `/login`, `/register` |
 
 **Key Distinction:**
-- **(clinician)** uses a route group to share a common layout (`app/(clinician)/layout.js`) without the word "clinician" appearing in the URL
+- **(clinician)** uses a route group to share a common layout (`src/app/(clinician)/layout.js`) without the word "clinician" appearing in the URL
 - **patient/[id]** is a dynamic segment route, where `[id]` becomes a variable path parameter accessible as a URL slug
 
 Both can have nested layouts and components, but route groups are semantically grouped without URL implications, while dynamic routes create user-facing URLs.
@@ -86,12 +88,12 @@ npx prisma generate  # Re-generates client when schema.prisma changes
 
 These files are auto-generated from `prisma/schema.prisma`, so they should **never be manually edited**. They update whenever your database schema changes.
 
-#### Singleton Prisma Instance: lib/prisma.js
+#### Singleton Prisma Instance: src/lib/prisma.js
 
-All database operations route through a single Prisma Client instance (`lib/prisma.js`) to prevent connection pool exhaustion and ensure consistent transaction handling:
+All database operations route through a single Prisma Client instance (`src/lib/prisma.js`) to prevent connection pool exhaustion and ensure consistent transaction handling:
 
 ```javascript
-// lib/prisma.js - Singleton Pattern
+// src/lib/prisma.js - Singleton Pattern
 const globalForPrisma = global;
 
 export const prisma = globalForPrisma.prisma || new PrismaClient();
@@ -111,7 +113,7 @@ export default prisma;
 
 **Usage Example:**
 ```javascript
-// app/api/patient/[id]/route.js
+// src/app/api/patient/[id]/route.js
 import prisma from "@/lib/prisma";
 
 export async function GET(request, { params }) {
@@ -257,7 +259,7 @@ const riskScore = calculateRisk(sensorData, weather);
 
 **Component Usage Pattern:**
 ```javascript
-// app/patient/[id]/dashboard/page.js
+// src/app/patient/[id]/dashboard/page.js
 import StressGauge from "@/components/StressGauge";
 import SensorGrid from "@/components/SensorGrid";
 
@@ -432,7 +434,7 @@ React Component
           ↓
 fetch("/api/patient/[id]", { method: "GET" })
           ↓
-app/api/patient/[id]/route.js handles request
+src/app/api/patient/[id]/route.js handles request
           ↓
 Calls prisma.patient.findUnique()
           ↓
@@ -487,7 +489,7 @@ await prisma.$transaction([
 | MQTT connection fails | Broker unreachable | Verify MQTT_BROKER_URL in .env.local |
 | Authentication fails | Corrupted session | Clear cookies, re-login |
 | Slow dashboard loads | Unoptimized queries | Use Prisma select() to limit returned fields |
-| Database connection pool exhausted | Too many concurrent connections | Verify lib/prisma.js singleton usage |
+| Database connection pool exhausted | Too many concurrent connections | Verify src/lib/prisma.js singleton usage |
 
 ---
 

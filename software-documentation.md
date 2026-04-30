@@ -25,6 +25,10 @@
 
 KneuraSense implements a **modern full-stack architecture** using Next.js 16 as a unified framework for frontend and backend operations. The system processes real-time IoT data from wearable knee devices, applies complex risk calculations, facilitates clinical intervention, and maintains comprehensive audit trails for healthcare compliance.
 
+> Companion documents:
+> - `DOCUMENTATION.md` for a concise architecture overview
+> - `software-documentation.md` for the full technical reference
+
 ### High-Level Architecture Diagram
 
 ```
@@ -43,10 +47,10 @@ KneuraSense implements a **modern full-stack architecture** using Next.js 16 as 
 │           SERVER LAYER (Next.js 16 on Node.js)                 │
 │                                                                 │
 │  Route Groups & Pages (App Router)                           │
-│  ├─ /app/(auth) → Public auth pages                          │
-│  ├─ /app/(clinician) → Protected clinician routes            │
-│  ├─ /app/patient → Patient dashboards                        │
-│  └─ /app/admin → Admin management                            │
+│  ├─ src/app/(auth) → Public auth pages                      │
+│  ├─ src/app/(clinician) → Protected clinician routes         │
+│  ├─ src/app/patient → Patient dashboards                     │
+│  └─ src/app/admin → Admin management                         │
 │                                                                 │
 │  API Routes                                                    │
 │  ├─ /api/save-log → MQTT message ingestion                  │
@@ -61,13 +65,13 @@ KneuraSense implements a **modern full-stack architecture** using Next.js 16 as 
 │  └─ [Other data mutations]                                   │
 │                                                                 │
 │  Services & Utilities                                         │
-│  ├─ lib/prisma.js → Database access (Singleton)             │
-│  ├─ lib/mqtt.js → IoT device communication                  │
-│  ├─ lib/weather.js → Weather context API                    │
-│  ├─ lib/email.js → Email notifications                      │
-│  ├─ lib/webPush.js → Browser push notifications             │
-│  ├─ lib/validations.js → Input validation (Zod)             │
-│  └─ hooks/useMQTT.js → React hook for MQTT                  │
+│  ├─ src/lib/prisma.js → Database access (Singleton)         │
+│  ├─ src/lib/mqtt.js → IoT device communication              │
+│  ├─ src/lib/weather.js → Weather context API                │
+│  ├─ src/lib/email.js → Email notifications                  │
+│  ├─ src/lib/webPush.js → Browser push notifications         │
+│  ├─ src/lib/validations.js → Input validation (Zod)         │
+│  └─ src/hooks/useMQTT.js → React hook for MQTT              │
 └────────────────────┬───────────────────────────────────────────┘
                      │
         ┌────────────┼────────────┐
@@ -123,7 +127,7 @@ KneuraSense implements a **modern full-stack architecture** using Next.js 16 as 
 
 ## Design Patterns
 
-### 1. **Singleton Pattern (lib/prisma.js)**
+### 1. **Singleton Pattern (src/lib/prisma.js)**
 
 ```javascript
 const globalForPrisma = global;
@@ -216,7 +220,7 @@ export const config = {
 ### 5. **Hook Pattern for Real-Time Data**
 
 ```javascript
-// hooks/useMQTT.js
+// src/hooks/useMQTT.js
 export function useMQTT(topic) {
   const [data, setData] = useState(null);
   const [connected, setConnected] = useState(false);
@@ -632,8 +636,6 @@ Admin action (Approve | Reject)
             └─ Clinician cannot access dashboard
 ```
 
-### Flow 5: Patient Data Export for ML Training
-
 ```
 Clinician clicks "Export Data"
     ↓
@@ -666,25 +668,8 @@ Transform to Edge Impulse format:
     
     ↓
 Export to CSV file
-    
-    ↓
-Python ML Pipeline (ml-pipeline/export_data.py)
-    Reads exported CSV
-    ↓
-    Apply preprocessing:
-    ├─ Normalize features
-    ├─ Remove outliers
-    ├─ Handle missing values
-    └─ Feature engineering
-    
-    ↓
-    Save formatted dataset
-    ↓
-    Ready for Edge Impulse ML model training
-```
 
 ---
-
 ## Database Schema Overview
 
 ### Entity Relationship Diagram
@@ -896,7 +881,7 @@ Python ML Pipeline (ml-pipeline/export_data.py)
 
 **Implementation**:
 ```javascript
-// lib/prisma.js
+// src/lib/prisma.js
 const globalForPrisma = global;
 export const prisma = globalForPrisma.prisma || new PrismaClient();
 if (process.env.NODE_ENV !== "production") {
@@ -1550,9 +1535,6 @@ export async function syncWithServer() {
 }
 ```
 
-#### **ML Model Retraining Pipeline**
-```python
-# ml-pipeline/retrain_model.py
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 import edge_impulse_sdk
