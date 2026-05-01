@@ -281,12 +281,13 @@ export async function updateDeviceStatus(macAddress, newStatus) {
     });
 
     await prisma.auditLog.create({
-      data: { clinicianId: adminId, action: 'UPDATE_DEVICE_STATUS', targetType: 'Hardware', targetId: macAddress, details: `Status changed to ${newStatus}.` }
+      data: { clinicianId: null, action: 'UPDATE_DEVICE_STATUS', targetType: 'Hardware', targetId: macAddress, details: `Status changed to ${newStatus}.` }
     });
 
     return { success: true, message: "Device status updated." };
   } catch (error) {
-    return { success: false, error: "Failed to update device status." };
+    console.error("Update Device Status Error:", error);
+    return { success: false, error: `Failed to update device status: ${error.message}` };
   }
 }
 
@@ -313,12 +314,13 @@ export async function manualPairDevice(patientId, macAddress) {
     });
 
     await prisma.auditLog.create({
-      data: { clinicianId: adminId, action: 'PAIR_DEVICE', targetType: 'Patient', targetId: patientId, details: `Manually paired with MAC: ${cleanMac}` }
+      data: { clinicianId: null, action: 'PAIR_DEVICE', targetType: 'Patient', targetId: patientId, details: `Manually paired with MAC: ${cleanMac}` }
     });
 
     return { success: true, message: "Device successfully paired." };
   } catch (error) {
-    return { success: false, error: "Failed to pair device." };
+    console.error("Manual Pair Device Error:", error);
+    return { success: false, error: `Failed to pair device: ${error.message}` };
   }
 }
 
@@ -339,12 +341,13 @@ export async function unpairDevice(patientId, macAddress) {
     }
 
     await prisma.auditLog.create({
-      data: { clinicianId: adminId, action: 'UNPAIR_DEVICE', targetType: 'Patient', targetId: patientId, details: `Unpaired device ID: ${macAddress}` }
+      data: { clinicianId: null, action: 'UNPAIR_DEVICE', targetType: 'Patient', targetId: patientId, details: `Unpaired device ID: ${macAddress}` }
     });
 
     return { success: true, message: "Device successfully unlinked and returned to stock." };
   } catch (error) {
-    return { success: false, error: "Failed to unlink device." };
+    console.error("Unpair Device Error:", error);
+    return { success: false, error: `Failed to unlink device: ${error.message}` };
   }
 }
 
@@ -362,7 +365,7 @@ export async function triggerOTAUpdate(macAddress) {
     });
 
     await prisma.auditLog.create({
-      data: { clinicianId: adminId, action: 'OTA_UPDATE', targetType: 'Hardware', targetId: macAddress, details: `Pushed firmware ${newVersion}` }
+      data: { clinicianId: null, action: 'OTA_UPDATE', targetType: 'Hardware', targetId: macAddress, details: `Pushed firmware ${newVersion}` }
     });
 
     return { success: true, message: `OTA Update initiated. Target firmware: ${newVersion}` };
@@ -444,7 +447,7 @@ export async function toggleClinicianAccess(clinicianId, currentStatus) {
     const adminId = await verifyAdmin();
     await prisma.auditLog.create({
       data: {
-        clinicianId: adminId, 
+        clinicianId: null, 
         action: !currentStatus ? 'RESTORE_ACCESS' : 'REVOKE_ACCESS',
         targetType: 'Clinician',
         targetId: clinicianId,
@@ -509,7 +512,7 @@ export async function deleteSystemUser(id, role) {
 
     await prisma.auditLog.create({
       data: {
-        clinicianId: adminId, 
+        clinicianId: null, 
         action: 'DELETE_USER',
         targetType: role === 'clinician' ? 'Clinician' : 'Patient',
         targetId: id,
