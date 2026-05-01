@@ -3,13 +3,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   getHardwareFleet, unpairDevice, registerNewDevice, 
-  updateDeviceStatus, manualPairDevice, triggerOTAUpdate,
+  updateDeviceStatus, manualPairDevice,
   deleteHardwareDevice
 } from '@/actions/admin';
 import { 
-  Cpu, BatteryWarning, Wifi, WifiOff, Package, Wrench, Activity,
+  Cpu, BatteryWarning, Wifi, WifiOff, Package, Activity,
   Search, Unlink, ShieldCheck, X, AlertTriangle, Loader2, Hash,
-  Plus, Link2, RefreshCw, UploadCloud, Trash2
+  Plus, Link2, Trash2
 } from 'lucide-react';
 
 export default function HardwareManagement() {
@@ -62,9 +62,8 @@ export default function HardwareManagement() {
     });
 
     const inStock = data.inventory.filter(i => i.status === 'IN_STOCK').length;
-    const inMaintenance = data.inventory.filter(i => i.status === 'MAINTENANCE').length;
 
-    return { deployed: data.active.length, online, offline, criticalBattery, inStock, inMaintenance };
+    return { deployed: data.active.length, online, offline, criticalBattery, inStock };
   }, [data]);
 
   // --- ACTIONS ---
@@ -113,15 +112,6 @@ export default function HardwareManagement() {
     } else alert(result.error);
   };
 
-  const handleOTA = async (macAddress) => {
-    if (!confirm(`Push OTA Firmware Update to device ${macAddress}? The device will reboot.`)) return;
-    const result = await triggerOTAUpdate(macAddress);
-    if (result.success) {
-      alert(result.message);
-      fetchData(); 
-    } else alert(result.error);
-  };
-
   const handleDeleteDevice = async () => {
     setActionLoading(true);
     const result = await deleteHardwareDevice(deleteModal.macAddress);
@@ -155,12 +145,11 @@ export default function HardwareManagement() {
       </header>
 
       {/* KPI GRID */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 md:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
         <StatCard title="Deployed" val={kpis.deployed} icon={Cpu} cls="text-blue-600 bg-blue-50 border-blue-100 dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20" />
         <StatCard title="Online (1hr)" val={kpis.online} icon={Wifi} cls="text-emerald-600 bg-emerald-50 border-emerald-100 dark:text-emerald-400 dark:bg-emerald-500/10 dark:border-emerald-500/20" />
         <StatCard title="Critical Battery" val={kpis.criticalBattery} icon={BatteryWarning} cls="text-rose-600 bg-rose-50 border-rose-100 dark:text-rose-400 dark:bg-rose-500/10 dark:border-rose-500/30" alert={kpis.criticalBattery > 0} />
         <StatCard title="In Stock" val={kpis.inStock} icon={Package} cls="text-slate-600 bg-slate-50 border-slate-200 dark:text-slate-400 dark:bg-slate-500/10 dark:border-slate-500/20" />
-        <StatCard title="Maintenance" val={kpis.inMaintenance} icon={Wrench} cls="text-amber-600 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/30" alert={kpis.inMaintenance > 0} />
       </div>
 
       {/* MAIN CONTENT AREA */}
@@ -223,7 +212,6 @@ export default function HardwareManagement() {
                         <td className="px-4 sm:px-6 py-3 sm:py-4">{log?.timestamp ? (<span className="font-medium text-slate-600 dark:text-slate-300 flex items-center gap-1.5 text-[11px]"><Activity className="w-3.5 h-3.5 text-blue-500 opacity-80" />{new Date(log.timestamp).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' })}</span>) : (<span className="text-slate-400 dark:text-slate-500 italic">Never Synced</span>)}</td>
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
                           <div className="flex justify-end gap-1.5">
-                            <button onClick={() => handleOTA(device.deviceMac)} className="px-2 py-1.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center shadow-sm hover:text-blue-600 dark:hover:text-blue-400 group-hover:border-blue-200 dark:group-hover:border-blue-500/30 transition-all text-[10px]" title="Push OTA Update"><UploadCloud className="w-3.5 h-3.5" /></button>
                             <button onClick={() => setUnpairModal({ isOpen: true, patientId: device.id, macAddress: device.deviceMac, patientName: device.fullName })} className="px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-md hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-slate-200 dark:border-slate-700 flex items-center justify-center gap-1.5 shadow-sm hover:text-rose-600 dark:hover:text-rose-400 group-hover:border-rose-200 dark:group-hover:border-rose-500/30 transition-all text-[10px] font-bold"><Unlink className="w-3.5 h-3.5" /> <span className="hidden sm:inline">Unpair</span></button>
                           </div>
                         </td>
@@ -265,14 +253,6 @@ export default function HardwareManagement() {
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-[11px] font-medium text-slate-500 dark:text-slate-400">{new Date(item.createdAt).toLocaleDateString()}</td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
                         <div className="flex justify-end gap-1.5 ml-auto w-fit">
-                          {item.status !== 'ASSIGNED' && (
-                            <button 
-                              onClick={() => handleStatusChange(item.macAddress, item.status === 'IN_STOCK' ? 'MAINTENANCE' : 'IN_STOCK')}
-                              className="px-2.5 py-1.5 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm transition-all text-[10px] font-bold flex items-center gap-1.5"
-                            >
-                              <RefreshCw className="w-3.5 h-3.5" /> Set {item.status === 'IN_STOCK' ? 'Maintenance' : 'Stock'}
-                            </button>
-                          )}
                           <button 
                             onClick={() => setDeleteModal({ isOpen: true, macAddress: item.macAddress })}
                             className="px-2.5 py-1.5 bg-white dark:bg-slate-900 text-rose-500 dark:text-rose-400 rounded-md hover:bg-rose-50 dark:hover:bg-rose-500/10 border border-slate-200 dark:border-slate-700 shadow-sm transition-all text-[10px] font-bold flex items-center gap-1.5"
