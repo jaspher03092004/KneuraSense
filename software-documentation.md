@@ -33,45 +33,45 @@ KneuraSense implements a **modern full-stack architecture** using Next.js 16 as 
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                     CLIENT LAYER (Browser)                      │
+│                     CLIENT LAYER (Browser)                     │
 │  ┌─────────────────────────────────────────────────────────┐   │
 │  │  React 19 Components                                    │   │
-│  │  ├─ Patient Dashboard (Real-time metrics)              │   │
-│  │  ├─ Clinician Dashboard (Patient management)           │   │
-│  │  ├─ Admin Portal (Clinician approval)                 │   │
-│  │  └─ Authentication Pages (Login, Register, Reset)     │   │
+│  │  ├─ Patient Dashboard (Real-time metrics)               │   │
+│  │  ├─ Clinician Dashboard (Patient management)            │   │
+│  │  ├─ Admin Portal (Clinician approval)                   │   │
+│  │  └─ Authentication Pages (Login, Register, Reset)       │   │
 │  └─────────────────────────────────────────────────────────┘   │
 └────────────────────┬───────────────────────────────────────────┘
                      │ HTTP/HTTPS
 ┌────────────────────v───────────────────────────────────────────┐
 │           SERVER LAYER (Next.js 16 on Node.js)                 │
-│                                                                 │
-│  Route Groups & Pages (App Router)                           │
-│  ├─ src/app/(auth) → Public auth pages                      │
-│  ├─ src/app/(clinician) → Protected clinician routes         │
-│  ├─ src/app/patient → Patient dashboards                     │
-│  └─ src/app/admin → Admin management                         │
-│                                                                 │
+│                                                                │
+│  Route Groups & Pages (App Router)                             │
+│  ├─ src/app/(auth) → Public auth pages                         │
+│  ├─ src/app/(clinician) → Protected clinician routes           │
+│  ├─ src/app/patient → Patient dashboards                       │
+│  └─ src/app/admin → Admin management                           │
+│                                                                │
 │  API Routes                                                    │
-│  ├─ /api/save-log → MQTT message ingestion                  │
-│  ├─ /api/patient/[id] → Patient data endpoints              │
-│  ├─ /api/approve-clinician → Admin workflows                │
-│  └─ [Other domain-specific endpoints]                        │
-│                                                                 │
-│  Server Actions (Real-time backend operations)              │
-│  ├─ login, register, password reset                          │
-│  ├─ updatePatient, updateClinician                          │
-│  ├─ createIntervention, acknowledgeIntervention            │
-│  └─ [Other data mutations]                                   │
-│                                                                 │
-│  Services & Utilities                                         │
-│  ├─ src/lib/prisma.js → Database access (Singleton)         │
-│  ├─ src/lib/mqtt.js → IoT device communication              │
-│  ├─ src/lib/weather.js → Weather context API                │
-│  ├─ src/lib/email.js → Email notifications                  │
-│  ├─ src/lib/webPush.js → Browser push notifications         │
-│  ├─ src/lib/validations.js → Input validation (Zod)         │
-│  └─ src/hooks/useMQTT.js → React hook for MQTT              │
+│  ├─ /api/save-log → MQTT message ingestion                     │
+│  ├─ /api/patient/[id] → Patient data endpoints                 │
+│  ├─ /api/approve-clinician → Admin workflows                   │
+│  └─ [Other domain-specific endpoints]                          │
+│                                                                │
+│  Server Actions (Real-time backend operations)                 │
+│  ├─ login, register, password reset                            │
+│  ├─ updatePatient, updateClinician                             │
+│  ├─ createIntervention, acknowledgeIntervention                │
+│  └─ [Other data mutations]                                     │
+│                                                                │
+│  Services & Utilities                                          │
+│  ├─ src/lib/prisma.js → Database access (Singleton)            │
+│  ├─ src/lib/mqtt.js → IoT device communication                 │
+│  ├─ src/lib/weather.js → Weather context API                   │
+│  ├─ src/lib/email.js → Email notifications                     │
+│  ├─ src/lib/webPush.js → Browser push notifications            │
+│  ├─ src/lib/validations.js → Input validation (Zod)            │
+│  └─ src/hooks/useMQTT.js → React hook for MQTT                 │
 └────────────────────┬───────────────────────────────────────────┘
                      │
         ┌────────────┼────────────┐
