@@ -15,7 +15,7 @@ export default function ClinicianBot() {
 
   const botLogic = {
     start: {
-      text: "Hello, Doctor. I am your Clinical AI Copilot. How can I assist you with your patient load today?",
+      text: "Clinical Copilot online. Ready to streamline your patient workflows and highlight high-risk cases. What's your priority?",
       options: [
         { label: "Draft an Intervention Note", next: "draft_note" },
         { label: "Summarize Patient Data", next: "summarize_data" },
@@ -23,15 +23,15 @@ export default function ClinicianBot() {
       ]
     },
     draft_note: {
-      text: "I can help translate your clinical shorthand into a patient-friendly care plan. Please type your rough notes below, and I'll draft the intervention.",
+      text: "Paste or type your clinical notes. I'll translate into a structured, patient-facing care plan with actionable movement modifications and follow-up milestones.",
       options: [{ label: "Return to Main Menu", next: "start" }]
     },
     summarize_data: {
-      text: "Please type the name of the patient you'd like me to analyze, and I will pull their latest telemetry data and Critical Alerts.",
+      text: "Enter patient name or ID. I'll pull live telemetry, flag abnormal kinematic patterns, highlight critical alerts, and contextualize findings (e.g., meteoropathy effects). Triage-ready summary in seconds.",
       options: [{ label: "Return to Main Menu", next: "start" }]
     },
     explain_risk: {
-      text: "The Overuse Risk Score fuses joint kinematics (flexion angles), applied force (FSR), and physiological stress (heart rate/skin temp) using our Edge AI model. Sustained scores over 80 trigger Critical Alerts.",
+      text: "Overuse Risk Score integrates joint kinematics (flexion/extension angles), ground reaction forces (FSR), and autonomic stress (HR, skin temperature) via Edge AI. Scores ≥80 sustained >2min trigger Critical Alerts. Accounts for weather-induced joint stiffness and seasonal load variations.",
       options: [{ label: "Return to Main Menu", next: "start" }]
     },
   };
@@ -91,7 +91,7 @@ export default function ClinicianBot() {
     } catch (error) {
       setChatHistory(prev => [...prev, { 
         sender: 'bot', 
-        text: "My custom AI endpoint isn't connected yet. Please use the predefined options for now!",
+        text: "Endpoint not configured. Please use the predefined analysis options.",
         options: [{ label: "Return to Main Menu", next: "start" }]
       }]);
     } finally {
