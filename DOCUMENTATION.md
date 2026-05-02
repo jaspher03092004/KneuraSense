@@ -15,21 +15,21 @@ KneuraSense employs a modern full-stack architecture built on Next.js with clear
 └──────────┬──────────┘
            │
 ┌──────────v─────────────────────────────────────┐
-│   Next.js App Router (src/app/)                 │
-│   ├── Route Groups: (clinician), (auth)         │
-│   ├── Dynamic Routes: patient/[id]               │
-│   └── API Routes: src/app/api/                   │
-└──────────┬──────────────────────────────────────┘
+│   Next.js App Router (src/app/)                │
+│   ├── Route Groups: (clinician), (auth)        │
+│   ├── Dynamic Routes: patient/[id]             │
+│   └── API Routes: src/app/api/                 │
+└──────────┬─────────────────────────────────────┘
            │
 ┌──────────v──────────────────┐
-│   Data Layer (src/lib/)       │
-│   ├── Prisma ORM Client      │
-│   ├── MQTT Integration       │
-│   └── Weather Service        │
+│   Data Layer (src/lib/)     │
+│   ├── Prisma ORM Client     │
+│   ├── MQTT Integration      │
+│   └── Weather Service       │
 └──────────┬──────────────────┘
            │
 ┌──────────v──────────────────┐
-│   PostgreSQL Database        │
+│   PostgreSQL Database       │
 └─────────────────────────────┘
 ```
 
