@@ -380,6 +380,7 @@ export default function RegisterPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">KOA Diagnosis</label>
+                      <p className="text-xs text-slate-500 mb-3">Have you been diagnosed with Knee Osteoarthritis (KOA)?</p>
                       <div className="flex gap-3">
                         {['Yes', 'No'].map(o => (
                           <button key={o} type="button" onClick={() => setValue('oaDiagnosis', o)}
