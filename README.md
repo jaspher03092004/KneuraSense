@@ -47,13 +47,13 @@ KneuraSense follows a **full-stack integrated architecture**:
 │         Web Dashboard (React 19)       │
 └────────────────┬───────────────────────┘
                  │
-┌────────────────v─────────────────────────────────┐
-│   Next.js 16 Backend (API Routes & Server Actions)  │
+┌────────────────v───────────────────────────────────┐
+│   Next.js 16 Backend (API Routes & Server Actions) │
 │   ├─ Authentication (JWT, Email Verification)      │
 │   ├─ Patient/Clinician Management                  │
 │   ├─ Real-Time Data Processing                     │
 │   └─ Integration Services (Weather, MQTT, AI)      │
-└────────────────┬──────────────────────────────────┘
+└────────────────┬───────────────────────────────────┘
                  │
     ┌────────────┼────────────┐
     │            │            │
@@ -63,17 +63,17 @@ KneuraSense follows a **full-stack integrated architecture**:
 └────────┘  └────────┘  └──────────┘
     │
 ┌───v─────────────────────────┐
-│   PostgreSQL Database        │
+│   PostgreSQL Database       │
 │   (Prisma ORM)              │
-└──────────────────────────────┘
+└─────────────────────────────┘
 
 ┌────────────────────────────────────────┐
-│      IoT Knee Device (ESP32)            │
+│      IoT Knee Device (ESP32)           │
 │   ├─ IMU Sensors (Angle, Pitch)        │
-│   ├─ Force Sensor                       │
-│   ├─ Temperature Sensors                │
-│   ├─ Heart Rate Sensor                  │
-│   └─ MQTT Publish                       │
+│   ├─ Force Sensor                      │
+│   ├─ Temperature Sensors               │
+│   ├─ Heart Rate Sensor                 │
+│   └─ MQTT Publish                      │
 └────────────────────────────────────────┘
 ```
 
