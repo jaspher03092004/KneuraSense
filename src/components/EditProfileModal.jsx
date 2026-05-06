@@ -202,6 +202,7 @@ export default function EditProfileModal({ patient }) {
                         <option value="Left">Left</option>
                         <option value="Right">Right</option>
                         <option value="Both">Both</option>
+                        <option value="Not Applicable">Not Applicable</option>
                       </select>
                     </div>
 
@@ -212,11 +213,18 @@ export default function EditProfileModal({ patient }) {
                         defaultValue={patient.activityLevel || ''}
                         className="w-full p-2.5 border border-slate-200 dark:border-slate-700 bg-transparent dark:bg-slate-950 text-slate-900 dark:text-white rounded-lg focus:ring-2 focus:ring-[#3A9D8C] dark:focus:ring-teal-500 outline-none transition-all"
                       >
-                        <option value="Sedentary">Sedentary</option>
-                        <option value="Light">Light</option>
-                        <option value="Moderate">Moderate</option>
-                        <option value="Active">Active</option>
-                        <option value="Very Active">Very Active</option>
+                        <option value="Sedentary (Mostly sitting, little to no exercise)">
+                          Sedentary (Mostly sitting, little to no exercise)
+                        </option>
+                        <option value="Light (Light walking or standing, exercise 1-3 days/week)">
+                          Light (Light walking or standing, exercise 1-3 days/week)
+                        </option>
+                        <option value="Moderate (Active movement, exercise 3-5 days/week)">
+                          Moderate (Active movement, exercise 3-5 days/week)
+                        </option>
+                        <option value="Heavy (Physically demanding work or intense exercise)">
+                          Heavy (Physically demanding work or intense exercise)
+                        </option>
                       </select>
                     </div>
                   </div>

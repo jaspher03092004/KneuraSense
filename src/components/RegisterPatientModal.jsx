@@ -146,15 +146,24 @@ export default function RegisterPatientModal({ isOpen, onClose, clinicianId, onS
                 <option value="Left">Left Knee</option>
                 <option value="Right">Right Knee</option>
                 <option value="Both">Both Knees</option>
+                <option value="Not Applicable">Not Applicable</option>
               </select>
             </div>
             <div>
               <label className="block text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Occupation</label>
               <select {...register("occupation")} className="w-full px-3 py-2 bg-white dark:bg-slate-950 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-md outline-none focus:border-[#2D5F8B] transition-all text-xs">
-                <option value="Retired">Retired</option>
-                <option value="Sedentary">Sedentary (Desk Job)</option>
-                <option value="Light Duty">Light Duty</option>
-                <option value="Heavy Duty">Heavy Duty (Physical)</option>
+                <option value="Sedentary (Mostly sitting, little to no exercise)">
+                  Sedentary (Mostly sitting, little to no exercise)
+                </option>
+                <option value="Light (Light walking or standing, exercise 1-3 days/week)">
+                  Light (Light walking or standing, exercise 1-3 days/week)
+                </option>
+                <option value="Moderate (Active movement, exercise 3-5 days/week)">
+                  Moderate (Active movement, exercise 3-5 days/week)
+                </option>
+                <option value="Heavy (Physically demanding work or intense exercise)">
+                  Heavy (Physically demanding work or intense exercise)
+                </option>
               </select>
             </div>
             <div>
