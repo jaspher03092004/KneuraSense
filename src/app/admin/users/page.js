@@ -453,6 +453,7 @@ export default function UserManagement() {
                           <option value="Left">Left</option>
                           <option value="Right">Right</option>
                           <option value="Both">Both</option>
+                          <option value="Not Applicable">Not Applicable</option>
                         </select>
                       </div>
                       <div className="space-y-1">
@@ -470,11 +471,18 @@ export default function UserManagement() {
                         <label className="text-[10px] font-bold text-slate-500 uppercase">Activity Level</label>
                         <select value={editForm.activityLevel} onChange={e => setEditForm({...editForm, activityLevel: e.target.value})} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-medium focus:border-[#2D5F8B] outline-none transition-all dark:text-white">
                           <option value="">Unspecified</option>
-                          <option value="Sedentary">Sedentary</option>
-                          <option value="Light">Light</option>
-                          <option value="Moderate">Moderate</option>
-                          <option value="Active">Active</option>
-                          <option value="Very Active">Very Active</option>
+                          <option value="Sedentary (Mostly sitting, little to no exercise)">
+                            Sedentary (Mostly sitting, little to no exercise)
+                          </option>
+                          <option value="Light (Light walking or standing, exercise 1-3 days/week)">
+                            Light (Light walking or standing, exercise 1-3 days/week)
+                          </option>
+                          <option value="Moderate (Active movement, exercise 3-5 days/week)">
+                            Moderate (Active movement, exercise 3-5 days/week)
+                          </option>
+                          <option value="Heavy (Physically demanding work or intense exercise)">
+                            Heavy (Physically demanding work or intense exercise)
+                          </option>
                         </select>
                       </div>
                       <div className="space-y-1">

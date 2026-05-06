@@ -397,6 +397,7 @@ export default function RegisterPage() {
                         <option value="Left">Left Knee</option>
                         <option value="Right">Right Knee</option>
                         <option value="Both">Both Knees</option>
+                        <option value="Not Applicable">Not Applicable</option>
                       </select>
                     </div>
                   </div>
@@ -413,10 +414,18 @@ export default function RegisterPage() {
                     <div>
                       <label className="block text-sm font-bold text-slate-700 mb-2">Activity Level</label>
                       <select {...register('activityLevel')} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-600 font-bold text-slate-700 text-base sm:text-sm transition-all cursor-pointer">
-                        <option value="Sedentary">Sedentary</option>
-                        <option value="Light">Light Exercise</option>
-                        <option value="Moderate">Moderate Exercise</option>
-                        <option value="Active">Highly Active</option>
+                        <option value="Sedentary (Mostly sitting, little to no exercise)">
+                          Sedentary (Mostly sitting, little to no exercise)
+                        </option>
+                        <option value="Light (Light walking or standing, exercise 1-3 days/week)">
+                          Light (Light walking or standing, exercise 1-3 days/week)
+                        </option>
+                        <option value="Moderate (Active movement, exercise 3-5 days/week)">
+                          Moderate (Active movement, exercise 3-5 days/week)
+                        </option>
+                        <option value="Heavy (Physically demanding work or intense exercise)">
+                          Heavy (Physically demanding work or intense exercise)
+                        </option>
                       </select>
                     </div>
                   </div>
